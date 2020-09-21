@@ -1,0 +1,44 @@
+import express from 'express';
+import cors from 'cors';
+import auth from './middleware/isAuth';
+import apiRouter from './router/index';
+import { urlencoded, json } from 'body-parser';
+import authRouter from './router/auth/auth_router'
+import fileUpload from 'express-fileupload';
+const app = express();
+const port = process.env.SERVER_PORT || 8081;
+// const whitelist = ['http://localhost:5000/', 'http://localhost:8080/']
+const www = process.env.WWW || './public';
+// app.use(morgan('dev'));
+app.use(cors({
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+    "preflightContinue": false,
+    "optionsSuccessStatus": 204
+}))
+app.use(urlencoded({ extended: false }));
+app.use(json());
+app.use(express.static(www));
+app.use(fileUpload({
+    limits: { fileSize: 5 * 1024 * 1024 }
+}));
+
+app.use(auth)
+app.use('/auth', authRouter);
+app.use('/api', apiRouter);
+app.use((req, res, next) => {
+    const error = new Error('Resource not found')
+    error.status = 404;
+    next(error);
+});
+app.use((err, req, res, next) => {
+    res.status(err.status || 500);
+    res.json({
+        error: {
+            name: err.name,
+            message: err.message,
+            stack: err.stack
+        }
+    });
+})
+app.listen(port, () => console.log(`listening on http://localhost:${port}`));

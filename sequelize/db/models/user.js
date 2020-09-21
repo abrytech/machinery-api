@@ -1,0 +1,56 @@
+'use strict';
+const { v4: uuidv4 } = require('uuid');
+const { hashSync, genSaltSync } = require('bcrypt');
+const { string, number } = require('joi');
+
+module.exports = (sequelize, DataTypes) => {
+  const User = sequelize.define('User', {
+    firstName: DataTypes.STRING,
+    lastName: DataTypes.STRING,
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    userType: {
+      type: DataTypes.ENUM,
+      values: ['Machinery', 'Lowbeds', 'Customer']
+    },
+    isApproved: DataTypes.BOOLEAN,
+    activationKey: DataTypes.STRING,
+    deleted: DataTypes.BOOLEAN,
+    spam: DataTypes.BOOLEAN
+  }, {
+    hooks: {
+      beforeCreate: (user, option) => {
+        // user.id =  uuidv4()
+        user.activationKey = uuidv4()
+        if (user.password) {
+          user.password = hashSync(user.password, genSaltSync(8), null)
+        }
+      },
+      beforeUpdate: (user, options) => {
+        if (user.password) {
+          user.password = hashSync(user.password, genSaltSync(8), null)
+        }
+      }
+    }
+  });
+  User.associate = function(models) {
+    // associations can be defined here
+    User.hasOne(models.Address, { foreignKey: 'userId', sourceKey: 'id', as: 'address' })
+    User.hasOne(models.Picture, { foreignKey: 'userId', sourceKey: 'id', as: 'picture' })
+  };
+  return User;
+};
