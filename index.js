@@ -2,7 +2,6 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import compression from 'compression'
-import auth from './middleware/isAuth'
 import apiRouter from './router/index'
 import { urlencoded, json } from 'body-parser'
 import authRouter from './router/auth/auth_router'
@@ -27,7 +26,6 @@ app.use(fileUpload({
 app.get('/', function (req, res) {
   res.sendFile('index.html')
 })
-app.use(auth)
 app.use('/auth', authRouter)
 app.use('/api', apiRouter)
 app.use((req, res, next) => {
@@ -36,8 +34,7 @@ app.use((req, res, next) => {
   next(error)
 })
 app.use((err, req, res, next) => {
-  res.status(err.status || 500)
-  res.json({
+  res.status(err.status || 500).json({
     error: {
       name: err.name,
       message: err.message,

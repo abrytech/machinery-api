@@ -28,16 +28,24 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      userType: {
-        type: Sequelize.ENUM,
-        values: ['Machinery', 'Lowbed', 'Customer']
-      },
       phone: {
         type: Sequelize.STRING,
         unique: true,
         allowNull: false
       },
+      userType: {
+        type: Sequelize.ENUM,
+        values: ['Machinery', 'Lowbed', 'Customer']
+      },
+      role: {
+        type: Sequelize.ENUM,
+        values: ['Admin', 'User']
+      },
       activationKey: Sequelize.STRING,
+      isActivated: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       isApproved: {
         type: Sequelize.BOOLEAN,
         defaultValue: false

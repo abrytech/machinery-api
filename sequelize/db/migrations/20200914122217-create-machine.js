@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Machines', {
@@ -19,8 +19,8 @@ module.exports = {
         defaultValue: 0
       },
       isLowbed: {
-       type: Sequelize.BOOLEAN,
-       defaultValue: false
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       createdAt: {
         allowNull: false,
@@ -30,9 +30,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
+    })
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Machines');
+    return queryInterface.dropTable('Machines')
   }
-};
+}

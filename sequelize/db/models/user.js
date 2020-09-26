@@ -26,6 +26,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM,
       values: ['Machinery', 'Lowbeds', 'Customer']
     },
+    role: {
+      type: DataTypes.ENUM,
+      values: ['Admin', 'User']
+    },
+    isActivated: DataTypes.BOOLEAN,
     isApproved: DataTypes.BOOLEAN,
     activationKey: DataTypes.STRING,
     deleted: DataTypes.BOOLEAN,
