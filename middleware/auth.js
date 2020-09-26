@@ -30,4 +30,4 @@ const checkRole = roles => (req, res, next) =>
     ? next(error)
     : next()
 
-export default { authUser, checkRole }
+export { authUser, checkRole }
