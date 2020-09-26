@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon -r esm index NODE_ENV=development",
-    "start": "node -r esm index NODE_ENV=production",
+    "dev": "nodemon -r esm index",
+    "start": "node -r esm index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Abraham Bekele",

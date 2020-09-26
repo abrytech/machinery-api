@@ -1,6 +1,6 @@
 import { verify } from 'jsonwebtoken'
 const { ACCESS_TOKEN_SECRET_KEY } = process.env
-export default (req, res, next) =>{
+export default (req, res, next) => {
   const authHeader = req.get('Authorization')
   if (!authHeader) {
     req.isAuth = false
@@ -12,7 +12,7 @@ export default (req, res, next) =>{
     return next()
   }
   let decodedToken
-  if(!req.userId && !req.isAuth){
+  if (!req.userId && !req.isAuth) {
     try {
       decodedToken = verify(token, ACCESS_TOKEN_SECRET_KEY)
       req.userId = decodedToken.userId
