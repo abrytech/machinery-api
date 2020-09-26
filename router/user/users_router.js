@@ -1,11 +1,11 @@
 import { Router } from 'express'
-import { User, Picture } from '../../sequelize/db/models'
+import { User, Address } from '../../sequelize/db/models'
 const router = Router()
 
 router.get('', async (req, res) => {
   const users = await User.findAll({
-    include: [{ model: Picture, as: 'picture' }],
-    // include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+    // include: [{ model: Picture, as: 'picture' }],
+    include: [{ model: Address, as: 'address' }],
     offset: 0,
     limit: 10
   })
