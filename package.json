@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -r esm -r dotenv/config index dotenv_config_NODE_ENV=development",
-    "start": "node -r esm dotenv/config dist/index dotenv_config_NODE_ENV=production",
+    "start": "node -r esm dotenv/config index dotenv_config_NODE_ENV=production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Abraham Bekele",
