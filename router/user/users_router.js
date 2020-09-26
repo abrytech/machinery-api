@@ -17,7 +17,7 @@ router.get('/:query', async (req, res, err) => {
     const params = getParams(query)
     const users = await User.findAll({
       where: params.where,
-      // include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+      include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
       offset: (params.page - 1) * params.limit,
       limit: params.limit
     })
