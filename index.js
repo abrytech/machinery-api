@@ -8,7 +8,7 @@ import { urlencoded, json } from 'body-parser'
 import authRouter from './router/auth/auth_router'
 import fileUpload from 'express-fileupload'
 const app = express()
-const port = process.env.SERVER_PORT || 8080
+const port = process.env.PORT || 8080
 const www = process.env.WWW || './public'
 app.use(compression())
 app.use(helmet())
