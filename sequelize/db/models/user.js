@@ -1,7 +1,6 @@
-'use strict';
-const { v4: uuidv4 } = require('uuid');
-const { hashSync, genSaltSync } = require('bcrypt');
-const { string, number } = require('joi');
+'use strict'
+const { v4: uuidv4 } = require('uuid')
+const { hashSync, genSaltSync } = require('bcrypt')
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
@@ -34,7 +33,6 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     hooks: {
       beforeCreate: (user, option) => {
-        // user.id =  uuidv4()
         user.activationKey = uuidv4()
         if (user.password) {
           user.password = hashSync(user.password, genSaltSync(8), null)
@@ -46,11 +44,11 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     }
-  });
-  User.associate = function(models) {
+  })
+  User.associate = function (models) {
     // associations can be defined here
     User.hasOne(models.Address, { foreignKey: 'userId', sourceKey: 'id', as: 'address' })
     User.hasOne(models.Picture, { foreignKey: 'userId', sourceKey: 'id', as: 'picture' })
-  };
-  return User;
-};
+  }
+  return User
+}

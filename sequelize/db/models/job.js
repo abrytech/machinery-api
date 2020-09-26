@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = (sequelize, DataTypes) => {
   const Job = sequelize.define('Job', {
     title: DataTypes.STRING,
@@ -19,11 +19,11 @@ module.exports = (sequelize, DataTypes) => {
     hasOffroad: DataTypes.BOOLEAN,
     status: DataTypes.STRING
   }, {})
-  Job.associate = function(models) {
+  Job.associate = function (models) {
     // define association here
-    Job.belongsTo(models.User, {foreignKey: 'userId', as: 'user'})
-    Job.belongsTo(models.Machine, {foreignKey: 'machineId', as: 'machine'})
-    Job.hasMany(models.RequestQueue, {foreignKey: 'jobId', as: 'requests'})
+    Job.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
+    Job.belongsTo(models.Machine, { foreignKey: 'machineId', as: 'machine' })
+    Job.hasMany(models.RequestQueue, { foreignKey: 'jobId', as: 'requests' })
   }
-  return Job;
-};
+  return Job
+}

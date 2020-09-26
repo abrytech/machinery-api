@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = (sequelize, DataTypes) => {
   const Address = sequelize.define('Address', {
     kebele: DataTypes.STRING,
@@ -6,18 +6,18 @@ module.exports = (sequelize, DataTypes) => {
     zone: DataTypes.STRING,
     city: DataTypes.STRING,
     userId: DataTypes.STRING,
-    company:{ 
+    company: {
       type: DataTypes.STRING,
-      unique: true,
+      unique: true
     },
-    phone: { 
+    phone: {
       type: DataTypes.STRING,
-      unique: true,
+      unique: true
     }
-  }, {});
-  Address.associate = function(models) {
+  }, {})
+  Address.associate = function (models) {
     // associations can be defined here
-    Address.belongsTo(models.User, {foreignKey: 'userId', as:'user'})
-  };
-  return Address;
-};
+    Address.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
+  }
+  return Address
+}

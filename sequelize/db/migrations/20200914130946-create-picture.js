@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Pictures', {
@@ -13,7 +13,7 @@ module.exports = {
       },
       filePath: {
         type: Sequelize.STRING
-      }, 
+      },
       mimeType: {
         type: Sequelize.STRING
       },
@@ -37,9 +37,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
+    })
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Pictures');
+    return queryInterface.dropTable('Pictures')
   }
-};
+}
