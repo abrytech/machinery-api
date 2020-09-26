@@ -26,7 +26,7 @@ module.exports = {
       },
       userId: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       company: {
         type: Sequelize.STRING,
