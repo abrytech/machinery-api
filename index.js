@@ -1,15 +1,17 @@
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
+import compression from 'compression'
 import auth from './middleware/isAuth'
 import apiRouter from './router/index'
 import { urlencoded, json } from 'body-parser'
 import authRouter from './router/auth/auth_router'
 import fileUpload from 'express-fileupload'
 const app = express()
-const port = process.env.SERVER_PORT || 8081
-// const whitelist = ['http://localhost:5000/', 'http://localhost:8080/']
+const port = process.env.SERVER_PORT || 8080
 const www = process.env.WWW || './public'
-// app.use(morgan('dev'));
+app.use(compression())
+app.use(helmet())
 app.use(cors({
   origin: '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -22,7 +24,6 @@ app.use(express.static(www))
 app.use(fileUpload({
   limits: { fileSize: 5 * 1024 * 1024 }
 }))
-
 app.use(auth)
 app.use('/auth', authRouter)
 app.use('/api', apiRouter)

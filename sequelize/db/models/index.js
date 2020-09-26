@@ -13,10 +13,9 @@ if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config)
 } else {
   try {
-    // console.log('use_env_variable :', process.env.NODE_ENV)
-    // console.log('config.database :', config.database)
+    console.log('use_env_variable :', process.env.NODE_ENV)
+    console.log('config.database :', config.database)
     sequelize = new Sequelize(config.database, config.username, config.password, config)
-    sequelize.authenticate()
     console.log('Connection has been established successfully.')
   } catch (error) {
     console.error('Unable to connect to the database:', error)

@@ -1,10 +1,10 @@
 {
   "development": {
-    "username": "standard",
-    "password": "abry",
-    "database": "eliasdb",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "username": "eqmzymdwnttqxv",
+    "password": "dbdf9c95a8c73e9ac86007a84e48c57dbf4c0b0b128c9941d8835ec501c40321",
+    "database": "d4f7f292n47ku1",
+    "host": "ec2-3-214-46-194.compute-1.amazonaws.com",
+    "dialect": "postgres"
   },
   "test": {
     "username": "root",
@@ -15,11 +15,11 @@
     "operatorsAliases": false
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "mysql",
-    "operatorsAliases": false
+    "username": "eqmzymdwnttqxv",
+    "password": "dbdf9c95a8c73e9ac86007a84e48c57dbf4c0b0b128c9941d8835ec501c40321",
+    "database": "d4f7f292n47ku1",
+    "host": "ec2-3-214-46-194.compute-1.amazonaws.com",
+    "dialect": "postgres"
   }
 }
+
