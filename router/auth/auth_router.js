@@ -30,27 +30,26 @@ router.get('/confirmation/:key', async (req, res) => {
   const activationKey = req.params.key
   const isValid = validate(activationKey)
   if (activationKey && isValid) {
-    User.findOne({ where: { activationKey } }).then(async (user) => {
-      const error = new Error()
-      if (user) {
-        if (user.isActivated === false) await User.update({ isActivated: true }, { where: { id: user.id } })
-        else {
-          error.message = 'Invalid/Expired Activation Link'
-          error.name = '406 Not Acceptable'
-          error.status = 406
-        }
-      } else {
-        error.message = 'Invalid/Expiered Activation Link'
+    const user = await User.findOne({ where: { activationKey } })
+    const error = new Error()
+    if (user) {
+      if (user.isActivated === false) await User.update({ isActivated: true }, { where: { id: user.id } })
+      else {
+        error.message = 'Invalid/Expired Activation Link'
         error.name = '406 Not Acceptable'
         error.status = 406
       }
-      res.status(error.status).json({
-        error: {
-          name: error.name,
-          message: error.message,
-          stack: ''
-        }
-      })
+    } else {
+      error.message = 'Invalid/Expiered Activation Link'
+      error.name = '406 Not Acceptable'
+      error.status = 406
+    }
+    res.status(error.status).json({
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: ''
+      }
     })
   } else {
     res.status(404).json({
