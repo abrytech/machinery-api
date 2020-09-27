@@ -8,15 +8,17 @@ export default async function (name, to, key) {
   const transporter = nodemailer.createTransport({
     service: 'gmail', // true for 465, false for other ports
     auth: {
-      user: 'elkadoshenterprise@gmail.com', // generated ethereal user
-      pass: '!@#123Elkadosh' // generated ethereal password
+      user: 'abb2007hu@gmail.com', // generated ethereal user
+      pass: '0922964576' // generated ethereal password
+      // user: 'elkadoshenterprise@gmail.com', // generated ethereal user
+      // pass: '!@#123Elkadosh' // generated ethereal password
     }
   })
   console.log(`@@@@@@@@@@@@@@@@#################>>>Name ${name} To  ${to} Activation Key${key} <<<#################@@@@@@@@@@@@@@@@`)
   // send mail with defined transport object
   const info = await transporter.sendMail({
-    from: 'elkadoshenterprise@gmail.com', // sender address
-    to: 'abb2007hu@gmail.com', // list of receivers
+    from: 'abb2007hu@gmail.com', // sender address
+    to: 'eliasnegasa5@gmail.com', // list of receivers
     subject: 'Registration Confrimation', // Subject line
     text: `https://machinery-api.herokuapp.com/auth/confirmation/${key}` // plain text body
     // html: body // html body
