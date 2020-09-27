@@ -44,10 +44,16 @@ router.get('/confirmation/:key', async (req, res) => {
         error.name = '406 Not Acceptable'
         error.status = 406
       }
-      throw error
+      res.status(error.status).json({
+        error: {
+          name: error.name,
+          message: error.message,
+          stack: ''
+        }
+      })
     })
   } else {
-    res.status(406).json({
+    res.status(404).json({
       error: {
         name: '404 Resource Not Found',
         message: 'Resource URI is invalid',
