@@ -48,7 +48,7 @@ export default async function (name, to, key) {
     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
     console.log('Message sent: %s', info.messageId)
     // Preview only available when sending through an Ethereal account
-    console.log('Message Response : %s', info.envelope)
+    console.log('Message Envelope : %s', info.envelope)
     console.log('Message Accepted : %s', info.accepted)
   }).catch((err) => {
     console.log(err)
