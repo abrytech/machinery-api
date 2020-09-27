@@ -1,6 +1,4 @@
-'use strict'
-const nodemailer = require('nodemailer')
-
+import nodemailer from 'nodemailer'
 // async..await is not allowed in global scope, must use a wrapper
 export default async function (name, to, key) {
   // Generate test SMTP service account from ethereal.email
