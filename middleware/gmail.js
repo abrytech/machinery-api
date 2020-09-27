@@ -18,7 +18,7 @@ export default async function (name, to, key) {
     }
   })
 
-  const body = `<!DOCTYPE html>
+  /* const body = `<!DOCTYPE html>
   <html lang="en">
   <head>
       <meta charset="UTF-8">
@@ -34,15 +34,15 @@ export default async function (name, to, key) {
           <a class="btn btn-primary btn-lg" href="https://machinery-api.herokuapp.com/auth/confirmation/${key}" role="button">Confirm Account</a>
         </div>
   </body>
-  </html>`
+  </html>` */
   console.log(`::::::::::::> Name: ${name} Address To:  ${to} Activation Key: ${key} <::::::::::::::::`)
   // send mail with defined transport object
   transporter.sendMail({
     from: 'abb2007hu@gmail.com', // sender address
     to: to, // list of receivers
     subject: 'Registration Confrimation', // Subject line
-    // text:  // plain text body
-    html: body // html body
+    text: 'Test email'// plain text body
+    // html: body // html body
   }).then((info) => {
     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
     console.log('Message sent: %s', info.messageId)
