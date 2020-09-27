@@ -28,10 +28,10 @@ router.post('/login', async (req, res) => {
 
 router.get('/confirmation/:key', async (req, res) => {
   const activationKey = req.params.key
+  const error = new Error()
   const isValid = validate(activationKey)
   if (activationKey && isValid) {
     const user = await User.findOne({ where: { activationKey } })
-    const error = new Error()
     if (user) {
       if (user.isActivated === false) await User.update({ isActivated: true }, { where: { id: user.id } })
       else {
@@ -44,22 +44,18 @@ router.get('/confirmation/:key', async (req, res) => {
       error.name = '406 Not Acceptable'
       error.status = 406
     }
-    res.status(error.status).json({
-      error: {
-        name: error.name,
-        message: error.message,
-        stack: ''
-      }
-    })
   } else {
-    res.status(404).json({
-      error: {
-        name: '404 Resource Not Found',
-        message: 'Resource URI is invalid',
-        stack: ''
-      }
-    })
+    error.status = 404
+    error.name = '404 Resource Not Found'
+    error.message = 'Resource URI is invalid'
   }
+  res.status(error.status).json({
+    error: {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    }
+  })
 })
 
 export default router
