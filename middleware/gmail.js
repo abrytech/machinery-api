@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import body from './email_template'
+import email from './email_template'
 // async..await is not allowed in global scope, must use a wrapper
 export default async function (name, to, key) {
   // Generate test SMTP service account from ethereal.email
@@ -19,14 +19,16 @@ export default async function (name, to, key) {
     }
   })
 
+  const body = email(key)
   console.log(`::::::::::::> Name: ${name} Address To:  ${to} Activation Key: ${key} <::::::::::::::::`)
+  console.log(body)
   // send mail with defined transport object
   transporter.sendMail({
     from: 'abb2007hu@gmail.com', // sender address
     to: to, // list of receivers
     subject: 'Registration Confrimation', // Subject line
     // text:  // plain text body
-    html: body(key) // html body
+    html: body // html body
   }).then((info) => {
     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
     console.log('Message sent: %s', info.messageId)
