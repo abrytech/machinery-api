@@ -35,7 +35,7 @@ router.get('/confirmation/:key', async (req, res) => {
     if (user) {
       if (user.isActivated === false) {
         await User.update({ isActivated: true }, { where: { id: user.id } })
-        res.set({ 'successfully-confirmed': true }).redirect('http://localhost:3000/login')
+        res.redirect('http://localhost:3000/login/confirmed')
       } else {
         error.message = 'Invalid/Expired Activation Link'
         error.name = '406 Not Acceptable'
