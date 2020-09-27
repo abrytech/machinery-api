@@ -6,7 +6,10 @@ export default async function (name, to, key) {
 
   // create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({
-    service: 'gmail', // true for 465, false for other ports
+    host: 'smtp.gmail.com',
+    port: 587,
+    ignoreTLS: false,
+    secure: false, // true for 465, false for other ports
     auth: {
       user: 'abb2007hu@gmail.com', // generated ethereal user
       pass: '0922964576' // generated ethereal password

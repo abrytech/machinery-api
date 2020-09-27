@@ -34,7 +34,7 @@ router.post('', async (req, res) => {
     user.address = await Address.create(addressBody)
   }
   if (user) {
-    await sendConfirmation(user.firstName + ' ' + user.lastName, user.email, user.activationKey).catch((val) => {
+    sendConfirmation(user.firstName + ' ' + user.lastName, user.email, user.activationKey).catch((val) => {
       console.log(val)
     })
   }
