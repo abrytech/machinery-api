@@ -1,4 +1,4 @@
-export const email = (key) => {
+export default (key) => {
   return `<!doctype html>
 <html>
   <head>
