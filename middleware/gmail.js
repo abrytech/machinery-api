@@ -17,20 +17,22 @@ export default async function (name, to, key) {
       // pass: '!@#123Elkadosh' // generated ethereal password
     }
   })
-  console.log(`@@@@@@@@@@@@@@@@#################>>>Name ${name} To  ${to} Activation Key${key} <<<#################@@@@@@@@@@@@@@@@`)
+  console.log(`::::::::::::> Name: ${name} Address To:  ${to} Activation Key: ${key} <::::::::::::::::`)
   // send mail with defined transport object
-  const info = await transporter.sendMail({
+  transporter.sendMail({
     from: 'abb2007hu@gmail.com', // sender address
-    to: 'eliasnegasa5@gmail.com', // list of receivers
+    to: to, // list of receivers
     subject: 'Registration Confrimation', // Subject line
     text: `https://machinery-api.herokuapp.com/auth/confirmation/${key}` // plain text body
     // html: body // html body
+  }).then((info) => {
+    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+    console.log('Message sent: %s', info.messageId)
+    // Preview only available when sending through an Ethereal account
+    console.log('Message Response : %s', info.envelope)
+    console.log('Message Accepted : %s', info.accepted)
+  }).catch((err) => {
+    console.log(err)
   })
-
-  console.log('Message sent: %s', info.messageId)
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-
-  // Preview only available when sending through an Ethereal account
-  console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info))
   // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 }
