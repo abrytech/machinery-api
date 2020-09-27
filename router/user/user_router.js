@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { User, Address, Picture } from '../../sequelize/db/models'
 import { authUser, checkRole } from '../../middleware/auth'
+import sendConfirmation from '../../middleware/gmail'
 import { compareSync } from 'bcrypt'
 const router = Router()
 
@@ -14,7 +15,7 @@ router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
 })
 
 router.get('/me', authUser, async (req, res) => {
-  const where = req.userId ? { id: req.userId } : {}
+  const where = { id: req.userId }
   const user = await User.findOne({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
     where
@@ -32,14 +33,16 @@ router.post('', async (req, res) => {
     addressBody.userId = user.id
     user.address = await Address.create(addressBody)
   }
+  if (user) {
+    await sendConfirmation(user.firstName + ' ' + user.lastName, user.email, user.activationKey)
+  }
   res.send(user)
 })
 
-router.put('', async (req, res) => {
+router.put('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
   const respones = { isSuccess: true, updatedRows: [], message: [] }
   if (body.id) {
-    console.log(body)
     if (body.address) {
       const rows = await Address.update(body.address, { where: { userId: body.id } })
       if (rows > 0) {
@@ -52,21 +55,14 @@ router.put('', async (req, res) => {
     }
     if (body.password && body.oldPassword) {
       const user = await User.findOne({ where: { id: body.id } })
-      const isEqual = compareSync(body.oldPassword, user.password)
-      delete body.oldPassword
-      if (isEqual) {
-        const rows = await User.update(body, { where: { id: body.id } })
-        if (rows > 0) {
-          respones.updatedRows.push({ user: rows })
-        } else {
-          respones.isSuccess = false
-          respones.message.push('Failed to UPDATE user information')
-        }
+      const isMatch = compareSync(body.oldPassword, user.password)
+      if (isMatch) delete body.oldPassword
+      else {
+        delete body.password
+        delete body.oldPassword
+        respones.message.push('Your old password is incorrect')
       }
-    } else if (!(body.password || body.oldPassword)) {
-      respones.isSuccess = false
-      respones.message.push('Your old password is incorrect')
-    } else if (body.firstName || body.lastName || body.email || body.username || body.phone || body.userType) {
+    } else {
       const rows = await User.update(body, { where: { id: body.id } })
       if (rows > 0) {
         respones.updatedRows.push({ user: rows })
@@ -82,9 +78,9 @@ router.put('', async (req, res) => {
 router.put('/me', authUser, async (req, res) => {
   const body = req.body
   const respones = { isSuccess: true, updatedRows: [], message: [] }
-  if (req.userId) {
+  if (req.userId === body.id) {
     if (body.address) {
-      const rows = await Address.update(body.address, { where: { userId: body.id } })
+      const rows = await Address.update(body.address, { where: { userId: req.userId } })
       if (rows > 0) {
         respones.updatedRows.push({ address: rows })
       } else {
@@ -94,30 +90,27 @@ router.put('/me', authUser, async (req, res) => {
       delete body.address
     }
     if (body.password && body.oldPassword) {
-      const user = await User.findOne({ where: { id: body.id } })
-      const isEqual = compareSync(body.oldPassword, user.password)
-      delete body.oldPassword
-      if (isEqual) {
-        const rows = await User.update(body, { where: { id: body.id } })
-        if (rows > 0) {
-          respones.updatedRows.push({ user: rows })
-        } else {
-          respones.isSuccess = false
-          respones.message.push('Failed to UPDATE user information')
-        }
+      const user = await User.findOne({ where: { id: req.userId } })
+      const isMatch = compareSync(body.oldPassword, user.password)
+      if (isMatch) delete body.oldPassword
+      else {
+        delete body.password
+        delete body.oldPassword
+        respones.message.push('Your old password is incorrect')
       }
-    } else if (!(body.password || body.oldPassword)) {
-      respones.isSuccess = false
-      respones.message.push('Your old password is incorrect')
-    } else if (body.firstName || body.lastName || body.email || body.username || body.phone || body.userType) {
-      const rows = await User.update(body, { where: { id: body.id } })
-      if (rows > 0) {
-        respones.updatedRows.push({ user: rows })
-      } else {
+    } else {
+      const rows = await User.update(body, { where: { id: req.userId } })
+      if (rows > 0) respones.updatedRows.push({ user: rows })
+      else {
         respones.isSuccess = false
         respones.message.push('Failed to UPDATE user information')
       }
     }
+  } else {
+    const error = Error('Your not an Authorized Users, please SingIn first')
+    error.name = '401 Unauthorized'
+    error.status = 401
+    throw error
   }
   res.send(respones)
 })

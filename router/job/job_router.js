@@ -1,17 +1,28 @@
 import { Router } from 'express'
 import { Job, User, Machine, RequestQueue } from '../../sequelize/db/models'
+import { authUser } from '../../middleware/auth'
+
 const router = Router()
 
-router.get('/:id', async (req, res) => {
-  const id = parseInt(req.params.id)
+router.get('/:id', authUser, async (req, res) => {
+  const id = req.params.id
   const job = await Job.findOne({
-    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: RequestQueue, as: 'requests' }],
-    where: { id: id }
+    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }],
+    where: { id }
   })
   res.send(job)
 })
 
-router.post('', async (req, res) => {
+router.get('/mine/:id', authUser, async (req, res) => {
+  const id = req.params.id
+  const job = await Job.findOne({
+    include: [{ model: Machine, as: 'machine' }, { model: RequestQueue, as: 'requests' }],
+    where: { id, userId: req.userId }
+  })
+  res.send(job)
+})
+
+router.post('', authUser, async (req, res) => {
   const body = req.body
   let job = {}
   console.log(body)
@@ -19,7 +30,7 @@ router.post('', async (req, res) => {
   res.send(job)
 })
 
-router.put('', async (req, res, err) => {
+router.put('', authUser, async (req, res, err) => {
   const body = req.body
   const respones = { isSuccess: true, updatedRows: [], message: [] }
   if (body.id) {

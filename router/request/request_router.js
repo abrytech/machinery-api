@@ -1,8 +1,10 @@
 import { Router } from 'express'
 import { Job, User, Machinery, RequestQueue } from '../../sequelize/db/models'
+import { authUser, checkRole } from '../../middleware/auth'
+
 const router = Router()
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
   const id = parseInt(req.params.id)
   const request = await RequestQueue.findOne({
     include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
@@ -11,7 +13,16 @@ router.get('/:id', async (req, res) => {
   res.send(request)
 })
 
-router.post('', async (req, res) => {
+router.get('/mine/:id', authUser, async (req, res) => {
+  const id = req.params.id
+  const request = await RequestQueue.findOne({
+    include: [{ model: Machinery, as: 'machinery' }, { model: Job, as: 'job' }],
+    where: { id, userId: req.userId }
+  })
+  res.send(request)
+})
+
+router.post('', authUser, async (req, res) => {
   const body = req.body
   let request = {}
   console.log(body)
@@ -19,7 +30,7 @@ router.post('', async (req, res) => {
   res.send(request)
 })
 
-router.put('', async (req, res, err) => {
+router.put('', authUser, async (req, res, err) => {
   const body = req.body
   const respones = { isSuccess: true, updatedRows: [], message: [] }
   if (body.id) {

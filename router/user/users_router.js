@@ -1,8 +1,10 @@
 import { Router } from 'express'
 import { User, Address, Picture } from '../../sequelize/db/models'
+import { authUser, checkRole } from '../../middleware/auth'
+
 const router = Router()
 
-router.get('', async (req, res) => {
+router.get('', authUser, checkRole(['Admin']), async (req, res) => {
   const users = await User.findAll({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
     offset: 0,
@@ -10,7 +12,7 @@ router.get('', async (req, res) => {
   })
   res.send(users)
 })
-router.get('/:query', async (req, res, err) => {
+router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
   const query = req.params.query
   const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
   if (isQueryValid) {

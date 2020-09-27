@@ -8,6 +8,7 @@ import authRouter from './router/auth/auth_router'
 import fileUpload from 'express-fileupload'
 const app = express()
 const port = process.env.PORT || 8080
+const host = process.env.HOST || 'http://localhost'
 const www = process.env.WWW || './public'
 app.use(compression())
 app.use(helmet())
@@ -42,4 +43,4 @@ app.use((err, req, res, next) => {
     }
   })
 })
-app.listen(port, () => console.log(`listening on http://localhost:${port}`))
+app.listen(port, () => console.log(`listening on ${host}:${port}`))

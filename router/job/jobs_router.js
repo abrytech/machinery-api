@@ -1,23 +1,25 @@
 import { Router } from 'express'
-import { Job, User, Machine, RequestQueue } from '../../sequelize/db/models'
+import { Job, User, Machine } from '../../sequelize/db/models'
+import { authUser } from '../../middleware/auth'
+
 const router = Router()
 
-router.get('', async (req, res) => {
+router.get('', authUser, async (req, res) => {
   const jobs = await Job.findAll({
-    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: RequestQueue, as: 'requests' }],
+    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }],
     offset: 0,
     limit: 10
   })
   res.send(jobs)
 })
-router.get('/:query', async (req, res, err) => {
+router.get('/:query', authUser, async (req, res, err) => {
   const query = req.params.query
   const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
   if (isQueryValid) {
     const params = getParams(query)
     const jobs = await Job.findAll({
       where: params.where,
-      include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: RequestQueue, as: 'requests' }],
+      include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }],
       offset: (params.page - 1) * params.limit,
       limit: params.limit
     })

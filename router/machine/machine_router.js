@@ -1,5 +1,7 @@
 import { Router } from 'express'
 import { Machine, Machinery, Picture } from '../../sequelize/db/models'
+import { authUser, checkRole } from '../../middleware/auth'
+
 const router = Router()
 
 router.get('/:id', async (req, res) => {
@@ -11,7 +13,7 @@ router.get('/:id', async (req, res) => {
   res.send(machine)
 })
 
-router.post('', async (req, res) => {
+router.post('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
   let machine = {}
   console.log(body)
@@ -19,7 +21,7 @@ router.post('', async (req, res) => {
   res.send(machine)
 })
 
-router.put('', async (req, res, err) => {
+router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
   const body = req.body
   const respones = { isSuccess: true, updatedRows: [], message: [] }
   if (body.id) {
