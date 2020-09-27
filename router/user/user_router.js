@@ -33,7 +33,11 @@ router.post('', async (req, res) => {
     addressBody.userId = user.id
     user.address = await Address.create(addressBody)
   }
-  if (user) sendConfirmation(user.firstName + ' ' + user.lastName, user.email, user.activationKey)
+  if (user) {
+    await sendConfirmation(user.firstName + ' ' + user.lastName, user.email, user.activationKey).catch((val) => {
+      console.log(val)
+    })
+  }
   res.send(user)
 })
 
