@@ -31,8 +31,27 @@ router.get('/confirmation/:key', async (req, res) => {
   const isValid = validate(activationKey)
   if (activationKey && isValid) {
     User.findOne({ where: { activationKey } }).then(async (user) => {
+      const error = new Error()
       if (user) {
-        await User.update({ isActivated: true }, { where: { id: user.id } })
+        if (user.isActivated === false) await User.update({ isActivated: true }, { where: { id: user.id } })
+        else {
+          error.message = 'Invalid/Expired Activation Link'
+          error.name = '406 Not Acceptable'
+          error.status = 406
+        }
+      } else {
+        error.message = 'Invalid/Expiered Activation Link'
+        error.name = '406 Not Acceptable'
+        error.status = 406
+      }
+      throw error
+    })
+  } else {
+    res.status(406).json({
+      error: {
+        name: '404 Resource Not Found',
+        message: 'Resource URI is invalid',
+        stack: ''
       }
     })
   }

@@ -192,7 +192,7 @@ export default async function (name, to, key) {
       pass: '!@#123Elkadosh' // generated ethereal password
     }
   })
-  console.log(`@@@@@@@@@@@@@@@@#################>>> To  ${to} Activation Key${key} <<<#################@@@@@@@@@@@@@@@@`)
+  console.log(`@@@@@@@@@@@@@@@@#################>>>Name ${name} To  ${to} Activation Key${key} <<<#################@@@@@@@@@@@@@@@@`)
   // send mail with defined transport object
   const info = await transporter.sendMail({
     from: 'elkadoshenterprise@gmail.com', // sender address
