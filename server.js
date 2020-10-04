@@ -1,4 +1,4 @@
-// import app from './index'
+import app from './index'
 const port = process.env.PORT || 8080
 require('greenlock-express')
   .init({
@@ -25,9 +25,7 @@ function httpsWorker (glx) {
   console.log(glx)
   // Get the raw https server:
   // Get the raw https server:
-  var httpsServer = glx.httpsServer(null, function (req, res) {
-    res.end('Hello, Encrypted World!')
-  })
+  var httpsServer = glx.httpsServer(null, app)
 
   httpsServer.listen(port, '0.0.0.0', function () {
     console.info('Listening on ', httpsServer.address())
