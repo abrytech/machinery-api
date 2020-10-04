@@ -13,12 +13,12 @@ router.post('/login', async (req, res) => {
   if (username && password) {
     user = await User.findOne({
       include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
-      where: { username }
+      where: { username, isActivated: true }
     })
     if (user) {
       if (compareSync(password, user.password)) {
-        jwt.sign({ userId: user.id, role: user.role }, ACCESS_TOKEN_SECRET_KEY, (err, token) => {
-          if (err) throw err
+        jwt.sign({ userId: user.id, role: user.role }, ACCESS_TOKEN_SECRET_KEY, (error, token) => {
+          if (error) res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
           res.set({ Authorization: 'Bearer ' + token }).send(user)
         })
       }
@@ -38,22 +38,18 @@ router.get('/confirmation/:key', async (req, res) => {
         res.redirect('http://localhost:3000/login/confirmed')
       } else {
         error.message = 'Invalid/Expired Activation Link'
-        error.name = '406 Not Acceptable'
         error.status = 406
       }
     } else {
       error.message = 'Invalid/Expiered Activation Link'
-      error.name = '406 Not Acceptable'
       error.status = 406
     }
   } else {
     error.status = 404
-    error.name = '404 Resource Not Found'
     error.message = 'Resource URI is invalid'
   }
   res.status(error.status).json({
     error: {
-      name: error.name,
       message: error.message,
       stack: error.stack
     }

@@ -10,6 +10,8 @@ router.get('/:id', async (req, res) => {
   const image = await Picture.findOne({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Machinery, as: 'machinery' }],
     where: { id: req.params.id }
+  }).catch((error) => {
+    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   res.send(image)
 })

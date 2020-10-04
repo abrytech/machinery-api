@@ -10,6 +10,8 @@ router.get('', authUser, checkRole(['Admin']), async (req, res) => {
     include: [{ model: User, as: 'user' }],
     offset: 0,
     limit: 10
+  }).catch((error) => {
+    res.send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(addresses)
 })
@@ -23,13 +25,14 @@ router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
       include: [{ model: User, as: 'user' }],
       offset: (params.page - 1) * params.limit,
       limit: params.limit
+    }).catch((error) => {
+      res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
     })
     res.send(addresses)
   } else {
     res.json({
       error: {
-        name: 'Bad Format',
-        message: 'Invalid Request URL format',
+        message: 'Bad Request URL format',
         stack: ''
       }
     })

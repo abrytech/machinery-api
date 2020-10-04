@@ -9,6 +9,8 @@ router.get('', authUser, checkRole(['Admin']), async (req, res) => {
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
     offset: 0,
     limit: 10
+  }).catch((error) => {
+    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   res.send(users)
 })
@@ -22,6 +24,8 @@ router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
       include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
       offset: (params.page - 1) * params.limit,
       limit: params.limit
+    }).catch((error) => {
+      res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
     })
     res.send(users)
   } else {

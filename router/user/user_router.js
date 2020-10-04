@@ -10,6 +10,8 @@ router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
   const user = await User.findOne({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
     where
+  }).catch((error) => {
+    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   res.send(user)
 })
@@ -19,6 +21,8 @@ router.get('/me', authUser, async (req, res) => {
   const user = await User.findOne({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
     where
+  }).catch((error) => {
+    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   res.send(user)
 })
@@ -27,11 +31,15 @@ router.post('', async (req, res) => {
   const body = req.body
   let user = {}
   console.log(body)
-  user = await User.create(body)
+  user = await User.create(body).catch((error) => {
+    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
+  })
   if (body.address) {
     const addressBody = body.address
     addressBody.userId = user.id
-    user.address = await Address.create(addressBody)
+    user.address = await Address.create(addressBody).catch((error) => {
+      res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    })
   }
   if (user) {
     sendConfirmation(user.firstName + ' ' + user.lastName, user.email, user.activationKey)
@@ -41,12 +49,12 @@ router.post('', async (req, res) => {
 
 router.put('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
-  const respones = { isSuccess: true, updatedRows: [], message: [] }
+  const respones = { isSuccess: true, updatedRows: 0, message: '' }
   if (body.id) {
     if (body.address) {
       const rows = await Address.update(body.address, { where: { userId: body.id } })
       if (rows > 0) {
-        respones.updatedRows.push({ address: rows })
+        respones.updatedRows = respones.updatedRows + rows
       } else {
         respones.isSuccess = false
         respones.message.push('Failed to UPDATE address information')
@@ -60,15 +68,15 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
       else {
         delete body.password
         delete body.oldPassword
-        respones.message.push('Your old password is incorrect')
+        respones.message = 'Your old password is incorrect'
       }
     } else {
       const rows = await User.update(body, { where: { id: body.id } })
       if (rows > 0) {
-        respones.updatedRows.push({ user: rows })
+        respones.updatedRows = rows
       } else {
         respones.isSuccess = false
-        respones.message.push('Failed to UPDATE user information')
+        respones.message = 'Failed to UPDATE user information'
       }
     }
   }
@@ -77,15 +85,14 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
 
 router.put('/me', authUser, async (req, res) => {
   const body = req.body
-  const respones = { isSuccess: true, updatedRows: [], message: [] }
+  const respones = { isSuccess: true, updatedRows: 0, message: '' }
   if (req.userId === body.id) {
     if (body.address) {
       const rows = await Address.update(body.address, { where: { userId: req.userId } })
-      if (rows > 0) {
-        respones.updatedRows.push({ address: rows })
-      } else {
+      if (rows > 0) respones.updatedRows = respones.updatedRows + rows
+      else {
         respones.isSuccess = false
-        respones.message.push('Failed to UPDATE address information')
+        respones.message = 'Failed to UPDATE address information'
       }
       delete body.address
     }
@@ -96,14 +103,14 @@ router.put('/me', authUser, async (req, res) => {
       else {
         delete body.password
         delete body.oldPassword
-        respones.message.push('Your old password is incorrect')
+        respones.message = 'Your old password is incorrect'
       }
     } else {
       const rows = await User.update(body, { where: { id: req.userId } })
-      if (rows > 0) respones.updatedRows.push({ user: rows })
+      if (rows > 0) respones.updatedRows = respones.updatedRows + rows
       else {
         respones.isSuccess = false
-        respones.message.push('Failed to UPDATE user information')
+        respones.message = 'Failed to UPDATE user information'
       }
     }
   } else {
