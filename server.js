@@ -27,7 +27,7 @@ function httpsWorker (glx) {
   // Get the raw https server:
   var httpsServer = glx.httpsServer(null, app)
 
-  httpsServer.listen(port, 'machinery-api.herokuapp.com', function () {
+  httpsServer.listen(port, '0.0.0.0', function () {
     console.info('Listening on ', httpsServer.address())
   })
 
@@ -36,7 +36,7 @@ function httpsWorker (glx) {
   // (the ACME and http->https middleware are loaded by glx.httpServer)
   var httpServer = glx.httpServer()
 
-  httpServer.listen(8080, 'machinery-api.herokuapp.com', function () {
+  httpServer.listen(8080, '0.0.0.0', function () {
     console.info('Listening on ', httpServer.address())
   })
 }
