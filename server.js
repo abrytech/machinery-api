@@ -25,6 +25,7 @@ function httpsWorker (glx) {
   //
 
   // Get the raw https server:
+  console.log(glx)
   var httpsServer = glx.httpsServer(null, function (req, res) {
     res.end('Hello, Encrypted World!')
   })
