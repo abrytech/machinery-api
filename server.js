@@ -1,8 +1,5 @@
-import app from './index.js'
-var http = require('http')
-var https = require('https')
+import app from './index'
 const port = process.env.PORT || 8080
-
 require('greenlock-express')
   .init({
     packageRoot: __dirname,
@@ -27,7 +24,10 @@ function httpsWorker (glx) {
   //
   console.log(glx)
   // Get the raw https server:
-  var httpsServer = https.createServer(app)
+  // Get the raw https server:
+  var httpsServer = glx.httpsServer(app, function (req, res) {
+    res.end('Hello, Encrypted World!')
+  })
 
   httpsServer.listen(port, '0.0.0.0', function () {
     console.info('Listening on ', httpsServer.address())
@@ -36,7 +36,7 @@ function httpsWorker (glx) {
   // Note:
   // You must ALSO listen on port 80 for ACME HTTP-01 Challenges
   // (the ACME and http->https middleware are loaded by glx.httpServer)
-  var httpServer = http.createServer(app)
+  var httpServer = glx.httpServer()
 
   httpServer.listen(8080, '0.0.0.0', function () {
     console.info('Listening on ', httpServer.address())
