@@ -6,17 +6,19 @@ error.status = 401
 const authUser = (req, res, next) => {
   const authHeader = req.get('Authorization')
   if (!authHeader) next(error)
-  const token = authHeader.split(' ')[1]
-  if (!token || token === '') next(error)
-  if (!req.userId || !req.role) {
-    try {
-      const decodedToken = verify(token, ACCESS_TOKEN_SECRET_KEY)
-      if (decodedToken) {
-        req.userId = decodedToken.userId
-        req.role = decodedToken.role
-      } else next(error)
-    } catch (err) {
-      next(err)
+  else {
+    const token = authHeader.split(' ')[1]
+    if (!token || token === '') next(error)
+    if (!req.userId || !req.role) {
+      try {
+        const decodedToken = verify(token, ACCESS_TOKEN_SECRET_KEY)
+        if (decodedToken) {
+          req.userId = decodedToken.userId
+          req.role = decodedToken.role
+        } else next(error)
+      } catch (err) {
+        next(err)
+      }
     }
   }
   next()
