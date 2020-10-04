@@ -46,4 +46,4 @@ app.use((err, req, res, next) => {
 if (require.main === module) {
   app.listen(port, () => console.log(`listening on ${host}:${port}`))
 }
-module.exports = app
+export default app
