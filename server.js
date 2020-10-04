@@ -12,7 +12,7 @@ require('greenlock-express')
 
     // whether or not to run at cloudscale
     cluster: false
-  }).ready(httpsWorker).server(app)
+  }).ready(httpsWorker)
 // Serves on 80 and 443
 // Get's SSL certificates magically!
 // .serve(app)
@@ -39,4 +39,6 @@ function httpsWorker (glx) {
   httpServer.listen(8080, '0.0.0.0', function () {
     console.info('Listening on ', httpServer.address())
   })
+
+  glx.serveApp(app)
 }
