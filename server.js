@@ -12,7 +12,7 @@ require('greenlock-express')
 
     // whether or not to run at cloudscale
     cluster: false
-  }).ready(httpsWorker)
+  }).ready(httpsWorker).server(app)
 // Serves on 80 and 443
 // Get's SSL certificates magically!
 // .serve(app)
