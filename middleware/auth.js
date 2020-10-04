@@ -5,7 +5,8 @@ error.name = '401 Unauthorized'
 error.status = 401
 const authUser = (req, res, next) => {
   const authHeader = req.get('Authorization')
-  if (!authHeader) next(error)
+  console.warn(`Authorization type is:${typeof (authHeader)}`)
+  if (typeof (authHeader) !== 'string') next(error)
   else {
     const token = authHeader.split(' ')[1]
     if (!token || token === '') next(error)
