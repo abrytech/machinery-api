@@ -32,13 +32,13 @@ router.post('', async (req, res) => {
   let user = {}
   console.log(body)
   user = await User.create(body).catch((error) => {
-    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   if (body.address) {
     const addressBody = body.address
     addressBody.userId = user.id
     user.address = await Address.create(addressBody).catch((error) => {
-      res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
+      res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
     })
   }
   if (user) {
