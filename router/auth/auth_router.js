@@ -22,10 +22,10 @@ router.post('/login', async (req, res) => {
           res.set({ Authorization: 'Bearer ' + token, 'Access-control-expose-headers': 'Authorization' }).send(user)
         })
       } else {
-        res.status(401).send({ error: { name: 'Authentication Failed', message: 'Invalid Username or Password', stack: '' } })
+        res.status(400).send({ error: { name: 'Authentication Failed', message: 'Invalid Username or Password', stack: '' } })
       }
     } else {
-      res.status(401).send({ error: { name: 'Authentication Failed', message: 'Invalid Username or Password', stack: '' } })
+      res.status(400).send({ error: { name: 'Authentication Failed', message: 'Invalid Username or Password', stack: '' } })
     }
   }
 })
