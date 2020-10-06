@@ -17,7 +17,7 @@ router.post('/login', async (req, res) => {
     }).catch((error) => res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } }))
     if (user) {
       if (compareSync(password, user.password)) {
-        jwt.sign({ userId: user.id, role: user.role }, ACCESS_TOKEN_SECRET_KEY, (error, token) => {
+        jwt.sign({ userId: user.id, role: user.role, username: user.username }, ACCESS_TOKEN_SECRET_KEY, (error, token) => {
           if (error) res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
           res.set({ Authorization: 'Bearer ' + token, 'Access-control-expose-headers': 'Authorization' }).send(user)
         })

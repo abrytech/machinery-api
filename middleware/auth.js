@@ -16,6 +16,7 @@ const authUser = (req, res, next) => {
         if (decodedToken) {
           req.userId = decodedToken.userId
           req.role = decodedToken.role
+          req.username = decodedToken.username
         } else next(error)
       } catch (err) {
         next(err)
