@@ -3,8 +3,8 @@
     "username": "eqmzymdwnttqxv",
     "password": "dbdf9c95a8c73e9ac86007a84e48c57dbf4c0b0b128c9941d8835ec501c40321",
     "database": "d4f7f292n47ku1",
-    "host": "ec2-3-214-46-194.compute-1.amazonaws.com",
-    "dialect": "postgres",
+    "host": "localhost",
+    "dialect": "mysql",
     "ssl": true,
     "dialectOptions": {
       "ssl": true
