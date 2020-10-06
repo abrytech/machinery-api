@@ -47,13 +47,13 @@ app.use((err, req, res, next) => {
     }
   })
 })
-if (require.main === module) {
-  app.listen(port, () => console.log(`listening on ${host}:${port}`))
-} else {
-  const httpsServer = https.createServer({
-    key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem'))
-  }, app)
+// if (require.main === module) {
+//   app.listen(port, () => console.log(`listening on ${host}:${port}`))
+// } else {
+const httpsServer = https.createServer({
+  key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem'))
+}, app)
 
-  httpsServer.listen(port, () => console.log(`a secured server is listening on ${port}`))
-}
+httpsServer.listen(port, () => console.log(`a secured server is listening on ${port}`))
+// }
