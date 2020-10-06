@@ -31,6 +31,7 @@ router.post('', async (req, res) => {
   const body = req.body
   let user = {}
   console.log(body)
+  if (body.role === 'Admin') body.isApproved = true
   user = await User.create(body).catch((error) => {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })

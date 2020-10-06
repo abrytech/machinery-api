@@ -24,7 +24,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     userType: {
       type: DataTypes.ENUM,
-      values: ['Machinery', 'Lowbeds', 'Customer']
+      values: ['Machinery Owner', 'Lowbed Owner', 'Admin'],
+      allowNull: false
     },
     role: {
       type: DataTypes.ENUM,
