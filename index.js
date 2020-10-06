@@ -6,13 +6,13 @@ import apiRouter from './router/index'
 import { urlencoded, json } from 'body-parser'
 import authRouter from './router/auth/auth_router'
 import fileUpload from 'express-fileupload'
-import fs from 'fs'
-import path from 'path'
-import https from 'https'
+// import fs from 'fs'
+// import path from 'path'
+// import https from 'https'
 
 const app = express()
 const port = process.env.PORT || 8080
-const host = process.env.HOST || 'http://localhost'
+// const host = process.env.HOST || 'http://localhost'
 const www = process.env.WWW || './public'
 app.use(compression())
 app.use(helmet())
@@ -48,12 +48,12 @@ app.use((err, req, res, next) => {
   })
 })
 // if (require.main === module) {
-//   app.listen(port, () => console.log(`listening on ${host}:${port}`))
+app.listen(port, () => console.log(`listening on:${port}`))
 // } else {
-const httpsServer = https.createServer({
-  key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
-  cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem'))
-}, app)
+// const httpsServer = https.createServer({
+//   key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
+//   cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem'))
+// }, app)
 
-httpsServer.listen(port, () => console.log(`a secured server is listening on ${port}`))
+// httpsServer.listen(port, () => console.log(`a secured server is listening on ${port}`))
 // }
