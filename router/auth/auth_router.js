@@ -24,6 +24,8 @@ router.post('/login', async (req, res) => {
       } else {
         res.status(401).send({ error: { name: 'Authentication Failed', message: 'Invalid Username or Password', stack: '' } })
       }
+    } else {
+      res.status(401).send({ error: { name: 'Authentication Failed', message: 'Invalid Username or Password', stack: '' } })
     }
   }
 })
