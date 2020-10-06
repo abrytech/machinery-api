@@ -24,7 +24,12 @@
     "database": "d4f7f292n47ku1",
     "host": "ec2-3-214-46-194.compute-1.amazonaws.com",
     "dialect": "postgres",
-    "ssl": true
+    "dialectOptions": {
+      "ssl":{
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   }
 }
 
