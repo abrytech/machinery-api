@@ -23,11 +23,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     userType: {
-      type: DataTypes.ENUM('Machinery Owner', 'Lowbed Owner', 'Admin'),
+      type: DataTypes.STRING,
       allowNull: false
     },
     role: {
-      type: DataTypes.ENUM('Admin', 'User'),
+      type: DataTypes.STRING,
       defaultValue: 'User'
     },
     isActivated: DataTypes.BOOLEAN,

@@ -34,11 +34,11 @@ module.exports = {
         allowNull: false
       },
       userType: {
-        type: Sequelize.ENUM('Machinery Owner', 'Lowbed Owner', 'Admin'),
+        type: Sequelize.STRING,
         allowNull: false
       },
       role: {
-        type: Sequelize.ENUM('Admin', 'User'),
+        type: Sequelize.STRING,
         defaultValue: 'User'
       },
       activationKey: Sequelize.STRING,

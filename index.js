@@ -47,6 +47,9 @@ app.use((err, req, res, next) => {
     }
   })
 })
+app.get('/check', (req, res) => {
+  res.send('Prof')
+})
 // if (require.main === module) {
 app.listen(port, () => console.log(`listening on:${port}`))
 // } else {

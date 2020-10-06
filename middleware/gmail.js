@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 import template from './email_template'
 // async..await is not allowed in global scope, must use a wrapper
-export default async function (to, key) {
+export default async function (name, to, key) {
   // create reusable transporter object using the default SMTP transport
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -17,8 +17,8 @@ export default async function (to, key) {
   const body = template(key)
   // send mail with defined transport object
   transporter.sendMail({
-    from: 'abb2007hu@gmail.com', // sender address
-    to: to, // list of receivers
+    from: 'Abraham Bekele <abb2007hu@gmail.com>', // sender address
+    to: `${name} <${to}>`, // list of receivers
     subject: 'Registration Confrimation', // Subject line
     // text: 'Test email'// plain text body
     html: body // html body
