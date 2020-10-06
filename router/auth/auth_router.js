@@ -19,7 +19,7 @@ router.post('/login', async (req, res) => {
       if (compareSync(password, user.password)) {
         jwt.sign({ userId: user.id, role: user.role }, ACCESS_TOKEN_SECRET_KEY, (error, token) => {
           if (error) res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
-          res.set({ Authorization: 'Bearer ' + token }).send(user)
+          res.set({ Authorization: 'Bearer ' + token, 'Access-control-expose-headers': 'Authorization' }).send(user)
         })
       } else {
         res.status(401).send({ error: { name: 'Authentication Failed', message: 'Invalid Username or Password', stack: '' } })
