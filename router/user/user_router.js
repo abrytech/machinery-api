@@ -63,23 +63,31 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
         _user.phone = body.phone || _user.phone
         _user.userType = body.userType || _user.userType
         _user.role = body.role || _user.role
+        _user.isApproved = body.isApproved || _user.isApproved
+        _user.spam = body.spam || _user.spam
+        _user.deleted = body.deleted || _user.deleted
+        _user.isActivated = body.isActivated || _user.isActivated
+        _user.activationKey = body.activationKey || _user.activationKey
+        delete _user.updatedAt
+        delete _user.createdAt
         if (body.address) {
-          console.log(`_user.address: ${_user.address}`);
           if (_user.address) {
             _user.address.id = body.address.id || _user.address.id
             _user.address.kebele = body.address.kebele || _user.address.kebele
             _user.address.woreda = body.address.woreda || _user.address.woreda
             _user.address.zone = body.address.zone || _user.address.zone
             _user.address.city = body.address.city || _user.address.city
+            _user.address.company = body.address.company || _user.address.company
+            _user.address.phone = body.address.phone || _user.address.phone
             _user.address.userId = _user.address.userId || body.id
+            delete _user.address.updatedAt
+            delete _user.address.createdAt
           } else {
             _user.address = body.address
             _user.address.userId = body.id
-          };
-          console.log(`_user.address: ${_user.address}`);
+          }
           if (_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
           else _user.address = await Address.create(_user.address)
-          console.log(_user.address);
         }
         if (body.password && body.oldPassword) {
           const isMatch = compareSync(body.oldPassword, _user.password)
@@ -87,7 +95,6 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
             _user.password = body.password;
           }
         }
-        console.log(_user);
         await User.update(_user, { where: { id: _user.id } })
         res.send(_user)
       }
@@ -103,7 +110,7 @@ router.put('/me', authUser, async (req, res) => {
     if (body) {
       if (body.id != req.userId) throw 'Bad Request: Invalid Auth User ID'
       if (body.id) {
-        const _user = await User.findOne({ where: { id: req.userId } })
+         const _user = await User.findOne({ where: { id: req.userId } })
         _user.firstName = body.firstName || _user.firstName
         _user.lastName = body.lastName || _user.lastName
         _user.email = body.email || _user.email
@@ -111,8 +118,14 @@ router.put('/me', authUser, async (req, res) => {
         _user.phone = body.phone || _user.phone
         _user.userType = body.userType || _user.userType
         _user.role = body.role || _user.role
+        _user.isApproved = body.isApproved || _user.isApproved
+        _user.spam = body.spam || _user.spam
+        _user.deleted = body.deleted || _user.deleted
+        _user.isActivated = body.isActivated || _user.isActivated
+        _user.activationKey = body.activationKey || _user.activationKey
+        delete _user.updatedAt
+        delete _user.createdAt
         if (body.address) {
-          console.log(`_user.address: ${_user.address}`);
           if (_user.address) {
             _user.address.id = body.address.id || _user.address.id
             _user.address.kebele = body.address.kebele || _user.address.kebele
@@ -120,11 +133,17 @@ router.put('/me', authUser, async (req, res) => {
             _user.address.zone = body.address.zone || _user.address.zone
             _user.address.city = body.address.city || _user.address.city
             _user.address.userId = _user.address.userId || req.userId
-          } else _user.address = body.address;
-          console.log(`_user.address: ${_user.address}`);
+            _user.address.company = body.address.company || _user.address.company
+            _user.address.phone = body.address.phone || _user.address.phone
+            _user.address.userId = _user.address.userId || body.id
+            delete _user.address.updatedAt
+            delete _user.address.createdAt
+          } else {
+            _user.address = body.address
+            _user.address.userId = body.id
+          }
           if (_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
           else _user.address = await Address.create(_user.address)
-          console.log(`_user.address: ${_user.address}`);
         }
         if (body.password && body.oldPassword) {
           const isMatch = compareSync(body.oldPassword, _user.password)
