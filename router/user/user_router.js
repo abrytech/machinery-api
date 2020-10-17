@@ -79,7 +79,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
           console.log(`_user.address: ${_user.address}`);
           if (_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
           else _user.address = await Address.create(_user.address)
-          console.log(`_user.address: ${_user.address}`);
+          console.log(_user.address);
         }
         if (body.password && body.oldPassword) {
           const isMatch = compareSync(body.oldPassword, _user.password)
@@ -87,6 +87,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
             _user.password = body.password;
           }
         }
+        console.log(_user);
         await User.update(_user, { where: { id: _user.id } })
         res.send(_user)
       }
