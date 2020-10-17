@@ -72,7 +72,10 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
             _user.address.zone = body.address.zone || _user.address.zone
             _user.address.city = body.address.city || _user.address.city
             _user.address.userId = _user.address.userId || body.id
-          } else _user.address = body.address;
+          } else {
+            _user.address = body.address
+            _user.address.userId = body.id
+          };
           console.log(`_user.address: ${_user.address}`);
           if (_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
           else _user.address = await Address.create(_user.address)
