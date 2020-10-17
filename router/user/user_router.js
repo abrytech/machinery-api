@@ -50,7 +50,7 @@ router.post('', async (req, res) => {
 
 router.put('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
-  let rows = 0; 
+  // let rows = 0; 
   try {
     if (body.id) {
       const _user = await User.findOne({ where: { id: body.id } })
@@ -68,7 +68,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
         _user.address.zone = body.address.zone || _user.address.zone
         _user.address.city = body.address.city || _user.address.city
         _user.address.userId = _user.address.userId || body.id
-        if(_user.address.id) rows = rows + await Address.update(_user.address, { where: { id: _user.address.id } })
+        if(_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
         else _user.address = await Address.create(_user.address)
       }
       if (body.password && body.oldPassword) {
