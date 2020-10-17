@@ -51,38 +51,43 @@ router.post('', async (req, res) => {
 router.put('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
   try {
-    console.log(body);
-    if (body.id) {
-      const _user = await User.findOne({ where: { id: body.id } })
-      _user.firstName = body.firstName || _user.firstName
-      _user.lastName = body.lastName || _user.lastName
-      _user.email = body.email || _user.email
-      _user.username = body.username || _user.username
-      _user.phone = body.phone || _user.phone
-      _user.userType = body.userType || _user.userType
-      _user.role = body.role || _user.role
-      console.log(_user);
-      if (body.address) {
-        console.log(_user.address);
-        _user.address.id = body.address.id || _user.address.id
-        _user.address.kebele = body.address.kebele || _user.address.kebele
-        _user.address.woreda = body.address.woreda || _user.address.woreda
-        _user.address.zone = body.address.zone || _user.address.zone
-        _user.address.city = body.address.city || _user.address.city
-        _user.address.userId = _user.address.userId || body.id
-        console.log(_user.address);
-        if(_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
-        else _user.address = await Address.create(_user.address)
-      }
-      if (body.password && body.oldPassword) {
-        const isMatch = compareSync(body.oldPassword, _user.password)
-        if (isMatch) {
-          _user.password = body.password;
+
+    if (body) {
+      if (body.id != req.userId) throw 'Bad Request: Invalid Auth User ID'
+      if (body.id) {
+        const _user = await User.findOne({ where: { id: body.id } })
+        _user.firstName = body.firstName || _user.firstName
+        _user.lastName = body.lastName || _user.lastName
+        _user.email = body.email || _user.email
+        _user.username = body.username || _user.username
+        _user.phone = body.phone || _user.phone
+        _user.userType = body.userType || _user.userType
+        _user.role = body.role || _user.role
+        if (body.address) {
+          console.log(`_user.address: ${_user.address}`);
+          if (_user.address) {
+            _user.address.id = body.address.id || _user.address.id
+            _user.address.kebele = body.address.kebele || _user.address.kebele
+            _user.address.woreda = body.address.woreda || _user.address.woreda
+            _user.address.zone = body.address.zone || _user.address.zone
+            _user.address.city = body.address.city || _user.address.city
+            _user.address.userId = _user.address.userId || body.id
+          } else _user.address = body.address;
+          console.log(`_user.address: ${_user.address}`);
+          if (_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
+          else _user.address = await Address.create(_user.address)
+          console.log(`_user.address: ${_user.address}`);
         }
+        if (body.password && body.oldPassword) {
+          const isMatch = compareSync(body.oldPassword, _user.password)
+          if (isMatch) {
+            _user.password = body.password;
+          }
+        }
+        await User.update(_user, { where: { id: _user.id } })
+        res.send(_user)
       }
-      await User.update(_user, { where: { id: body.id } })
     }
-    res.send(_user)
   } catch (error) {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
@@ -92,39 +97,41 @@ router.put('/me', authUser, async (req, res) => {
   const body = req.body
   try {
     if (body) {
-      console.log(body);
-      if(body.id != req.userId) throw 'Bad Request: Invalid Auth User ID'
-      const _user = await User.findOne({ where: { id: req.userId } })
-      _user.firstName = body.firstName || _user.firstName
-      _user.lastName = body.lastName || _user.lastName
-      _user.email = body.email || _user.email
-      _user.username = body.username || _user.username
-      _user.phone = body.phone || _user.phone
-      _user.userType = body.userType || _user.userType
-      _user.role = body.role || _user.role
-      if (body.address) {
-        console.log(_user.address);
-        if(_user.address){
-          _user.address.id = body.address.id || _user.address.id
-          _user.address.kebele = body.address.kebele || _user.address.kebele
-          _user.address.woreda = body.address.woreda || _user.address.woreda
-          _user.address.zone = body.address.zone || _user.address.zone
-          _user.address.city = body.address.city || _user.address.city
-          _user.address.userId = _user.address.userId || req.userId
-        } else _user.address = body.address;
-        console.log(_user.address);
-        if(_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
-        else _user.address = await Address.create(_user.address)
-      }
-      if (body.password && body.oldPassword) {
-        const isMatch = compareSync(body.oldPassword, _user.password)
-        if (isMatch) {
-          _user.password = body.password;
+      if (body.id != req.userId) throw 'Bad Request: Invalid Auth User ID'
+      if (body.id) {
+        const _user = await User.findOne({ where: { id: req.userId } })
+        _user.firstName = body.firstName || _user.firstName
+        _user.lastName = body.lastName || _user.lastName
+        _user.email = body.email || _user.email
+        _user.username = body.username || _user.username
+        _user.phone = body.phone || _user.phone
+        _user.userType = body.userType || _user.userType
+        _user.role = body.role || _user.role
+        if (body.address) {
+          console.log(`_user.address: ${_user.address}`);
+          if (_user.address) {
+            _user.address.id = body.address.id || _user.address.id
+            _user.address.kebele = body.address.kebele || _user.address.kebele
+            _user.address.woreda = body.address.woreda || _user.address.woreda
+            _user.address.zone = body.address.zone || _user.address.zone
+            _user.address.city = body.address.city || _user.address.city
+            _user.address.userId = _user.address.userId || req.userId
+          } else _user.address = body.address;
+          console.log(`_user.address: ${_user.address}`);
+          if (_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
+          else _user.address = await Address.create(_user.address)
+          console.log(`_user.address: ${_user.address}`);
         }
+        if (body.password && body.oldPassword) {
+          const isMatch = compareSync(body.oldPassword, _user.password)
+          if (isMatch) {
+            _user.password = body.password;
+          }
+        }
+        await User.update(_user, { where: { id: req.userId } })
+        res.send(_user)
       }
-      await User.update(_user, { where: { id: body.id } })
     }
-    res.send(_user)
   } catch (error) {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
@@ -165,5 +172,5 @@ export default router
                 //   error.status = 401
                 //   throw error
                 // }
-                
+
                 // res.send(respones)
