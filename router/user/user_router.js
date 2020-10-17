@@ -61,6 +61,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
       _user.phone = body.phone || _user.phone
       _user.userType = body.userType || _user.userType
       _user.role = body.role || _user.role
+      console.log(_user);
       if (body.address) {
         console.log(_user.address);
         _user.address.id = body.address.id || _user.address.id
