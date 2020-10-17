@@ -62,12 +62,14 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
       _user.userType = body.userType || _user.userType
       _user.role = body.role || _user.role
       if (body.address) {
+        console.log(_user.address);
         _user.address.id = body.address.id || _user.address.id
         _user.address.kebele = body.address.kebele || _user.address.kebele
         _user.address.woreda = body.address.woreda || _user.address.woreda
         _user.address.zone = body.address.zone || _user.address.zone
         _user.address.city = body.address.city || _user.address.city
         _user.address.userId = _user.address.userId || body.id
+        console.log(_user.address);
         if(_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
         else _user.address = await Address.create(_user.address)
       }
