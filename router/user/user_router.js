@@ -58,7 +58,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
         respones.updatedRows = respones.updatedRows + rows
       } else {
         respones.isSuccess = false
-        respones.message.push('Failed to UPDATE address information')
+        respones.message = 'Failed to UPDATE address information'
       }
       delete body.address
     }
