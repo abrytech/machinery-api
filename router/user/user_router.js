@@ -94,21 +94,21 @@ router.put('/me', authUser, async (req, res) => {
       console.log(body);
       if(body.id != req.userId) throw 'Bad Request: Invalid Auth User ID'
       const _user = await User.findOne({ where: { id: req.userId } })
-      _user.firstName = body?.firstName || _user.firstName
-      _user.lastName = body?.lastName || _user.lastName
-      _user.email = body?.email || _user.email
-      _user.username = body?.username || _user.username
-      _user.phone = body?.phone || _user.phone
-      _user.userType = body?.userType || _user.userType
-      _user.role = body?.role || _user.role
+      _user.firstName = body.firstName || _user.firstName
+      _user.lastName = body.lastName || _user.lastName
+      _user.email = body.email || _user.email
+      _user.username = body.username || _user.username
+      _user.phone = body.phone || _user.phone
+      _user.userType = body.userType || _user.userType
+      _user.role = body.role || _user.role
       if (body.address) {
         console.log(_user.address);
-        _user.address.id = body.address?.id || _user.address.id
-        _user.address.kebele = body.address?.kebele || _user.address.kebele
-        _user.address.woreda = body.address?.woreda || _user.address.woreda
-        _user.address.zone = body.address?.zone || _user.address.zone
-        _user.address.city = body.address?.city || _user.address.city
-        _user.address.userId = _user.address?.userId || req.userId
+        _user.address.id = body.address.id || _user.address.id
+        _user.address.kebele = body.address.kebele || _user.address.kebele
+        _user.address.woreda = body.address.woreda || _user.address.woreda
+        _user.address.zone = body.address.zone || _user.address.zone
+        _user.address.city = body.address.city || _user.address.city
+        _user.address.userId = _user.address.userId || req.userId
         console.log(_user.address);
         if(_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
         else _user.address = await Address.create(_user.address)
