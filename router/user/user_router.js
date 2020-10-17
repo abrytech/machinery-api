@@ -50,38 +50,39 @@ router.post('', async (req, res) => {
 
 router.put('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
-  const respones = { isSuccess: true, updatedRows: 0, message: '' }
-  if (body.id) {
-    if (body.address) {
-      const rows = await Address.update(body.address, { where: { userId: body.id } })
-      if (rows > 0) {
-        respones.updatedRows = respones.updatedRows + rows
-      } else {
-        respones.isSuccess = false
-        respones.message = 'Failed to UPDATE address information'
+  let rows = 0; 
+  try {
+    if (body.id) {
+      const _user = await User.findOne({ where: { id: body.id } })
+      _user.firstName = body.firstName || _user.firstName
+      _user.lastName = body.lastName || _user.lastName
+      _user.email = body.email || _user.email
+      _user.username = body.username || _user.username
+      _user.phone = body.phone || _user.phone
+      _user.userType = body.userType || _user.userType
+      _user.role = body.role || _user.role
+      if (body.address) {
+        _user.address.id = body.address.id || _user.address.id
+        _user.address.kebele = body.address.kebele || _user.address.kebele
+        _user.address.woreda = body.address.woreda || _user.address.woreda
+        _user.address.zone = body.address.zone || _user.address.zone
+        _user.address.city = body.address.city || _user.address.city
+        _user.address.userId = _user.address.userId || body.id
+        if(_user.address.id) rows = rows + await Address.update(_user.address, { where: { id: _user.address.id } })
+        else _user.address = await Address.create(_user.address)
       }
-      delete body.address
+      if (body.password && body.oldPassword) {
+        const isMatch = compareSync(body.oldPassword, _user.password)
+        if (isMatch) {
+          _user.password = body.password;
+        }
+      }
+      await User.update(_user, { where: { id: body.id } })
     }
-    if (body.password && body.oldPassword) {
-      const user = await User.findOne({ where: { id: body.id } })
-      const isMatch = compareSync(body.oldPassword, user.password)
-      if (isMatch) delete body.oldPassword
-      else {
-        delete body.password
-        delete body.oldPassword
-        respones.message = 'Your old password is incorrect'
-      }
-    } else {
-      const rows = await User.update(body, { where: { id: body.id } })
-      if (rows > 0) {
-        respones.updatedRows = rows
-      } else {
-        respones.isSuccess = false
-        respones.message = 'Failed to UPDATE user information'
-      }
-    }
+    res.send(_user)
+  } catch (error) {
+    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
-  res.send(respones)
 })
 
 router.put('/me', authUser, async (req, res) => {
