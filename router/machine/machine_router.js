@@ -1,7 +1,10 @@
 import { Router } from 'express'
 import { Machine, Machinery, Picture } from '../../sequelize/db/models'
 import { authUser, checkRole } from '../../middleware/auth'
+import fs from 'fs'
 
+import path from 'path'
+const www = process.env.WWW || './public/'
 const router = Router()
 
 router.get('/:id', async (req, res) => {
@@ -15,25 +18,65 @@ router.get('/:id', async (req, res) => {
 
 router.post('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
-  let machine = {}
-  console.log(body)
-  machine = await Machine.create(body)
-  res.send(machine)
+  let _machine = {}
+  let _picture = {}
+  if (!req.files || Object.keys(req.files).length === 0) {
+    throw new Error('No files were uploaded.')
+  } else {
+    const image = req.files.file
+    const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
+    const filePath = www + 'uploads/images/' + fileName
+    image.mv(filePath, async (error) => {
+      if (error) {
+        console.log("Couldn't upload the image file")
+        throw error
+      } else {
+        console.log('Image file succesfully uploaded.')
+        const machineId = req.body.id
+        const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
+        if (machineId) pic.machineId = parseInt(machineId)
+        _picture = await Picture.create(pic)
+        console.log(_picture)
+      }
+    })
+  }
+  _machine = await Machine.create(body)
+  _machine.picture = _picture
+  res.send(_machine)
 })
 
 router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
   const body = req.body
-  const respones = { isSuccess: true, updatedRows: [], message: [] }
   if (body.id) {
-    const rows = await Machine.update(body, { where: { id: body.id } })
-    if (rows > 0) {
-      respones.updatedRows.push({ machine: rows })
-    } else {
-      respones.isSuccess = false
-      respones.message.push('Failed to UPDATE machine information')
+    const _machine = await Machine.findOne(body, { where: { id: body.id } })
+    _machine.name = body.name || _machine.name
+    _machine.description = body.description || _machine.description
+    _machine.parentId = body.parentId || _machine.parentId
+    _machine.isLowbed = body.isLowbed || _machine.isLowbed
+    if (req.files || Object.keys(req.files).length !== 0) {
+      const image = req.files.file
+      const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
+      const filePath = www + 'uploads/images/' + fileName
+      const pics = await Picture.findAll({ where: { machineId: body.id } })
+      pics.forEach(element => {
+        fs.unlink(element.filePath)
+      })
+      await Picture.destroy({ where: { machineId: body.id } })
+      image.mv(filePath, async (error) => {
+        if (error) {
+          console.log("Couldn't upload the image file")
+          throw error
+        } else {
+          console.log('Image file succesfully uploaded.')
+          const machineId = req.body.id
+          const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
+          if (machineId) pic.machineId = parseInt(machineId)
+          _machine.picture = await Picture.create(pic)
+        }
+      })
     }
+    await Machine.update(_machine, { where: { id: body.id } })
+    res.send(_machine)
   }
-  res.send(respones)
 })
-
 export default router

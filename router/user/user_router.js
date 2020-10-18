@@ -3,7 +3,11 @@ import { User, Address, Picture } from '../../sequelize/db/models'
 import { authUser, checkRole } from '../../middleware/auth'
 import sendConfirmation from '../../middleware/gmail'
 import { compareSync } from 'bcrypt'
+import path from 'path'
+import fs from 'fs'
+
 const router = Router()
+const www = process.env.WWW || './public/'
 
 router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
@@ -91,12 +95,37 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
           if (_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
           else _user.address = await Address.create(_user.address)
         }
+        if (req.files || Object.keys(req.files).length !== 0) {
+          const image = req.files.file
+          const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
+          const filePath = www + 'uploads/images/' + fileName
+          const pics = await Picture.findAll({ where: { userId: body.id } })
+          pics.forEach(element => {
+            fs.unlink(element.filePath)
+          })
+          await Picture.destroy({ where: { userId: body.id } })
+          image.mv(filePath, async (error) => {
+            if (error) {
+              console.log("Couldn't upload the image file")
+              throw error
+            } else {
+              console.log('Image file succesfully uploaded.')
+              const userId = req.body.id
+              const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
+              if (userId) pic.userId = parseInt(userId)
+              await Picture.destroy({ where: { userId: body.id } })
+              _user.picture = await Picture.create(pic)
+              console.log(_user.picture)
+            }
+          })
+        }
         if (body.password && body.oldPassword) {
           const isMatch = compareSync(body.oldPassword, _user.password)
           if (isMatch) {
             _user.password = body.password
           }
         }
+        console.log(_user)
         await User.update(_user, { where: { id: _user.id } })
         res.send(_user)
       } else throw Error('Bad Request: User ID is Missing')
