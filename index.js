@@ -7,7 +7,7 @@ import { urlencoded, json } from 'body-parser'
 import authRouter from './router/auth/auth_router'
 import fileUpload from 'express-fileupload'
 // import fs from 'fs'
-import path from 'path'
+// import path from 'path'
 // import https from 'https'
 
 const app = express()
@@ -24,7 +24,7 @@ app.use(cors({
 }))
 app.use(urlencoded({ extended: false }))
 app.use(json())
-app.use(express.static(path.join(__dirname, 'public/')))
+app.use(express.static('./public'))
 app.use(fileUpload({
   limits: { fileSize: 5 * 1024 * 1024 }
 }))

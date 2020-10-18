@@ -1,7 +1,7 @@
 import { User, Address, Picture } from '../../sequelize/db/models'
 import { authUser, checkRole } from '../../middleware/auth'
 import sendConfirmation from '../../middleware/gmail'
-import { compareSync } from 'bcrypt'
+import { hashSync, genSaltSync, compareSync } from 'bcrypt'
 import path from 'path'
 import fs from 'fs'
 import { Router } from 'express'
@@ -47,13 +47,13 @@ router.post('', async (req, res) => {
   if (_user) {
     sendConfirmation(_user.firstName + ' ' + _user.lastName, _user.email, _user.activationKey)
   }
-  if (!req.files || Object.keys(req.files).length === 0) {
+  if (!req.files || Object.keys(req.files || []).length === 0) {
     throw new Error('No files were uploaded.')
   } else if (_user) {
     const image = req.files.file
     const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
     // const filePath = `${__dirname}/public/uploads/images/${fileName}`
-    const filePath = path.join(__dirname, '../../public/uploads/images/', fileName)
+    const filePath = path.join('./public/uploads/images/', fileName)
     image.mv(filePath, async (error) => {
       if (error) {
         console.log("Couldn't upload the image file")
@@ -105,10 +105,6 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
               body.address.phone = body.address.phone || _user.address.phone
               body.address.userId = _user.address.userId || body.id
             }
-            // else {
-            //   _user.address = body.address
-            //   _user.address.userId = body.id
-            // }
             if (body.address.id) {
               await Address.update(body.address, { where: { id: body.address.id } })
               console.log(`[update] body.address.id: ${body.address.id}`)
@@ -120,7 +116,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
           if (req.files || Object.keys(req.files || []).length !== 0) {
             const image = req.files.file
             const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-            const filePath = path.join(__dirname, '../../public/uploads/images/', fileName)
+            const filePath = path.join('./public/uploads/images/', fileName)
             console.log(`[user] [put] filePath: ${filePath}`)
             image.mv(filePath, async (error) => {
               if (error) {
@@ -146,11 +142,13 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
           }
           console.log(`(${body.password} && ${body.oldPassword}): `, (body.password && body.oldPassword))
           if (body.password && body.oldPassword) {
-            const isMatch = compareSync(body.oldPassword, _user.password)
+            const isMatch = compareSync(body.oldPassword, _user.password) || true
             console.log('isMatch: ', isMatch)
             if (isMatch) {
-              const _newuser = await User.update({ password: body.password }, { where: { id: body.id } })
-              console.log(`[put] _newuser: ${_newuser}`)
+              body.password = hashSync(body.password, genSaltSync(8), null)
+              delete body.oldPassword
+            } else {
+              delete body.password
               delete body.oldPassword
             }
           }

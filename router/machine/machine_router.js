@@ -19,12 +19,12 @@ router.get('/:id', async (req, res) => {
 router.post('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
   const _machine = await Machine.create(body)
-  if (!req.files || Object.keys(req.files).length === 0) {
+  if (!req.files || Object.keys(req.files || []).length === 0) {
     throw new Error('No files were uploaded.')
   } else if (_machine) {
     const image = req.files.file
     const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-    const filePath = path.join(__dirname, '../../public/uploads/images/', fileName)
+    const filePath = path.join('./public/uploads/images/', fileName)
     image.mv(filePath, async (error) => {
       if (error) {
         console.log("Couldn't upload the image file")
@@ -50,16 +50,14 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
   const body = req.body
   if (body.id) {
     const _machine = await Machine.findOne(body, { where: { id: body.id } })
-    _machine.name = body.name || _machine.name
-    _machine.description = body.description || _machine.description
-    _machine.parentId = body.parentId || _machine.parentId
-    _machine.isLowbed = body.isLowbed || _machine.isLowbed
-    delete _machine.updatedAt
-    delete _machine.createdAt
-    if (req.files || Object.keys(req.files).length !== 0) {
+    body.name = body.name || _machine.name
+    body.description = body.description || _machine.description
+    body.parentId = body.parentId || _machine.parentId
+    body.isLowbed = body.isLowbed || _machine.isLowbed
+    if (req.files || Object.keys(req.files || []).length !== 0) {
       const image = req.files.file
       const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-      const filePath = path.join(__dirname, '../../public/uploads/images/', fileName)
+      const filePath = path.join('./public/uploads/images/', fileName)
       image.mv(filePath, async (error) => {
         if (error) {
           console.log("Couldn't upload the image file")
@@ -70,14 +68,19 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
           const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
           if (machineId) pic.machineId = parseInt(machineId)
           const pics = await Picture.findAll({ where: { machineId: body.id } })
-          await pics.forEach(element => { fs.unlink(element.filePath) }).catch(err => console.log(err))
+          pics.forEach(element => {
+            fs.unlink(element.fileName, (err) => {
+              if (err) console.log('érror', err.message)
+              else console.log(`${element.fileName} was deleted`)
+            })
+          })
           await Picture.destroy({ where: { machineId: body.id } })
           const _picture = await Picture.create(pic)
           console.log(`[machine] [put] _picture.id ${_picture.id}`)
         }
       })
     }
-    await Machine.update(_machine, { where: { id: body.id } })
+    await Machine.update(body, { where: { id: body.id } })
     const response = await Machine.findOne({
       include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
       where: { id: body.id }
