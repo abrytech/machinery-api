@@ -77,47 +77,43 @@ router.post('', async (req, res) => {
 
 router.put('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
-  // let _user = {}
   try {
     if (body) {
       if (body.id) {
         const _user = await User.findOne({ where: { id: body.id }, include: [{ model: Address, as: 'address' }] })
         if (_user) {
-          _user.firstName = body.firstName || _user.firstName
-          _user.lastName = body.lastName || _user.lastName
-          _user.email = body.email || _user.email
-          _user.username = body.username || _user.username
-          _user.phone = body.phone || _user.phone
-          _user.userType = body.userType || _user.userType
-          _user.role = body.role || _user.role
-          _user.isApproved = body.isApproved || _user.isApproved
-          _user.spam = body.spam || _user.spam
-          _user.deleted = body.deleted || _user.deleted
-          _user.isActivated = body.isActivated || _user.isActivated
-          _user.activationKey = body.activationKey || _user.activationKey
-          delete _user.updatedAt
-          delete _user.createdAt
+          body.firstName = body.firstName || _user.firstName
+          body.lastName = body.lastName || _user.lastName
+          body.email = body.email || _user.email
+          body.username = body.username || _user.username
+          body.phone = body.phone || _user.phone
+          body.userType = body.userType || _user.userType
+          body.role = body.role || _user.role
+          body.isApproved = body.isApproved || _user.isApproved
+          body.spam = body.spam || _user.spam
+          body.deleted = body.deleted || _user.deleted
+          body.isActivated = body.isActivated || _user.isActivated
+          body.activationKey = body.activationKey || _user.activationKey
           if (body.address) {
             if (_user.address) {
-              _user.address.id = body.address.id || _user.address.id
-              _user.address.kebele = body.address.kebele || _user.address.kebele
-              _user.address.woreda = body.address.woreda || _user.address.woreda
-              _user.address.zone = body.address.zone || _user.address.zone
-              _user.address.city = body.address.city || _user.address.city
-              _user.address.company = body.address.company || _user.address.company
-              _user.address.phone = body.address.phone || _user.address.phone
-              _user.address.userId = _user.address.userId || body.id
-              delete _user.address.updatedAt
-              delete _user.address.createdAt
-            } else {
-              _user.address = body.address
-              _user.address.userId = body.id
+              body.address.id = body.address.id || _user.address.id
+              body.address.kebele = body.address.kebele || _user.address.kebele
+              body.address.woreda = body.address.woreda || _user.address.woreda
+              body.address.zone = body.address.zone || _user.address.zone
+              body.address.city = body.address.city || _user.address.city
+              body.address.company = body.address.company || _user.address.company
+              body.address.phone = body.address.phone || _user.address.phone
+              body.address.userId = _user.address.userId || body.id
             }
-            if (_user.address.id) {
-              await Address.update(_user.address, { where: { id: _user.address.id } })
-              console.log(`[update] _user.address.id: ${_user.address.id}`)
+            // else {
+            //   _user.address = body.address
+            //   _user.address.userId = body.id
+            // }
+            if (body.address.id) {
+              await Address.update(body.address, { where: { id: body.address.id } })
+              console.log(`[update] body.address.id: ${body.address.id}`)
             } else {
-              const _address = await Address.create(_user.address)
+              const _address = await Address.create(body.address)
               console.log(`[new] _address.id: ${_address.id}`)
             }
           }
@@ -148,15 +144,17 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
               }
             })
           }
+          console.log(`(${body.password} && ${body.oldPassword}): `, (body.password && body.oldPassword))
           if (body.password && body.oldPassword) {
             const isMatch = compareSync(body.oldPassword, _user.password)
+            console.log('isMatch: ', isMatch)
             if (isMatch) {
-            // _user.password = body.password
               const _newuser = await User.update({ password: body.password }, { where: { id: body.id } })
               console.log(`[put] _newuser: ${_newuser}`)
+              delete body.oldPassword
             }
           }
-          const _newuser = await User.update(_user, { where: { id: body.id } })
+          const _newuser = await User.update(body, { where: { id: body.id } })
           console.log(`[put] _newuser: ${_newuser}`)
           const response = await User.findOne({
             where: { id: body.id },
