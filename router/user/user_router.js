@@ -136,7 +136,12 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
                 const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
                 if (userId) pic.userId = parseInt(userId)
                 const pics = await Picture.findAll({ where: { userId: body.id } })
-                await pics.forEach(element => { fs.unlink(element.filePath) }).catch(err => console.log(err))
+                pics.forEach(element => {
+                  fs.unlink(pics.fileName, (err) => {
+                    if (err) console.log('érror', err.message)
+                    else console.log(`${pics.fileName} was deleted`)
+                  })
+                })
                 await Picture.destroy({ where: { userId: body.id } })
                 const _picture = await Picture.create(pic)
                 console.log(`[user] [put] _picture.id: ${_picture.id}`)
