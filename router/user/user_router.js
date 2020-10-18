@@ -128,17 +128,18 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
           const image = req.files.file
           const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
           const filePath = path.join(__dirname, '../../public/uploads/images/', fileName)
+          console.log(`[user] [put] filePath: ${filePath.id}`)
           image.mv(filePath, async (error) => {
             if (error) {
               console.log("Couldn't upload the image file")
               throw error
             } else {
               console.log('Image file succesfully uploaded.')
-              const userId = req.body.id
+              const userId = body.id
               const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
               if (userId) pic.userId = parseInt(userId)
               const pics = await Picture.findAll({ where: { userId: body.id } })
-              pics.forEach(element => { fs.unlink(element.filePath) })
+              await pics.forEach(element => { fs.unlink(element.filePath) })
               await Picture.destroy({ where: { userId: body.id } })
               const _picture = await Picture.create(pic)
               console.log(`[user] [put] _picture.id: ${_picture.id}`)

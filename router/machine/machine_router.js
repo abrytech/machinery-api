@@ -64,11 +64,11 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
           throw error
         } else {
           console.log('Image file succesfully uploaded.')
-          const machineId = req.body.id
+          const machineId = body.id
           const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
           if (machineId) pic.machineId = parseInt(machineId)
           const pics = await Picture.findAll({ where: { machineId: body.id } })
-          pics.forEach(element => { fs.unlink(element.filePath) })
+          await pics.forEach(element => { fs.unlink(element.filePath) }).catch(err => console.log(err))
           await Picture.destroy({ where: { machineId: body.id } })
           const _picture = await Picture.create(pic)
           console.log(`[machine] [put] _picture.id ${_picture.id}`)
