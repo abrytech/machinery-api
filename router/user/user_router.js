@@ -137,9 +137,9 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
                 if (userId) pic.userId = parseInt(userId)
                 const pics = await Picture.findAll({ where: { userId: body.id } })
                 pics.forEach(element => {
-                  fs.unlink(pics.fileName, (err) => {
+                  fs.unlink(element.fileName, (err) => {
                     if (err) console.log('érror', err.message)
-                    else console.log(`${pics.fileName} was deleted`)
+                    else console.log(`${element.fileName} was deleted`)
                   })
                 })
                 await Picture.destroy({ where: { userId: body.id } })
