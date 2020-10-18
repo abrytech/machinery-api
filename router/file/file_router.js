@@ -2,6 +2,7 @@
 import { Picture, User, Machine, Machinery } from '../../sequelize/db/models'
 import { Router } from 'express'
 import path from 'path'
+
 const router = Router()
 
 const www = process.env.WWW || './public/'
@@ -22,7 +23,7 @@ router.post('', async (req, res) => {
   }
   const image = req.files.file
   const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-  const filePath = www + 'uploads/images/' + fileName
+  const filePath = www + 'uploads/imgs/' + fileName
   image.mv(filePath, async (error) => {
     if (error) {
       console.log("Couldn't upload the image file")
@@ -49,7 +50,7 @@ router.put('', async (req, res) => {
   }
   const image = req.files.file
   const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-  const filePath = www + 'uploads/images/' + fileName
+  const filePath = www + 'uploads/imgs/' + fileName
   image.mv(filePath, async (error) => {
     if (error) {
       console.log("Couldn't upload the image file")

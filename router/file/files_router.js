@@ -46,7 +46,7 @@ router.post('', async (req, res) => {
   for (const image of images) {
     index++
     const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-    const filePath = www + 'uploads/images/' + fileName
+    const filePath = www + 'uploads/imgs/' + fileName
     image.mv(filePath, async (error) => {
       if (error) {
         console.log("Couldn't upload the image file")

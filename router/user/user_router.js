@@ -1,9 +1,10 @@
 import { User, Address, Picture } from '../../sequelize/db/models'
 import { authUser, checkRole } from '../../middleware/auth'
+import { deleteFileFromS3, uploadFileIntoS3 } from '../../middleware/aws'
 import sendConfirmation from '../../middleware/gmail'
 import { hashSync, genSaltSync, compareSync } from 'bcrypt'
 import path from 'path'
-import fs from 'fs'
+// import fs from 'fs'
 import { Router } from 'express'
 
 const router = Router()
@@ -52,7 +53,7 @@ router.post('', async (req, res) => {
   } else if (_user) {
     const image = req.files.file
     const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-    const filePath = www + 'uploads/images/' + fileName
+    const filePath = www + 'uploads/imgs/' + fileName
     image.mv(filePath, async (error) => {
       if (error) {
         console.log("Couldn't upload the image file")
@@ -114,30 +115,32 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
           }
           if (req.files || Object.keys(req.files || []).length !== 0) {
             const image = req.files.file
-            const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-            const filePath = www + 'uploads/images/' + fileName
-            console.log(`[user] [put] filePath: ${filePath}`)
-            image.mv(filePath, async (error) => {
-              if (error) {
-                console.log("Couldn't upload the image file")
-                throw error
-              } else {
-                console.log('Image file succesfully uploaded.')
-                const userId = body.id
-                const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
-                if (userId) pic.userId = parseInt(userId)
-                const pics = await Picture.findAll({ where: { userId: body.id } })
-                pics.forEach(element => {
-                  fs.unlink(element.fileName, (err) => {
-                    if (err) console.log('érror', err.message)
-                    else console.log(`${element.fileName} was deleted`)
-                  })
-                })
-                await Picture.destroy({ where: { userId: body.id } })
-                const _picture = await Picture.create(pic)
-                console.log(`[user] [put] _picture.id: ${_picture.id}`)
-              }
+            const pics = await Picture.findAll({ where: { userId: body.id } })
+            pics.forEach(element => {
+              deleteFileFromS3(element.fileName)
+              // fs.unlink(element.fileName, (err) => {
+              //   if (err) console.log('érror', err.message)
+              //   else console.log(`${element.fileName} was deleted`)
+              // })
             })
+            uploadFileIntoS3(image)
+            // const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
+            // const filePath = www + 'uploads/imgs/' + fileName
+            // console.log(`[user] [put] filePath: ${filePath}`)
+            // image.mv(filePath, async (error) => {
+            //   if (error) {
+            //     console.log("Couldn't upload the image file")
+            //     throw error
+            //   } else {
+            //     console.log('Image file succesfully uploaded.')
+            //     const userId = body.id
+            //     const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
+            //     if (userId) pic.userId = parseInt(userId)
+            //     await Picture.destroy({ where: { userId: body.id } })
+            //     const _picture = await Picture.create(pic)
+            //     console.log(`[user] [put] _picture.id: ${_picture.id}`)
+            //   }
+            // })
           }
           console.log(`(${body.password} && ${body.oldPassword}): `, (body.password && body.oldPassword))
           if (body.password && body.oldPassword) {

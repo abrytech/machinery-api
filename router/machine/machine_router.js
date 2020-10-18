@@ -24,7 +24,7 @@ router.post('', authUser, checkRole(['Admin']), async (req, res) => {
   } else if (_machine) {
     const image = req.files.file
     const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-    const filePath = www + 'uploads/images/' + fileName
+    const filePath = www + 'uploads/imgs/' + fileName
     image.mv(filePath, async (error) => {
       if (error) {
         console.log("Couldn't upload the image file")
@@ -57,7 +57,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
     if (req.files || Object.keys(req.files || []).length !== 0) {
       const image = req.files.file
       const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-      const filePath = www + 'uploads/images/' + fileName
+      const filePath = www + 'uploads/imgs/' + fileName
       image.mv(filePath, async (error) => {
         if (error) {
           console.log("Couldn't upload the image file")
