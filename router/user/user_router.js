@@ -7,7 +7,7 @@ import fs from 'fs'
 import { Router } from 'express'
 
 const router = Router()
-// const www = process.env.WWW || './public/'
+const www = process.env.WWW || './public/'
 
 router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
@@ -52,8 +52,7 @@ router.post('', async (req, res) => {
   } else if (_user) {
     const image = req.files.file
     const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-    // const filePath = `${__dirname}/public/uploads/images/${fileName}`
-    const filePath = path.join('./public/uploads/images/', fileName)
+    const filePath = www + 'uploads/images/' + fileName
     image.mv(filePath, async (error) => {
       if (error) {
         console.log("Couldn't upload the image file")
@@ -116,7 +115,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
           if (req.files || Object.keys(req.files || []).length !== 0) {
             const image = req.files.file
             const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-            const filePath = path.join('./public/uploads/images/', fileName)
+            const filePath = www + 'uploads/images/' + fileName
             console.log(`[user] [put] filePath: ${filePath}`)
             image.mv(filePath, async (error) => {
               if (error) {

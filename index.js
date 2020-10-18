@@ -13,7 +13,7 @@ import fileUpload from 'express-fileupload'
 const app = express()
 const port = process.env.PORT || 8080
 // const host = process.env.HOST || 'http://localhost'
-// const www = process.env.WWW || './public'
+const www = process.env.WWW || './public'
 app.use(compression())
 app.use(helmet())
 app.use(cors({
@@ -24,7 +24,7 @@ app.use(cors({
 }))
 app.use(urlencoded({ extended: false }))
 app.use(json())
-app.use(express.static('./public'))
+app.use(express.static(www))
 app.use(fileUpload({
   limits: { fileSize: 5 * 1024 * 1024 }
 }))
