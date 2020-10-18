@@ -7,7 +7,7 @@ import fs from 'fs'
 import { Router } from 'express'
 
 const router = Router()
-const www = process.env.WWW || './public/'
+// const www = process.env.WWW || './public/'
 
 router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
@@ -52,7 +52,8 @@ router.post('', async (req, res) => {
   } else if (_user) {
     const image = req.files.file
     const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-    const filePath = www + 'uploads/images/' + fileName
+    // const filePath = `${__dirname}/public/uploads/images/${fileName}`
+    const filePath = path.join(__dirname, '../../public/uploads/images/', fileName)
     image.mv(filePath, async (error) => {
       if (error) {
         console.log("Couldn't upload the image file")
@@ -126,7 +127,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
         if (req.files || Object.keys(req.files).length !== 0) {
           const image = req.files.file
           const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-          const filePath = www + 'uploads/images/' + fileName
+          const filePath = path.join(__dirname, '../../public/uploads/images/', fileName)
           image.mv(filePath, async (error) => {
             if (error) {
               console.log("Couldn't upload the image file")
@@ -140,7 +141,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
               pics.forEach(element => { fs.unlink(element.filePath) })
               await Picture.destroy({ where: { userId: body.id } })
               const _picture = await Picture.create(pic)
-              console.log(`[user] [put] _picture?.id: ${_picture.id}`)
+              console.log(`[user] [put] _picture.id: ${_picture.id}`)
             }
           })
         }
@@ -150,8 +151,9 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
             _user.password = body.password
           }
         }
-        const _newuser = await User.update(_user, { where: { id: _user.id } })
-        console.log(`_newuser.id: ${_newuser.id}`)
+        console.log(`[put]  _user.password: ${_user.password}`)
+        const _newuser = await User.update(_user, { where: { id: body.id } })
+        console.log(`[put] _newuser: ${_newuser}`)
         const response = await User.findOne({
           where: { id: body.id },
           include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
