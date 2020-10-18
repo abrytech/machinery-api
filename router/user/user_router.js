@@ -117,10 +117,10 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
           }
           if (_user.address.id) {
             await Address.update(_user.address, { where: { id: _user.address.id } })
-            console.log(`update _user.address?.id: ${_user.address?.id}`)
+            console.log(`[update] _user.address.id: ${_user.address.id}`)
           } else {
-            _user.address = await Address.create(_user.address)
-            console.log(`new _user.address?.id: ${_user.address?.id}`)
+            const _address = await Address.create(_user.address)
+            console.log(`[new] _address.id: ${_address.id}`)
           }
         }
         if (req.files || Object.keys(req.files).length !== 0) {
@@ -140,7 +140,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
               pics.forEach(element => { fs.unlink(element.filePath) })
               await Picture.destroy({ where: { userId: body.id } })
               const _picture = await Picture.create(pic)
-              console.log(`[user] [put] _picture?.id: ${_picture?.id}`)
+              console.log(`[user] [put] _picture?.id: ${_picture.id}`)
             }
           })
         }
@@ -150,8 +150,8 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
             _user.password = body.password
           }
         }
-        const _newUser = await User.update(_user, { where: { id: _user.id } })
-        console.log(`_newUser?.id: ${_newUser?.id}`)
+        const _newuser = await User.update(_user, { where: { id: _user.id } })
+        console.log(`_newuser.id: ${_newuser.id}`)
         const response = await User.findOne({
           where: { id: body.id },
           include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]

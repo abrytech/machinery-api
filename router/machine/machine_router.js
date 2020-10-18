@@ -35,7 +35,7 @@ router.post('', authUser, checkRole(['Admin']), async (req, res) => {
         const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
         if (machineId) pic.machineId = parseInt(machineId)
         const _picture = await Picture.create(pic)
-        console.log(`[machine] [post] _picture?.id ${_picture.id}`)
+        console.log(`[machine] [post] _picture.id ${_picture.id}`)
       }
     })
   }
@@ -71,7 +71,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
           pics.forEach(element => { fs.unlink(element.filePath) })
           await Picture.destroy({ where: { machineId: body.id } })
           const _picture = await Picture.create(pic)
-          console.log(`[machine] [put] _picture?.id ${_picture.id}`)
+          console.log(`[machine] [put] _picture.id ${_picture.id}`)
         }
       })
     }
