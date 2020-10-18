@@ -117,7 +117,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
               console.log(`[new] _address.id: ${_address.id}`)
             }
           }
-          if (req.files || Object.keys(req.files).length !== 0) {
+          if (req.files || Object.keys(req.files || []).length !== 0) {
             const image = req.files.file
             const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
             const filePath = path.join(__dirname, '../../public/uploads/images/', fileName)
