@@ -141,7 +141,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
           }
           console.log(`(${body.password} && ${body.oldPassword}): `, (body.password && body.oldPassword))
           if (body.password && body.oldPassword) {
-            const isMatch = compareSync(body.oldPassword, _user.password) || true
+            const isMatch = compareSync(body.oldPassword, _user.password)
             console.log('isMatch: ', isMatch)
             if (isMatch) {
               body.password = hashSync(body.password, genSaltSync(8), null)
