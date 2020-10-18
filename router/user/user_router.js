@@ -1,10 +1,10 @@
-import { Router } from 'express'
 import { User, Address, Picture } from '../../sequelize/db/models'
 import { authUser, checkRole } from '../../middleware/auth'
 import sendConfirmation from '../../middleware/gmail'
 import { compareSync } from 'bcrypt'
 import path from 'path'
 import fs from 'fs'
+import { Router } from 'express'
 
 const router = Router()
 const www = process.env.WWW || './public/'
@@ -33,33 +33,56 @@ router.get('/me', authUser, async (req, res) => {
 
 router.post('', async (req, res) => {
   const body = req.body
-  let user = {}
-  console.log(body)
   if (body.role === 'Admin') body.isApproved = true
-  user = await User.create(body).catch((error) => {
+  const _user = await User.create(body).catch((error) => {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   if (body.address) {
     const addressBody = body.address
-    addressBody.userId = user.id
-    user.address = await Address.create(addressBody).catch((error) => {
+    addressBody.userId = _user.id
+    _user.address = await Address.create(addressBody).catch((error) => {
       res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
     })
   }
-  if (user) {
-    sendConfirmation(user.firstName + ' ' + user.lastName, user.email, user.activationKey)
+  if (_user) {
+    sendConfirmation(_user.firstName + ' ' + _user.lastName, _user.email, _user.activationKey)
   }
-  res.send(user)
+  if (!req.files || Object.keys(req.files).length === 0) {
+    throw new Error('No files were uploaded.')
+  } else if (_user) {
+    const image = req.files.file
+    const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
+    const filePath = www + 'uploads/images/' + fileName
+    image.mv(filePath, async (error) => {
+      if (error) {
+        console.log("Couldn't upload the image file")
+        throw error
+      } else {
+        console.log('Image file succesfully uploaded.')
+        const machineId = req.body.id
+        const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
+        if (machineId) pic.machineId = parseInt(machineId)
+        const _picture = await Picture.create(pic)
+        console.log(`[user] [post] _picture?.id ${_picture.id}`)
+      }
+    })
+  }
+  const response = await User.findOne({
+    include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+    where: { id: _user.id }
+  })
+  res.send(response)
 })
 
 router.put('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
+  let _user = {}
   try {
     if (body) {
       if (body.id) {
-        const _user = await User.findOne({
+        _user = await User.findOne({
           where: { id: body.id },
-          include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
+          include: [{ model: Address, as: 'address' }]
         })
         _user.firstName = body.firstName || _user.firstName
         _user.lastName = body.lastName || _user.lastName
@@ -92,18 +115,18 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
             _user.address = body.address
             _user.address.userId = body.id
           }
-          if (_user.address.id) await Address.update(_user.address, { where: { id: _user.address.id } })
-          else _user.address = await Address.create(_user.address)
+          if (_user.address.id) {
+            await Address.update(_user.address, { where: { id: _user.address.id } })
+            console.log(`update _user.address?.id: ${_user.address?.id}`)
+          } else {
+            _user.address = await Address.create(_user.address)
+            console.log(`new _user.address?.id: ${_user.address?.id}`)
+          }
         }
         if (req.files || Object.keys(req.files).length !== 0) {
           const image = req.files.file
           const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
           const filePath = www + 'uploads/images/' + fileName
-          const pics = await Picture.findAll({ where: { userId: body.id } })
-          pics.forEach(element => {
-            fs.unlink(element.filePath)
-          })
-          await Picture.destroy({ where: { userId: body.id } })
           image.mv(filePath, async (error) => {
             if (error) {
               console.log("Couldn't upload the image file")
@@ -113,9 +136,11 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
               const userId = req.body.id
               const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
               if (userId) pic.userId = parseInt(userId)
+              const pics = await Picture.findAll({ where: { userId: body.id } })
+              pics.forEach(element => { fs.unlink(element.filePath) })
               await Picture.destroy({ where: { userId: body.id } })
-              _user.picture = await Picture.create(pic)
-              console.log(_user.picture)
+              const _picture = await Picture.create(pic)
+              console.log(`[user] [put] _picture?.id: ${_picture?.id}`)
             }
           })
         }
@@ -125,9 +150,13 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
             _user.password = body.password
           }
         }
-        console.log(_user)
-        await User.update(_user, { where: { id: _user.id } })
-        res.send(_user)
+        const _newUser = await User.update(_user, { where: { id: _user.id } })
+        console.log(`_newUser?.id: ${_newUser?.id}`)
+        const response = await User.findOne({
+          where: { id: body.id },
+          include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
+        })
+        res.send(response)
       } else throw Error('Bad Request: User ID is Missing')
     } else throw Error('Bad Request: Your Request Body is Null')
   } catch (error) {
