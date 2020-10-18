@@ -54,6 +54,8 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
     _machine.description = body.description || _machine.description
     _machine.parentId = body.parentId || _machine.parentId
     _machine.isLowbed = body.isLowbed || _machine.isLowbed
+    delete _machine.updatedAt
+    delete _machine.createdAt
     if (req.files || Object.keys(req.files).length !== 0) {
       const image = req.files.file
       const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
@@ -78,7 +80,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
     await Machine.update(_machine, { where: { id: body.id } })
     const response = await Machine.findOne({
       include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
-      where: { id: _machine.id }
+      where: { id: body.id }
     })
     res.send(response)
   }

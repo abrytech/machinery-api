@@ -77,89 +77,88 @@ router.post('', async (req, res) => {
 
 router.put('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
-  let _user = {}
+  // let _user = {}
   try {
     if (body) {
       if (body.id) {
-        _user = await User.findOne({
-          where: { id: body.id },
-          include: [{ model: Address, as: 'address' }]
-        })
-        _user.firstName = body.firstName || _user.firstName
-        _user.lastName = body.lastName || _user.lastName
-        _user.email = body.email || _user.email
-        _user.username = body.username || _user.username
-        _user.phone = body.phone || _user.phone
-        _user.userType = body.userType || _user.userType
-        _user.role = body.role || _user.role
-        _user.isApproved = body.isApproved || _user.isApproved
-        _user.spam = body.spam || _user.spam
-        _user.deleted = body.deleted || _user.deleted
-        _user.isActivated = body.isActivated || _user.isActivated
-        _user.activationKey = body.activationKey || _user.activationKey
-        _user.picture = _user.picture || body.picture
-        delete _user.updatedAt
-        delete _user.createdAt
-        if (body.address) {
-          if (_user.address) {
-            _user.address.id = body.address.id || _user.address.id
-            _user.address.kebele = body.address.kebele || _user.address.kebele
-            _user.address.woreda = body.address.woreda || _user.address.woreda
-            _user.address.zone = body.address.zone || _user.address.zone
-            _user.address.city = body.address.city || _user.address.city
-            _user.address.company = body.address.company || _user.address.company
-            _user.address.phone = body.address.phone || _user.address.phone
-            _user.address.userId = _user.address.userId || body.id
-            delete _user.address.updatedAt
-            delete _user.address.createdAt
-          } else {
-            _user.address = body.address
-            _user.address.userId = body.id
-          }
-          if (_user.address.id) {
-            await Address.update(_user.address, { where: { id: _user.address.id } })
-            console.log(`[update] _user.address.id: ${_user.address.id}`)
-          } else {
-            const _address = await Address.create(_user.address)
-            console.log(`[new] _address.id: ${_address.id}`)
-          }
-        }
-        if (req.files || Object.keys(req.files).length !== 0) {
-          const image = req.files.file
-          const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-          const filePath = path.join(__dirname, '../../public/uploads/images/', fileName)
-          console.log(`[user] [put] filePath: ${filePath.id}`)
-          image.mv(filePath, async (error) => {
-            if (error) {
-              console.log("Couldn't upload the image file")
-              throw error
+        const _user = await User.findOne({ where: { id: body.id }, include: [{ model: Address, as: 'address' }] })
+        if (_user) {
+          _user.firstName = body.firstName || _user.firstName
+          _user.lastName = body.lastName || _user.lastName
+          _user.email = body.email || _user.email
+          _user.username = body.username || _user.username
+          _user.phone = body.phone || _user.phone
+          _user.userType = body.userType || _user.userType
+          _user.role = body.role || _user.role
+          _user.isApproved = body.isApproved || _user.isApproved
+          _user.spam = body.spam || _user.spam
+          _user.deleted = body.deleted || _user.deleted
+          _user.isActivated = body.isActivated || _user.isActivated
+          _user.activationKey = body.activationKey || _user.activationKey
+          delete _user.updatedAt
+          delete _user.createdAt
+          if (body.address) {
+            if (_user.address) {
+              _user.address.id = body.address.id || _user.address.id
+              _user.address.kebele = body.address.kebele || _user.address.kebele
+              _user.address.woreda = body.address.woreda || _user.address.woreda
+              _user.address.zone = body.address.zone || _user.address.zone
+              _user.address.city = body.address.city || _user.address.city
+              _user.address.company = body.address.company || _user.address.company
+              _user.address.phone = body.address.phone || _user.address.phone
+              _user.address.userId = _user.address.userId || body.id
+              delete _user.address.updatedAt
+              delete _user.address.createdAt
             } else {
-              console.log('Image file succesfully uploaded.')
-              const userId = body.id
-              const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
-              if (userId) pic.userId = parseInt(userId)
-              const pics = await Picture.findAll({ where: { userId: body.id } })
-              await pics.forEach(element => { fs.unlink(element.filePath) })
-              await Picture.destroy({ where: { userId: body.id } })
-              const _picture = await Picture.create(pic)
-              console.log(`[user] [put] _picture.id: ${_picture.id}`)
+              _user.address = body.address
+              _user.address.userId = body.id
             }
-          })
-        }
-        if (body.password && body.oldPassword) {
-          const isMatch = compareSync(body.oldPassword, _user.password)
-          if (isMatch) {
-            _user.password = body.password
+            if (_user.address.id) {
+              await Address.update(_user.address, { where: { id: _user.address.id } })
+              console.log(`[update] _user.address.id: ${_user.address.id}`)
+            } else {
+              const _address = await Address.create(_user.address)
+              console.log(`[new] _address.id: ${_address.id}`)
+            }
           }
-        }
-        console.log(`[put]  _user.password: ${_user.password}`)
-        const _newuser = await User.update(_user, { where: { id: body.id } })
-        console.log(`[put] _newuser: ${_newuser}`)
-        const response = await User.findOne({
-          where: { id: body.id },
-          include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
-        })
-        res.send(response)
+          if (req.files || Object.keys(req.files).length !== 0) {
+            const image = req.files.file
+            const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
+            const filePath = path.join(__dirname, '../../public/uploads/images/', fileName)
+            console.log(`[user] [put] filePath: ${filePath}`)
+            image.mv(filePath, async (error) => {
+              if (error) {
+                console.log("Couldn't upload the image file")
+                throw error
+              } else {
+                console.log('Image file succesfully uploaded.')
+                const userId = body.id
+                const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
+                if (userId) pic.userId = parseInt(userId)
+                const pics = await Picture.findAll({ where: { userId: body.id } })
+                await pics.forEach(element => { fs.unlink(element.filePath) }).catch(err => console.log(err))
+                await Picture.destroy({ where: { userId: body.id } })
+                const _picture = await Picture.create(pic)
+                console.log(`[user] [put] _picture.id: ${_picture.id}`)
+              }
+            })
+          }
+          if (body.password && body.oldPassword) {
+            const isMatch = compareSync(body.oldPassword, _user.password)
+            if (isMatch) {
+            // _user.password = body.password
+              const _newuser = await User.update({ password: body.password }, { where: { id: body.id } })
+              console.log(`[put] _newuser: ${_newuser}`)
+            }
+          }
+          const _newuser = await User.update(_user, { where: { id: body.id } })
+          console.log(`[put] _newuser: ${_newuser}`)
+          const response = await User.findOne({
+            where: { id: body.id },
+            include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
+          })
+          res.send(response)
+        } else throw Error('Bad Request: User not found')
       } else throw Error('Bad Request: User ID is Missing')
     } else throw Error('Bad Request: Your Request Body is Null')
   } catch (error) {
