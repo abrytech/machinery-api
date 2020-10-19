@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import { Machine, Machinery, Picture } from '../../sequelize/db/models'
 import { authUser, checkRole } from '../../middleware/auth'
-import fs from 'fs'
+// import fs from 'fs'
 
-import path from 'path'
-const www = process.env.WWW || './public/'
+// import path from 'path'
+import { deleteFileFromS3, uploadFileIntoS3 } from '../../middleware/aws'
+// const www = process.env.WWW || './public/'
 const router = Router()
 
 router.get('/:id', async (req, res) => {
@@ -23,21 +24,11 @@ router.post('', authUser, checkRole(['Admin']), async (req, res) => {
     throw new Error('No files were uploaded.')
   } else if (_machine) {
     const image = req.files.file
-    const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-    const filePath = www + 'uploads/imgs/' + fileName
-    image.mv(filePath, async (error) => {
-      if (error) {
-        console.log("Couldn't upload the image file")
-        throw error
-      } else {
-        console.log('Image file succesfully uploaded.')
-        const machineId = _machine.id
-        const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
-        if (machineId) pic.machineId = parseInt(machineId)
-        const _picture = await Picture.create(pic)
-        console.log(`[machine] [post] _picture.id ${_picture.id}`)
-      }
-    })
+    const pic = uploadFileIntoS3(image)
+    const machineId = _machine.id
+    if (machineId) pic.userId = parseInt(machineId)
+    const _picture = await Picture.create(pic)
+    console.log(`[user] [put] _picture.id: ${_picture.id}`)
   }
   const response = await Machine.findOne({
     include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
@@ -56,29 +47,16 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
     body.isLowbed = body.isLowbed || _machine.isLowbed
     if (req.files || Object.keys(req.files || []).length !== 0) {
       const image = req.files.file
-      const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-      const filePath = www + 'uploads/imgs/' + fileName
-      image.mv(filePath, async (error) => {
-        if (error) {
-          console.log("Couldn't upload the image file")
-          throw error
-        } else {
-          console.log('Image file succesfully uploaded.')
-          const machineId = body.id
-          const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
-          if (machineId) pic.machineId = parseInt(machineId)
-          const pics = await Picture.findAll({ where: { machineId: body.id } })
-          pics.forEach(element => {
-            fs.unlink(element.fileName, (err) => {
-              if (err) console.log('érror', err.message)
-              else console.log(`${element.fileName} was deleted`)
-            })
-          })
-          await Picture.destroy({ where: { machineId: body.id } })
-          const _picture = await Picture.create(pic)
-          console.log(`[machine] [put] _picture.id ${_picture.id}`)
-        }
+      const pics = await Picture.findAll({ where: { machineId: body.id } })
+      pics.forEach(element => {
+        deleteFileFromS3(element.fileName)
       })
+      const pic = uploadFileIntoS3(image)
+      const machineId = body.id
+      if (machineId) pic.machineId = parseInt(machineId)
+      await Picture.destroy({ where: { machineId: body.id } })
+      const _picture = await Picture.create(pic)
+      console.log(`[user] [put] _picture.id: ${_picture.id}`)
     }
     await Machine.update(body, { where: { id: body.id } })
     const response = await Machine.findOne({

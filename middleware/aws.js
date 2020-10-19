@@ -12,42 +12,33 @@ const uploadFileIntoS3 = async (file) => {
     Bucket: process.env.AWS_S3_BUCKET,
     Key: fileName,
     Body: file.data,
-    ContentType: mimetype,
-    ACL: 'public-read'
+    ContentType: mimetype
   }
   const res = await new Promise((resolve, reject) => {
     s3.upload(params, (err, data) => err == null ? resolve(data) : reject(err))
   })
   console.log(res)
-  return { fileUrl: res.Location }
+  return { filePath: res.Location, fileName: res.Key, fileSize: file.size, mimeType: mimetype }
 }
 
-// const downloadFileFromS3 = (fileName) => {
-//   const params = {
-//     Bucket: process.env.AWS_S3_BUCKET,
-//     Key: fileName // file will be saved as testBucket/contacts.csv
-//   }
-//   const file = createWriteStream('./download/index.html')
-//   return new Promise((resolve, reject) => {
-//     s3.getObject(params).createReadStream()
-//       .on('end', () => {
-//         return resolve()
-//       })
-//       .on('error', (error) => {
-//         return reject(error)
-//       }).pipe(file)
-//   })
-// }
-
-const deleteFileFromS3 = (fileName) => {
+const deleteFileFromS3 = async (fileName) => {
   const params = {
     Bucket: process.env.AWS_S3_BUCKET,
     Key: fileName // file will be saved as testBucket/contacts.csv
   }
-  s3.deleteObject(params, function (err, data) {
-    if (err) console.log(err, err.stack) // error
-    else console.log('File Successfully Deleted!')
+  const res = await new Promise((resolve, reject) => {
+    s3.deleteObject(params, function (err, data) {
+      if (err) {
+        console.log(err, err.stack) // error
+        reject(err)
+      } else {
+        console.log('File Successfully Deleted!')
+        resolve(data)
+      }
+    })
   })
+  console.log(res)
+  return res
 }
 
 export { uploadFileIntoS3, deleteFileFromS3 }

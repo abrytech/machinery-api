@@ -3,12 +3,12 @@ import { authUser, checkRole } from '../../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../../middleware/aws'
 import sendConfirmation from '../../middleware/gmail'
 import { hashSync, genSaltSync, compareSync } from 'bcrypt'
-import path from 'path'
+// import path from 'path'
 // import fs from 'fs'
 import { Router } from 'express'
 
 const router = Router()
-const www = process.env.WWW || './public/'
+// const www = process.env.WWW || './public/'
 
 router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
@@ -52,21 +52,11 @@ router.post('', async (req, res) => {
     throw new Error('No files were uploaded.')
   } else if (_user) {
     const image = req.files.file
-    const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-    const filePath = www + 'uploads/imgs/' + fileName
-    image.mv(filePath, async (error) => {
-      if (error) {
-        console.log("Couldn't upload the image file")
-        throw error
-      } else {
-        console.log('Image file succesfully uploaded.')
-        const machineId = req.body.id
-        const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
-        if (machineId) pic.machineId = parseInt(machineId)
-        const _picture = await Picture.create(pic)
-        console.log(`[user] [post] _picture?.id ${_picture.id}`)
-      }
-    })
+    const pic = uploadFileIntoS3(image)
+    const userId = _user.id
+    if (userId) pic.userId = parseInt(userId)
+    const _picture = await Picture.create(pic)
+    console.log(`[user] [put] _picture.id: ${_picture.id}`)
   }
   const response = await User.findOne({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
@@ -118,37 +108,26 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
             const pics = await Picture.findAll({ where: { userId: body.id } })
             pics.forEach(element => {
               deleteFileFromS3(element.fileName)
-              // fs.unlink(element.fileName, (err) => {
-              //   if (err) console.log('érror', err.message)
-              //   else console.log(`${element.fileName} was deleted`)
-              // })
             })
-            uploadFileIntoS3(image)
-            // const fileName = image.name.split('.')[0] + '-' + Date.now() + path.extname(image.name)
-            // const filePath = www + 'uploads/imgs/' + fileName
-            // console.log(`[user] [put] filePath: ${filePath}`)
-            // image.mv(filePath, async (error) => {
-            //   if (error) {
-            //     console.log("Couldn't upload the image file")
-            //     throw error
-            //   } else {
-            //     console.log('Image file succesfully uploaded.')
-            //     const userId = body.id
-            //     const pic = { fileName: fileName, filePath: filePath, fileSize: image.size, mimeType: image.mimetype }
-            //     if (userId) pic.userId = parseInt(userId)
-            //     await Picture.destroy({ where: { userId: body.id } })
-            //     const _picture = await Picture.create(pic)
-            //     console.log(`[user] [put] _picture.id: ${_picture.id}`)
-            //   }
-            // })
+            const pic = uploadFileIntoS3(image)
+            const userId = body.id
+            if (userId) pic.userId = parseInt(userId)
+            await Picture.destroy({ where: { userId: body.id } })
+            const _picture = await Picture.create(pic)
+            console.log(`[user] [put] _picture.id: ${_picture.id}`)
           }
           console.log(`(${body.password} && ${body.oldPassword}): `, (body.password && body.oldPassword))
-          if (body.password && body.oldPassword) {
-            const isMatch = compareSync(body.oldPassword, _user.password)
-            console.log('isMatch: ', isMatch)
-            if (isMatch) {
-              body.password = hashSync(body.password, genSaltSync(8), null)
-              delete body.oldPassword
+          if (body.password || body.oldPassword) {
+            if (body.password && body.oldPassword) {
+              const isMatch = compareSync(body.oldPassword, _user.password)
+              console.log('isMatch: ', isMatch)
+              if (isMatch) {
+                body.password = hashSync(body.password, genSaltSync(8), null)
+                delete body.oldPassword
+              } else {
+                delete body.password
+                delete body.oldPassword
+              }
             } else {
               delete body.password
               delete body.oldPassword
