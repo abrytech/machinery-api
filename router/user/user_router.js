@@ -52,9 +52,8 @@ router.post('', async (req, res) => {
     throw new Error('No files were uploaded.')
   } else if (_user) {
     const image = req.files.file
-    const pic = uploadFileIntoS3(image)
-    const userId = _user.id
-    if (userId) pic.userId = parseInt(userId)
+    const pic = await uploadFileIntoS3(image)
+    pic.userId = _user.id
     const _picture = await Picture.create(pic)
     console.log(`[user] [put] _picture.id: ${_picture.id}`)
   }
@@ -107,16 +106,15 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
             const image = req.files.file
             const pics = await Picture.findAll({ where: { userId: body.id } })
             pics.forEach(element => {
-              deleteFileFromS3(element.fileName)
+              if (element.fileName) deleteFileFromS3(element.fileName)
             })
-            const pic = uploadFileIntoS3(image)
-            const userId = body.id
-            if (userId) pic.userId = parseInt(userId)
+            const pic = await uploadFileIntoS3(image)
+            pic.userId = body.id
             await Picture.destroy({ where: { userId: body.id } })
             const _picture = await Picture.create(pic)
             console.log(`[user] [put] _picture.id: ${_picture.id}`)
           }
-          console.log(`(${body.password} && ${body.oldPassword}): `, (body.password && body.oldPassword))
+          // console.log(`(${body.password} && ${body.oldPassword}): `, (body.password && body.oldPassword))
           if (body.password || body.oldPassword) {
             if (body.password && body.oldPassword) {
               const isMatch = compareSync(body.oldPassword, _user.password)

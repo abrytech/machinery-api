@@ -24,9 +24,8 @@ router.post('', authUser, checkRole(['Admin']), async (req, res) => {
     throw new Error('No files were uploaded.')
   } else if (_machine) {
     const image = req.files.file
-    const pic = uploadFileIntoS3(image)
-    const machineId = _machine.id
-    if (machineId) pic.userId = parseInt(machineId)
+    const pic = await uploadFileIntoS3(image)
+    pic.machineId = _machine.id
     const _picture = await Picture.create(pic)
     console.log(`[user] [put] _picture.id: ${_picture.id}`)
   }
@@ -49,11 +48,10 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
       const image = req.files.file
       const pics = await Picture.findAll({ where: { machineId: body.id } })
       pics.forEach(element => {
-        deleteFileFromS3(element.fileName)
+        if (element.fileName) deleteFileFromS3(element.fileName)
       })
-      const pic = uploadFileIntoS3(image)
-      const machineId = body.id
-      if (machineId) pic.machineId = parseInt(machineId)
+      const pic = await uploadFileIntoS3(image)
+      pic.machineId = body.id
       await Picture.destroy({ where: { machineId: body.id } })
       const _picture = await Picture.create(pic)
       console.log(`[user] [put] _picture.id: ${_picture.id}`)
