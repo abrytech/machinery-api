@@ -24,11 +24,14 @@ const uploadFileIntoS3 = async (file) => {
 const deleteFileFromS3 = async (fileName) => {
   const params = {
     Bucket: process.env.AWS_S3_BUCKET,
-    Objects: [
-      {
-        Key: fileName
-      }
-    ]
+    Delete: {
+      Objects: [
+        {
+          Key: fileName
+        }
+      ],
+      Quiet: false
+    }
   }
   console.log(params)
   const res = await new Promise((resolve, reject) => {
