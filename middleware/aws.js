@@ -24,8 +24,13 @@ const uploadFileIntoS3 = async (file) => {
 const deleteFileFromS3 = async (fileName) => {
   const params = {
     Bucket: process.env.AWS_S3_BUCKET,
-    Key: fileName // file will be saved as testBucket/contacts.csv
+    Objects: [
+      {
+        Key: fileName
+      }
+    ]
   }
+  console.log(params)
   const res = await new Promise((resolve, reject) => {
     s3.deleteObject(params, function (err, data) {
       if (err) {

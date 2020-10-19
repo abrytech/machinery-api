@@ -105,8 +105,8 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
           if (req.files || Object.keys(req.files || []).length !== 0) {
             const image = req.files.file
             const pics = await Picture.findAll({ where: { userId: body.id } })
-            pics.forEach(element => {
-              if (element.fileName) deleteFileFromS3(element.fileName)
+            pics.forEach(async element => {
+              if (element.fileName) await deleteFileFromS3(element.fileName)
             })
             const pic = await uploadFileIntoS3(image)
             pic.userId = body.id
