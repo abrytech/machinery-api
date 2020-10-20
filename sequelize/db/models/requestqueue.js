@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = (sequelize, DataTypes) => {
   const RequestQueue = sequelize.define('RequestQueue', {
     jobId: DataTypes.INTEGER,
@@ -9,9 +9,9 @@ module.exports = (sequelize, DataTypes) => {
   }, {})
   RequestQueue.associate = function (models) {
     // define association here
-    RequestQueue.belongsTo(models.Job, { foreignKey: 'jobId', as:'job'})
-    RequestQueue.belongsTo(models.User, { foreignKey: 'userId', as: 'user'})
-    RequestQueue.belongsTo(models.Machinery, { foreignKey: 'lowbedId', as: 'lowbed'})
+    RequestQueue.belongsTo(models.Job, { foreignKey: 'jobId', as: 'job' })
+    RequestQueue.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
+    RequestQueue.belongsTo(models.Machinery, { foreignKey: 'lowbedId', as: 'lowbed' })
   }
-  return RequestQueue;
-};
+  return RequestQueue
+}

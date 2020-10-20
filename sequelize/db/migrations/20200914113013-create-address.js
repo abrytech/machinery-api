@@ -24,6 +24,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
+      lat: { type: Sequelize.FLOAT },
+      long: { type: Sequelize.FLOAT },
+      jobId: { type: Sequelize.INTEGER },
       userId: {
         allowNull: false,
         type: Sequelize.INTEGER

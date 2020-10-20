@@ -34,4 +34,22 @@ const checkRole = roles => (req, res, next) =>
     ? next(error)
     : next()
 
-export { authUser, checkRole }
+function getParams (query) {
+  const params = { page: 1, limit: 10, where: {} }
+  const temp = query.split('&')
+  temp.forEach((param) => {
+    const key = param.split('=')[0]
+    const value = param.split('=')[1]
+    if (key && value) {
+      if (key === 'page' || key === 'limit') {
+        params[key] = parseInt(value)
+      } else {
+        params.where[key] = value
+      }
+    }
+  })
+  console.log(params)
+  return params
+}
+
+export { authUser, checkRole, getParams }
