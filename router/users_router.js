@@ -134,7 +134,25 @@ router.get('', authUser, checkRole(['Admin']), async (req, res) => {
   const users = await User.findAll({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
     offset: 0,
-    limit: 10
+    limit: 25
+  }).catch((error) => {
+    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+  })
+  res.send(users)
+})
+
+router.post('/delete:id', authUser, checkRole(['Admin']), async (req, res) => {
+  const users = await User.destroy({
+    where: { id: req.params.id }
+  }).catch((error) => {
+    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+  })
+  res.send(users)
+})
+
+router.post('/delete', authUser, checkRole(['Admin']), async (req, res) => {
+  const users = await User.destroy({
+    where: req.body
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })

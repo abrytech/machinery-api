@@ -21,8 +21,8 @@ module.exports = (sequelize, DataTypes) => {
   Address.associate = function (models) {
     // associations can be defined here
     Address.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
-    Address.belongsTo(models.Job, { foreignKey: 'jobId', as: 'dropOffAddress' })
-    Address.belongsTo(models.Job, { foreignKey: 'jobId', as: 'pickUpAddress' })
+    Address.hasOne(models.Job, { foreignKey: 'jobId', sourceKey: 'dropOffAddress', as: 'dropOffAddress' })
+    Address.hasOne(models.Job, { foreignKey: 'jobId', sourceKey: 'pickUpAddress', as: 'pickUpAddress' })
   }
   return Address
 }

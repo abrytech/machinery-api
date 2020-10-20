@@ -1,27 +1,29 @@
 
 import { Router } from 'express'
-import { User, Address } from '../sequelize/db/models'
+import { User, Address, Job } from '../sequelize/db/models'
 import { authUser, checkRole, getParams } from '../middleware/auth'
 
 const router = Router()
 router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
-  const where = req.params.id ? { id: req.params.id } : {}
-  const address = await Address.findOne({
-    include: [{ model: User, as: 'user' }],
+  const where = { id: req.params.id }
+  Address.findOne({
+    include: [{ model: User, as: 'user' }, { model: Job, as: 'job' }],
     where
+  }).then((request) => {
+    if (request) res.send(request)
+    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
   }).catch((error) => {
-    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.send(address)
 })
 
-router.get('/mine', authUser, async (req, res) => {
+router.get('/me', authUser, async (req, res) => {
   const where = { id: req.userId }
   const address = await Address.findOne({
-    include: [{ model: User, as: 'user' }],
+    include: [{ model: User, as: 'user' }, { model: Job, as: 'job' }],
     where
   }).catch((error) => {
-    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   res.send(address)
 })
@@ -37,9 +39,9 @@ router.post('', async (req, res, next) => {
 
 router.get('', authUser, checkRole(['Admin']), async (req, res) => {
   const addresses = await Address.findAll({
-    include: [{ model: User, as: 'user' }],
+    include: [{ model: User, as: 'user' }, { model: Job, as: 'job' }],
     offset: 0,
-    limit: 10
+    limit: 25
   }).catch((error) => {
     res.send({ name: error.name, message: error.message, stack: error.stack })
   })
@@ -53,7 +55,7 @@ router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
     const params = getParams(query)
     const addresses = await Address.findAll({
       where: params.where,
-      include: [{ model: User, as: 'user' }],
+      include: [{ model: User, as: 'user' }, { model: Job, as: 'job' }],
       offset: (params.page - 1) * params.limit,
       limit: params.limit
     }).catch((error) => {
