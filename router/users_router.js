@@ -48,7 +48,7 @@ router.post('', async (req, res) => {
       sendConfirmation(_user.firstName + ' ' + _user.lastName, _user.email, _user.activationKey)
     }
     const response = await User.findOne({
-      // include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+      include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
       where: { id: _user.id }
     })
     res.send(response)
