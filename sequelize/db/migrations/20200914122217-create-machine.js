@@ -22,6 +22,7 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
+      pictureId: Sequelize.INTEGER,
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

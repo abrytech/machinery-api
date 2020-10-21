@@ -4,12 +4,13 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     description: DataTypes.STRING(500),
     parentId: DataTypes.INTEGER,
-    isLowbed: DataTypes.BOOLEAN
+    isLowbed: DataTypes.BOOLEAN,
+    pictureId: DataTypes.INTEGER
   }, {})
   Machine.associate = function (models) {
     // associations can be defined here
     Machine.hasOne(Machine, { foreignKey: 'parentId', as: 'parent' })
-    Machine.hasOne(models.Picture, { foreignKey: 'machineId', as: 'picture' })
+    Machine.belongsTo(models.Picture, { foreignKey: 'pictureId', as: 'picture' })
     Machine.hasMany(models.Machinery, { foreignKey: 'machineId', as: 'machinery' })
   }
   return Machine

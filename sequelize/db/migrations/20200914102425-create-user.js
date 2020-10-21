@@ -42,6 +42,8 @@ module.exports = {
         defaultValue: 'User'
       },
       activationKey: Sequelize.STRING,
+      addressId: Sequelize.INTEGER,
+      pictureId: Sequelize.INTEGER,
       isActivated: {
         type: Sequelize.BOOLEAN,
         defaultValue: false

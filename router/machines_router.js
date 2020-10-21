@@ -20,16 +20,16 @@ router.get('/:id', async (req, res) => {
 router.post('', authUser, checkRole(['Admin']), async (req, res) => {
   const body = req.body
   try {
-    const _machine = await Machine.create(body)
     if (!req.files || Object.keys(req.files || []).length === 0) {
       console.warn('No files were uploaded.')
-    } else if (_machine) {
+    } else {
       const image = req.files.file
       const pic = await uploadFileIntoS3(image)
-      pic.machineId = _machine.id
       const _picture = await Picture.create(pic)
       console.log(`[user] [put] _picture.id: ${_picture.id}`)
+      body.machineId = _picture.id
     }
+    const _machine = await Machine.create(body)
     const response = await Machine.findOne({
       include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
       where: { id: _machine.id }
@@ -44,7 +44,10 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
   const body = req.body
   try {
     if (body.id) {
-      const _machine = await Machine.findOne(body, { where: { id: body.id } })
+      const _machine = await Machine.findOne({
+        include: [{ model: Picture, as: 'picture' }],
+        where: { id: body.id }
+      })
       if (_machine) {
         body.name = body.name || _machine.name
         body.description = body.description || _machine.description
@@ -52,19 +55,21 @@ router.put('', authUser, checkRole(['Admin']), async (req, res, err) => {
         body.isLowbed = body.isLowbed || _machine.isLowbed
         if (req.files || Object.keys(req.files || []).length !== 0) {
           const image = req.files.file
-          const pics = await Picture.findAll({ where: { machineId: body.id } })
-          pics.forEach(element => {
-            if (element.fileName) deleteFileFromS3(element.fileName)
-          })
-          const pic = await uploadFileIntoS3(image)
-          pic.machineId = body.id
-          pics.length > 0 ? await Picture.update(pic, { where: { machineId: body.id } }) : await Picture.create(pic)
+          if (_machine.picture) {
+            if (_machine.picture.fileName) await deleteFileFromS3(_machine.picture.fileName)
+            const pic = await uploadFileIntoS3(image)
+            await Picture.update(pic, { where: { id: _machine.picture.id } })
+          } else {
+            const pic = await uploadFileIntoS3(image)
+            const _picture = await Picture.create(pic)
+            body.pictureId = _picture.id
+          }
         }
         const rows = await Machine.update(body, { where: { id: body.id } })
-        const result = await Machine.findOne({
+        const result = rows ? await Machine.findOne({
           include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
           where: { id: body.id }
-        })
+        }) : null
         res.send({ rows, result })
       } else throw Error('Bad Request: Machine not found')
     } else throw Error('Bad Request: Machine ID is Missing')

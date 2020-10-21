@@ -59,6 +59,7 @@ module.exports = {
       horsePower: {
         type: Sequelize.FLOAT
       },
+      pictureId: Sequelize.INTEGER,
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

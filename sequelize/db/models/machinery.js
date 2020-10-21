@@ -17,12 +17,13 @@ module.exports = (sequelize, DataTypes) => {
     loadingCapacity: DataTypes.FLOAT,
     withJackHammer: DataTypes.BOOLEAN,
     serialNo: DataTypes.STRING,
-    horsePower: DataTypes.FLOAT
+    horsePower: DataTypes.FLOAT,
+    pictureId: DataTypes.INTEGER
   }, {})
   Machinery.associate = function (models) {
     // associations can be defined here
     Machinery.belongsTo(models.User, { foreignKey: 'userId', sourceKey: 'id', as: 'user' })
-    Machinery.hasMany(models.Picture, { foreignKey: 'machineryId', sourceKey: 'id', as: 'pictures' })
+    Machinery.belongsTo(models.Picture, { foreignKey: 'pictureId', sourceKey: 'id', as: 'pictures' })
     Machinery.belongsTo(models.Machine, { foreignKey: 'machineId', sourceKey: 'id', as: 'machine' })
   }
   return Machinery

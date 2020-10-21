@@ -17,15 +17,17 @@ module.exports = (sequelize, DataTypes) => {
     distance: DataTypes.FLOAT,
     offRoadDistance: DataTypes.FLOAT,
     hasOffroad: DataTypes.BOOLEAN,
-    status: DataTypes.STRING
+    status: DataTypes.STRING,
+    pictureId: DataTypes.INTEGER
   }, {})
   Job.associate = function (models) {
     // define association here
     Job.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
+    Job.belongsTo(models.Picture, { foreignKey: 'pictureId', as: 'picture' })
     Job.belongsTo(models.Machine, { foreignKey: 'machineId', as: 'machine' })
     Job.hasMany(models.RequestQueue, { foreignKey: 'jobId', as: 'requests' })
-    Job.belongsTo(models.Job, { foreignKey: 'jobId', sourceKey: 'pickUpAddress', as: 'pickUpAddress' })
-    Job.belongsTo(models.Job, { foreignKey: 'jobId', sourceKey: 'dropOffAddress', as: 'dropOffAddress' })
+    Job.belongsTo(models.Address, { foreignKey: 'pickUpAddress', as: 'pickUpAddress' })
+    Job.belongsTo(models.Address, { foreignKey: 'dropOffAddress', as: 'dropOffAddress' })
   }
   return Job
 }

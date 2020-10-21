@@ -21,10 +21,10 @@ module.exports = {
         type: Sequelize.DATE
       },
       pickUpAddress: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       dropOffAddress: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       userId: {
         type: Sequelize.INTEGER
@@ -59,6 +59,7 @@ module.exports = {
       status: {
         type: Sequelize.STRING
       },
+      pictureId: Sequelize.INTEGER,
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

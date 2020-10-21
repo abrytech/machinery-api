@@ -30,6 +30,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue: 'User'
     },
+    addressId: DataTypes.INTEGER,
+    pictureId: DataTypes.INTEGER,
     isActivated: DataTypes.BOOLEAN,
     isApproved: DataTypes.BOOLEAN,
     activationKey: DataTypes.STRING,
@@ -52,8 +54,8 @@ module.exports = (sequelize, DataTypes) => {
   })
   User.associate = function (models) {
     // associations can be defined here
-    User.hasOne(models.Address, { foreignKey: 'userId', as: 'address' })
-    User.hasOne(models.Picture, { foreignKey: 'userId', as: 'picture' })
+    User.belongsTo(models.Address, { foreignKey: 'addressId', sourceKey: 'id', as: 'address' })
+    User.belongsTo(models.Picture, { foreignKey: 'pictureId', sourceKey: 'id', as: 'pictures' })
   }
   return User
 }

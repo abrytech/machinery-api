@@ -22,23 +22,23 @@ router.post('', async (req, res) => {
   try {
     const body = req.body
     if (body.role === 'Admin') body.isApproved = true
-    const _user = await User.create(body)
     if (body.address) {
-      const addressBody = body.address
-      addressBody.userId = _user.id
-      _user.address = await Address.create(addressBody)
-    }
-    if (_user) {
-      sendConfirmation(_user.firstName + ' ' + _user.lastName, _user.email, _user.activationKey)
+      const _address = await Address.create(body.address)
+      delete body.address
+      body.addressId = _address
     }
     if (!req.files || Object.keys(req.files || []).length === 0) {
       console.warn('No files were uploaded.')
-    } else if (_user) {
+    } else {
       const image = req.files.file
       const pic = await uploadFileIntoS3(image)
-      pic.userId = _user.id
       const _picture = await Picture.create(pic)
       console.info(`[user] [put] _picture.id: ${_picture.id}`)
+      body.pictureId = _picture.id
+    }
+    const _user = await User.create(body)
+    if (_user) {
+      sendConfirmation(_user.firstName + ' ' + _user.lastName, _user.email, _user.activationKey)
     }
     const response = await User.findOne({
       include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
@@ -78,25 +78,28 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
               body.address.city = body.address.city || _user.address.city
               body.address.company = body.address.company || _user.address.company
               body.address.phone = body.address.phone || _user.address.phone
-              body.address.userId = _user.address.userId || body.id
             }
             if (body.address.id) {
               await Address.update(body.address, { where: { id: body.address.id } })
               console.log(`[update] body.address.id: ${body.address.id}`)
             } else {
               const _address = await Address.create(body.address)
-              console.log(`[new] _address.id: ${_address.id}`)
+              body.addressId = _address.id
+              console.log(`[new] body.addressId: ${body.addressId}`)
             }
           }
+
           if (req.files || Object.keys(req.files || []).length !== 0) {
             const image = req.files.file
-            const pics = await Picture.findAll({ where: { userId: body.id } })
-            pics.forEach(async element => {
-              if (element.fileName) await deleteFileFromS3(element.fileName)
-            })
-            const pic = await uploadFileIntoS3(image)
-            pic.userId = body.id
-            pics.length > 0 ? await Picture.update(pic, { where: { machineId: body.id } }) : await Picture.create(pic)
+            if (_user.picture) {
+              if (_user.picture.fileName) await deleteFileFromS3(_user.picture.fileName)
+              const pic = await uploadFileIntoS3(image)
+              await Picture.update(pic, { where: { id: _user.picture.id } })
+            } else {
+              const pic = await uploadFileIntoS3(image)
+              const _picture = await Picture.create(pic)
+              body.pictureId = _picture.id
+            }
           }
 
           if (body.password || body.oldPassword) {

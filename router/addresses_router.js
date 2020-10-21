@@ -6,10 +6,7 @@ import { authUser, checkRole, getParams } from '../middleware/auth'
 const router = Router()
 router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
   const where = { id: req.params.id }
-  Address.findOne({
-    include: [{ model: User, as: 'user' }, { model: Job, as: 'job' }],
-    where
-  }).then((request) => {
+  Address.findOne({ where }).then((request) => {
     if (request) res.send(request)
     else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
   }).catch((error) => {
@@ -19,10 +16,7 @@ router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
 
 router.get('/me', authUser, async (req, res) => {
   const where = { id: req.userId }
-  const address = await Address.findOne({
-    include: [{ model: User, as: 'user' }, { model: Job, as: 'job' }],
-    where
-  }).catch((error) => {
+  const address = await Address.findOne({ where }).catch((error) => {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   res.send(address)
@@ -38,11 +32,7 @@ router.post('', async (req, res, next) => {
 })
 
 router.get('', authUser, checkRole(['Admin']), async (req, res) => {
-  const addresses = await Address.findAll({
-    include: [{ model: User, as: 'user' }, { model: Job, as: 'job' }],
-    offset: 0,
-    limit: 25
-  }).catch((error) => {
+  const addresses = await Address.findAll({ offset: 0, limit: 25 }).catch((error) => {
     res.send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(addresses)

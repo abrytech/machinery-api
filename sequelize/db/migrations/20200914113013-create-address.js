@@ -26,11 +26,6 @@ module.exports = {
       },
       lat: { type: Sequelize.FLOAT },
       long: { type: Sequelize.FLOAT },
-      jobId: { type: Sequelize.INTEGER },
-      userId: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
       company: {
         type: Sequelize.STRING,
         unique: true
