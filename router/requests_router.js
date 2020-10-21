@@ -4,7 +4,7 @@ import { authUser, checkRole, getParams } from '../middleware/auth'
 
 const router = Router()
 
-router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
+router.get('/:id(\\d+)', authUser, checkRole(['Admin']), async (req, res) => {
   const id = parseInt(req.params.id)
   RequestQueue.findOne({
     include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],

@@ -4,7 +4,7 @@ import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import { Machinery, User, Machine, Picture } from '../sequelize/db/models'
 const router = Router()
 
-router.get('/:id', async (req, res) => {
+router.get('/:id(\\d+)', async (req, res) => {
   const id = req.params.id
   Machinery.findOne({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
@@ -17,7 +17,7 @@ router.get('/:id', async (req, res) => {
   })
 })
 
-router.get('/me/:id', async (req, res) => {
+router.get('/me/:id(\\d+)', async (req, res) => {
   const id = req.params.id
   Machinery.findOne({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],

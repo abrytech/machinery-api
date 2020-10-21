@@ -5,7 +5,7 @@ import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 
 const router = Router()
 
-router.get('/:id', authUser, async (req, res) => {
+router.get('/:id(\\d+)', authUser, async (req, res) => {
   const id = req.params.id
   Job.findOne({
     include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
@@ -18,7 +18,7 @@ router.get('/:id', authUser, async (req, res) => {
   })
 })
 
-router.get('/me/:id', authUser, async (req, res) => {
+router.get('/me/:id(\\d+)', authUser, async (req, res) => {
   const id = req.params.id
   Job.findOne({
     include: [{ model: Machine, as: 'machine' }, { model: RequestQueue, as: 'requests' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],

@@ -4,7 +4,7 @@ import { User, Address, Job } from '../sequelize/db/models'
 import { authUser, checkRole, getParams } from '../middleware/auth'
 
 const router = Router()
-router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
+router.get('/:id(\\d+)', authUser, checkRole(['Admin']), async (req, res) => {
   const where = { id: req.params.id }
   Address.findOne({ where }).then((request) => {
     if (request) res.send(request)
