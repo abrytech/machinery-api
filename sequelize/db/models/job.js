@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.STRING,
     pickUpDate: DataTypes.DATE,
     dropOffpDate: DataTypes.DATE,
-    pickUpAddress: DataTypes.INTEGER,
-    dropOffAddress: DataTypes.INTEGER,
+    pickUpId: DataTypes.INTEGER,
+    dropOffId: DataTypes.INTEGER,
     machineId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
     weight: DataTypes.FLOAT,
@@ -26,8 +26,8 @@ module.exports = (sequelize, DataTypes) => {
     Job.belongsTo(models.Picture, { foreignKey: 'pictureId', as: 'picture' })
     Job.belongsTo(models.Machine, { foreignKey: 'machineId', as: 'machine' })
     Job.hasMany(models.RequestQueue, { foreignKey: 'jobId', as: 'requests' })
-    Job.belongsTo(models.Address, { foreignKey: 'pickUpAddress', as: 'pickUpAddress' })
-    Job.belongsTo(models.Address, { foreignKey: 'dropOffAddress', as: 'dropOffAddress' })
+    Job.belongsTo(models.Address, { foreignKey: 'pickUpId', as: 'pickUpAddress' })
+    Job.belongsTo(models.Address, { foreignKey: 'dropOffId', as: 'dropOffAddress' })
   }
   return Job
 }

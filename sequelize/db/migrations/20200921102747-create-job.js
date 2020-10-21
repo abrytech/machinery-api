@@ -20,11 +20,11 @@ module.exports = {
       dropOffpDate: {
         type: Sequelize.DATE
       },
-      pickUpAddress: {
-        type: Sequelize.STRING
+      pickUpId: {
+        type: Sequelize.INTEGER
       },
-      dropOffAddress: {
-        type: Sequelize.STRING
+      dropOffId: {
+        type: Sequelize.INTEGER
       },
       userId: {
         type: Sequelize.INTEGER
