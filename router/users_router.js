@@ -7,7 +7,7 @@ import { hashSync, genSaltSync, compareSync } from 'bcrypt'
 
 const router = Router()
 
-router.get('/:id', authUser, checkRole(['Admin']), async (req, res) => {
+router.get('/:id(\\d+)', authUser, checkRole(['Admin']), async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
   const user = await User.findOne({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
