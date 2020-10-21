@@ -25,7 +25,7 @@ router.post('', async (req, res) => {
     if (body.address) {
       const _address = await Address.create(body.address)
       delete body.address
-      body.addressId = _address
+      body.addressId = _address.id
     }
     if (!req.files || Object.keys(req.files || []).length === 0) {
       console.warn('No files were uploaded.')
@@ -36,6 +36,7 @@ router.post('', async (req, res) => {
       console.info(`[user] [put] _picture.id: ${_picture.id}`)
       body.pictureId = _picture.id
     }
+    console.info(body)
     const _user = await User.create(body)
     if (_user) {
       sendConfirmation(_user.firstName + ' ' + _user.lastName, _user.email, _user.activationKey)
