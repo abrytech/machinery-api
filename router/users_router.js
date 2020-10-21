@@ -23,9 +23,15 @@ router.post('', async (req, res) => {
     const body = req.body
     if (body.role === 'Admin') body.isApproved = true
     if (body.address) {
-      const _address = await Address.create(body.address)
-      delete body.address
-      body.addressId = _address.id
+      if (body.address.id) {
+        await Address.update(body.address, { where: { id: body.address.id } })
+        body.addressId = body.address.id
+        delete body.address
+      } else {
+        const _address = await Address.create(body.address)
+        body.addressId = _address.id
+        delete body.address
+      }
     }
     if (!req.files || Object.keys(req.files || []).length === 0) {
       console.warn('No files were uploaded.')
@@ -42,10 +48,10 @@ router.post('', async (req, res) => {
       sendConfirmation(_user.firstName + ' ' + _user.lastName, _user.email, _user.activationKey)
     }
     const response = await User.findOne({
-      include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+      // include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
       where: { id: _user.id }
     })
-    res.status(200).send(response)
+    res.send(response)
   } catch (error) {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }

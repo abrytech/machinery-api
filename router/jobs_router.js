@@ -44,12 +44,26 @@ router.post('', authUser, async (req, res) => {
       body.pictureId = _picture.id
     }
     if (body.pickUpAddress) {
-      const _address = await Address.create(body)
-      body.pickUpAddress = _address.id
+      if (body.pickUpAddress.id) {
+        await Address.update(body.pickUpAddress, { where: { id: body.pickUpAddress.id } })
+        body.pickUpId = body.pickUpAddress.id
+        delete body.pickUpAddress
+      } else {
+        const _address = await Address.create(body.pickUpAddress)
+        body.pickUpId = _address.id
+        delete body.pickUpAddress
+      }
     }
     if (body.dropOffAddress) {
-      const _address = await Address.create(body)
-      body.dropOffAddress = _address.id
+      if (body.dropOffAddress.id) {
+        await Address.update(body.dropOffAddress, { where: { id: body.dropOffAddress.id } })
+        body.dropOffId = body.dropOffAddress.id
+        delete body.pickUpAddress
+      } else {
+        const _address = await Address.create(body.dropOffAddress)
+        body.dropOffId = _address.id
+        delete body.dropOffAddress
+      }
     }
     const _job = await Job.create(body)
     const response = await Job.findOne({
