@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   Address.associate = function (models) {
     // associations can be defined here
     // Address.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
-    Address.hasOne(models.User, { foreignKey: 'userId', as: 'user' })
+    Address.hasOne(models.User, { foreignKey: 'addressId', as: 'user' })
     Address.hasOne(models.Job, { foreignKey: 'pickUpId', as: 'pickUpAddress' })
     Address.hasOne(models.Job, { foreignKey: 'dropOffId', as: 'dropOffAddress' })
   }
