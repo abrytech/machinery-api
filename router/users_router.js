@@ -173,8 +173,10 @@ router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
   const query = req.params.query
   try {
     const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
+    console.log('req.params.query', query)
     if (isQueryValid) {
       const params = getParams(query)
+      console.log('getParams(query)', params)
       const users = await User.findAll({
         where: params.where,
         include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],

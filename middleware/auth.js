@@ -35,7 +35,7 @@ const checkRole = roles => (req, res, next) =>
     : next()
 
 function getParams (query) {
-  const params = { page: 1, limit: 10, where: {} }
+  const params = { page: 1, limit: 25, where: {} }
   const temp = query.split('&')
   temp.forEach((param) => {
     const key = param.split('=')[0]
