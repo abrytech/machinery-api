@@ -43,8 +43,10 @@ function getParams (query = '') {
       const key = param.split('=')[0]
       const value = param.split('=')[1]
       if (key && value) {
-        if (key === 'page' || key === 'limit' || key === 'order' || key === 'filter' || key === 'sort') {
+        if (key === 'page' || key === 'limit') {
           params[key] = parseInt(value)
+        } else if (key === 'order' || key === 'sort') {
+          params[key] = value
         } else {
           params.where[key] = value
         }
