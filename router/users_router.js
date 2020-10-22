@@ -170,51 +170,51 @@ router.post('/delete', authUser, checkRole(['Admin']), async (req, res) => {
   res.send(users)
 })
 
+// router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
+//   const query = req.params.query
+//   try {
+//     const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
+//     console.info('req.params.query', query, 'isQueryValid', isQueryValid)
+//     if (isQueryValid) {
+//       // console.log('getParams(query)', query)
+//       const params = getParams(query)
+//       const amount = await User.count()
+//       const users = await User.findAll({
+//         where: params.where,
+//         include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+//         offset: (params.page - 1) * params.limit,
+//         limit: params.limit,
+//         order: [
+//           [params.sort, params.order]
+//         ]
+//       })
+//       res.set({ 'X-Total-Count': amount }).send(users)
+//     } else throw Error('Bad Format', 'Invalid Request URL format')
+//   } catch (error) {
+//     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+//   }
+// })
+
 router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
   const query = req.params.query
   try {
-    const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
-    console.info('req.params.query', query, 'isQueryValid', isQueryValid)
-    if (isQueryValid) {
-      // console.log('getParams(query)', query)
-      const params = getParams(query)
-      const amount = await User.count()
-      const users = await User.findAll({
-        where: params.where,
-        include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
-        offset: (params.page - 1) * params.limit,
-        limit: params.limit,
-        order: [
-          [params.sort, params.order]
-        ]
-      })
-      res.set({ 'X-Total-Count': amount }).send(users)
-    } else throw Error('Bad Format', 'Invalid Request URL format')
-  } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  }
-})
-
-router.get('?:query', authUser, checkRole(['Admin']), async (req, res, err) => {
-  const query = req.params.query
-  try {
-    const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
-    console.info('req.params.query', query, 'isQueryValid', isQueryValid)
-    if (isQueryValid) {
-      // console.log('getParams(query)', query)
-      const params = getParams(query)
-      const amount = await User.count()
-      const users = await User.findAll({
-        where: params.where,
-        include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
-        offset: (params.page - 1) * params.limit,
-        limit: params.limit,
-        order: [
-          [params.sort, params.order]
-        ]
-      })
-      res.set({ 'X-Total-Count': amount }).send(users)
-    } else throw Error('Bad Format', 'Invalid Request URL format')
+    // const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
+    // console.info('req.params.query', query, 'isQueryValid', isQueryValid)
+    // if (isQueryValid) {
+    // console.log('getParams(query)', query)
+    const params = getParams(query)
+    const amount = await User.count()
+    const users = await User.findAll({
+      where: params.where,
+      include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+      offset: (params.page - 1) * params.limit,
+      limit: params.limit,
+      order: [
+        [params.sort, params.order]
+      ]
+    })
+    res.set({ 'X-Total-Count': amount }).send(users)
+    // } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
