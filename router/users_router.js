@@ -141,6 +141,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
 })
 
 router.get('', authUser, checkRole(['Admin']), async (req, res) => {
+  const amount = await User.count()
   const users = await User.findAll({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
     offset: 0,
@@ -148,10 +149,10 @@ router.get('', authUser, checkRole(['Admin']), async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.send(users)
+  res.set({ 'X-Total-Count': amount }).send(users)
 })
 
-router.post('/delete:id', authUser, checkRole(['Admin']), async (req, res) => {
+router.post('/delete/:id', authUser, checkRole(['Admin']), async (req, res) => {
   const users = await User.destroy({
     where: { id: req.params.id }
   }).catch((error) => {
@@ -172,18 +173,22 @@ router.post('/delete', authUser, checkRole(['Admin']), async (req, res) => {
 router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
   const query = req.params.query
   try {
-    const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
+    const isQueryValid = !(new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
     console.log('req.params.query', query)
     if (isQueryValid) {
+      const amount = await User.count()
       const params = getParams(query)
       console.log('getParams(query)', params)
       const users = await User.findAll({
         where: params.where,
         include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
         offset: (params.page - 1) * params.limit,
-        limit: params.limit
+        limit: params.limit,
+        order: [
+          [params.sort, params.order]
+        ]
       })
-      res.send(users)
+      res.set({ 'X-Total-Count': amount }).send(users)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })

@@ -34,22 +34,28 @@ const checkRole = roles => (req, res, next) =>
     ? next(error)
     : next()
 
-function getParams (query) {
-  const params = { page: 1, limit: 25, where: {} }
-  const temp = query.split('&')
-  temp.forEach((param) => {
-    const key = param.split('=')[0]
-    const value = param.split('=')[1]
-    if (key && value) {
-      if (key === 'page' || key === 'limit') {
-        params[key] = parseInt(value)
-      } else {
-        params.where[key] = value
+function getParams (query = '') {
+  const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
+  if (query) {
+    query = query.startsWith('?') ? query.substring(1) : query
+    const temp = query.split('&')
+    temp.forEach((param) => {
+      const key = param.split('=')[0]
+      const value = param.split('=')[1]
+      if (key && value) {
+        if (key === 'page' || key === 'limit' || key === 'order' || key === 'filter' || key === 'sort') {
+          params[key] = parseInt(value)
+        } else {
+          params.where[key] = value
+        }
       }
-    }
-  })
-  console.log(params)
-  return params
+    })
+    console.log(params)
+    return params
+  } else {
+    console.log(params)
+    return params
+  }
 }
 
 export { authUser, checkRole, getParams }
