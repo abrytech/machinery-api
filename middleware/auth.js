@@ -50,10 +50,10 @@ function getParams (query = '') {
         }
       }
     })
-    console.log(params)
+    console.info('getParams(query)', params)
     return params
   } else {
-    console.log(params)
+    console.info('getParams(query)', params)
     return params
   }
 }

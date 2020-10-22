@@ -173,12 +173,12 @@ router.post('/delete', authUser, checkRole(['Admin']), async (req, res) => {
 router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
   const query = req.params.query
   try {
-    const isQueryValid = !(new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
-    console.log('req.params.query', query)
+    const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
+    console.info('req.params.query', query, 'isQueryValid', isQueryValid)
     if (isQueryValid) {
-      const amount = await User.count()
+      // console.log('getParams(query)', query)
       const params = getParams(query)
-      console.log('getParams(query)', params)
+      const amount = await User.count()
       const users = await User.findAll({
         where: params.where,
         include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
