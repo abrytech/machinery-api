@@ -175,7 +175,7 @@ router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
           [params.sort, params.order]
         ]
       })
-      res.set({ 'X-Total-Count': amount }).send(users)
+      res.set({ 'Access-Control-Expose-Headers': 'X-Total-Count', 'X-Total-Count': amount }).send(users)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
