@@ -141,7 +141,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
 })
 
 router.get('', authUser, checkRole(['Admin']), async (req, res) => {
-  const amount = await User.count()
+  // const amount = await User.count()
   const params = getParams()
   const users = await User.findAll({
     where: params.where,
@@ -154,7 +154,7 @@ router.get('', authUser, checkRole(['Admin']), async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.set({ 'X-Total-Count': amount }).send(users)
+  res.send(users)
 })
 
 router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
