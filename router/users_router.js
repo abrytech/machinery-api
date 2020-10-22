@@ -142,33 +142,65 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
 
 router.get('', authUser, checkRole(['Admin']), async (req, res) => {
   const amount = await User.count()
+  const params = getParams()
   const users = await User.findAll({
+    where: params.where,
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
-    offset: 0,
-    limit: 25
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   res.set({ 'X-Total-Count': amount }).send(users)
 })
 
-router.post('/delete/:id', authUser, checkRole(['Admin']), async (req, res) => {
-  const users = await User.destroy({
-    where: { id: req.params.id }
-  }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  })
-  res.send(users)
+router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
+  const query = req.params.query
+  try {
+    // const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
+    // console.info('req.params.query', query, 'isQueryValid', isQueryValid)
+    // if (isQueryValid) {
+    console.log('getParams(query)', query)
+    const params = getParams(query)
+    const amount = await User.count()
+    const users = await User.findAll({
+      where: params.where,
+      include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+      offset: (params.page - 1) * params.limit,
+      limit: params.limit,
+      order: [
+        [params.sort, params.order]
+      ]
+    })
+    res.set({ 'X-Total-Count': amount }).send(users)
+    // } else throw Error('Bad Format', 'Invalid Request URL format')
+  } catch (error) {
+    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+  }
 })
 
-router.post('/delete', authUser, checkRole(['Admin']), async (req, res) => {
-  const users = await User.destroy({
-    where: req.body
-  }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  })
-  res.send(users)
-})
+export default router
+
+// router.post('/delete/:id', authUser, checkRole(['Admin']), async (req, res) => {
+//   const users = await User.destroy({
+//     where: { id: req.params.id }
+//   }).catch((error) => {
+//     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+//   })
+//   res.send(users)
+// })
+
+// router.post('/delete', authUser, checkRole(['Admin']), async (req, res) => {
+//   const users = await User.destroy({
+//     where: req.body
+//   }).catch((error) => {
+//     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+//   })
+//   res.send(users)
+// })
 
 // router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
 //   const query = req.params.query
@@ -194,30 +226,3 @@ router.post('/delete', authUser, checkRole(['Admin']), async (req, res) => {
 //     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
 //   }
 // })
-
-router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
-  const query = req.params.query
-  try {
-    // const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
-    // console.info('req.params.query', query, 'isQueryValid', isQueryValid)
-    // if (isQueryValid) {
-    // console.log('getParams(query)', query)
-    const params = getParams(query)
-    const amount = await User.count()
-    const users = await User.findAll({
-      where: params.where,
-      include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
-      offset: (params.page - 1) * params.limit,
-      limit: params.limit,
-      order: [
-        [params.sort, params.order]
-      ]
-    })
-    res.set({ 'X-Total-Count': amount }).send(users)
-    // } else throw Error('Bad Format', 'Invalid Request URL format')
-  } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  }
-})
-
-export default router
