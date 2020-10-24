@@ -5,9 +5,11 @@ error.name = '401 Unauthorized'
 error.status = 401
 const authUser = (req, res, next) => {
   const authHeader = req.get('Authorization')
+  console.log('1st $authHeader', `${authHeader}`)
   if (authHeader) {
     authHeader.toString()
-    const token = authHeader.split(' ')[1]
+    console.log('2nd $authHeader', `${authHeader}`)
+    const token = `${authHeader}`.split(' ')[1]
     if (!token || token === '') next(error)
     if (!req.userId || !req.role) {
       try {
