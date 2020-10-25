@@ -121,6 +121,7 @@ router.put('', authUser, async (req, res) => {
             } else {
               delete body.password
               delete body.oldPassword
+              res.status(400).send({ error: { name: 'Bad Request', message: 'Your old password dont match', stack: '' } })
             }
           } else {
             delete body.password
