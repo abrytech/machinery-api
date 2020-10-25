@@ -21,6 +21,7 @@ router.get('/:id(\\d+)', authUser, checkRole(['User', 'Admin']), async (req, res
 router.post('', async (req, res) => {
   try {
     const body = req.body
+    console.log(body)
     if (body.role === 'Admin') body.isApproved = true
     if (body.address) {
       if (body.address.id) {
@@ -61,6 +62,7 @@ router.put('', authUser, async (req, res) => {
   const body = req.body
   try {
     if (body) {
+      console.log(body)
       if (body.id) {
         const _user = await User.findOne({ where: { id: body.id }, include: [{ model: Address, as: 'address' }] })
         if (_user) {
