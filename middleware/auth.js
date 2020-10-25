@@ -8,12 +8,15 @@ const authUser = (req, res, next) => {
   console.log('1st $authHeader', `${authHeader}`)
   if (authHeader) {
     authHeader.toString()
-    console.log('2nd $authHeader', `${authHeader}`)
+    console.log('2nd typeof authHeader', typeof authHeader)
     const token = `${authHeader}`.split(' ')[1]
+    console.log('3rd $token', token)
     if (!token || token === '') next(error)
+    console.log('4th (!req.userId || !req.role)', (!req.userId || !req.role))
     if (!req.userId || !req.role) {
       try {
         const decodedToken = verify(token, ACCESS_TOKEN_SECRET_KEY)
+        console.log(' $decodedToken: ', decodedToken)
         if (decodedToken) {
           req.userId = decodedToken.userId
           req.role = decodedToken.role
