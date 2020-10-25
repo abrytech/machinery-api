@@ -57,7 +57,7 @@ router.post('', async (req, res) => {
   }
 })
 
-router.put('', checkRole(['User', 'Admin']), authUser, async (req, res) => {
+router.put('', authUser, async (req, res) => {
   const body = req.body
   try {
     if (body) {
