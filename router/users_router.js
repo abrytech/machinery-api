@@ -121,20 +121,19 @@ router.put('', authUser, async (req, res) => {
             } else {
               delete body.password
               delete body.oldPassword
-              res.status(400).send({ error: { name: 'Bad Request', message: 'Your old password dont match', stack: '' } })
+              res.status(400).send({ error: { name: 'Bad Request', message: 'Your old password dont match', stack: '' }, statusCode: 400, location: 'User PUT method' })
             }
           } else {
             delete body.password
             delete body.oldPassword
           }
-          console.log('body.password && body.oldPassword', body.password, '&&', body.oldPassword)
           const _newuser = await User.update(body, { where: { id: body.id } })
           console.log(`[put] _newuser: ${_newuser}`)
-          const response = await User.findOne({
+          const response = _newuser > 0 ? await User.findOne({
             where: { id: body.id },
             include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
-          })
-          res.send(response)
+          }) : { error: { name: 'Bad Request', message: 'No user is updated', stack: '' }, statusCode: 400, location: 'User PUT method' }
+          res.status(response.statusCode || 200).send(response)
         } else throw Error('Bad Request: User not found')
       } else throw Error('Bad Request: User ID is Missing')
     } else throw Error('Bad Request: Your Request Body is Null')
