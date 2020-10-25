@@ -109,22 +109,22 @@ router.put('', authUser, async (req, res) => {
             }
           }
 
-          if (body.password || body.oldPassword) {
-            if (body.password && body.oldPassword) {
-              const isMatch = compareSync(body.oldPassword, _user.password)
-              console.log('isMatch: ', isMatch)
-              if (isMatch) {
-                body.password = hashSync(body.password, genSaltSync(8), null)
-                delete body.oldPassword
-              } else {
-                delete body.password
-                delete body.oldPassword
-              }
+          // if (body.password || body.oldPassword) {
+          if (body.password && body.oldPassword) {
+            const isMatch = compareSync(body.oldPassword, _user.password)
+            console.log('isMatch: ', isMatch)
+            if (isMatch) {
+              body.password = hashSync(body.password, genSaltSync(8), null)
+              delete body.oldPassword
             } else {
               delete body.password
               delete body.oldPassword
             }
+          } else {
+            delete body.password
+            delete body.oldPassword
           }
+          console.log('body.password && body.oldPassword', body.password, '&&', body.oldPassword)
           const _newuser = await User.update(body, { where: { id: body.id } })
           console.log(`[put] _newuser: ${_newuser}`)
           const response = await User.findOne({
