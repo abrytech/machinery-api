@@ -4,7 +4,7 @@ import { authUser, checkRole, getParams } from '../middleware/auth'
 
 const router = Router()
 
-router.get('/:id(\\d+)', authUser, checkRole(['Admin']), async (req, res) => {
+router.get('/:id(\\d+)', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   const id = parseInt(req.params.id)
   RequestQueue.findOne({
     include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
@@ -63,7 +63,7 @@ router.put('', authUser, async (req, res, err) => {
   }
 })
 
-router.get('', authUser, checkRole(['Admin']), async (req, res) => {
+router.get('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   const requests = await RequestQueue.findAll({
     include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'request' }],
     offset: 0,

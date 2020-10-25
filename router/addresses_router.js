@@ -4,7 +4,7 @@ import { User, Address, Job } from '../sequelize/db/models'
 import { authUser, checkRole, getParams } from '../middleware/auth'
 
 const router = Router()
-router.get('/:id(\\d+)', authUser, checkRole(['Admin']), async (req, res) => {
+router.get('/:id(\\d+)', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   const where = { id: req.params.id }
   Address.findOne({ where }).then((request) => {
     if (request) res.send(request)
@@ -31,14 +31,14 @@ router.post('', async (req, res, next) => {
   res.send(address)
 })
 
-router.get('', authUser, checkRole(['Admin']), async (req, res) => {
+router.get('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   const addresses = await Address.findAll({ offset: 0, limit: 25 }).catch((error) => {
     res.send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(addresses)
 })
 
-router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
+router.get('/:query', authUser, checkRole(['User', 'Admin']), async (req, res, err) => {
   const query = req.params.query
   const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
   if (isQueryValid) {

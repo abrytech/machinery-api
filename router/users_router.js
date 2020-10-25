@@ -7,7 +7,7 @@ import { hashSync, genSaltSync, compareSync } from 'bcrypt'
 
 const router = Router()
 
-router.get('/:id(\\d+)', authUser, checkRole(['Admin']), async (req, res) => {
+router.get('/:id(\\d+)', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
   const user = await User.findOne({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
@@ -57,7 +57,7 @@ router.post('', async (req, res) => {
   }
 })
 
-router.put('', authUser, checkRole(['Admin']), async (req, res) => {
+router.put('', checkRole(['User', 'Admin']), authUser, async (req, res) => {
   const body = req.body
   try {
     if (body) {
@@ -140,7 +140,7 @@ router.put('', authUser, checkRole(['Admin']), async (req, res) => {
   }
 })
 
-router.get('', authUser, checkRole(['Admin']), async (req, res) => {
+router.get('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   const amount = await User.count()
   const params = getParams()
   const users = await User.findAll({
@@ -157,7 +157,7 @@ router.get('', authUser, checkRole(['Admin']), async (req, res) => {
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(users)
 })
 
-router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
+router.get('/:query', authUser, checkRole(['User', 'Admin']), async (req, res, err) => {
   const query = req.params.query
   try {
     const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
@@ -184,7 +184,7 @@ router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
 
 export default router
 
-// router.post('/delete/:id', authUser, checkRole(['Admin']), async (req, res) => {
+// router.post('/delete/:id', authUser, checkRole(['User', 'Admin']), async (req, res) => {
 //   const users = await User.destroy({
 //     where: { id: req.params.id }
 //   }).catch((error) => {
@@ -193,7 +193,7 @@ export default router
 //   res.send(users)
 // })
 
-// router.post('/delete', authUser, checkRole(['Admin']), async (req, res) => {
+// router.post('/delete', authUser, checkRole(['User', 'Admin']), async (req, res) => {
 //   const users = await User.destroy({
 //     where: req.body
 //   }).catch((error) => {
@@ -202,7 +202,7 @@ export default router
 //   res.send(users)
 // })
 
-// router.get('/:query', authUser, checkRole(['Admin']), async (req, res, err) => {
+// router.get('/:query', authUser, checkRole(['User', 'Admin']), async (req, res, err) => {
 //   const query = req.params.query
 //   try {
 //     const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
