@@ -95,7 +95,7 @@ router.put('', authUser, checkRole(['User', 'Admin']), async (req, res, err) => 
           include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
           where: { id: body.id }
         }) : body
-        res.send({ rows, result })
+        res.send({ rows: rows ? rows[0] : 0, result })
       } else throw Error('Bad Request: Machinery not found')
     } else throw Error('Bad Request: Machinery ID is Missing')
   } catch (error) {

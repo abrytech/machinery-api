@@ -55,7 +55,7 @@ router.put('', authUser, async (req, res, err) => {
           include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
           where: { id: body.id }
         }) : body
-        res.send({ rows, result })
+        res.send({ rows: rows ? rows[0] : 0, result })
       } else throw Error('Bad Request: Offer not found')
     } else throw Error('Bad Request: Offer ID is Missing')
   } catch (error) {

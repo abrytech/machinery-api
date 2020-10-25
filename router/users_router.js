@@ -132,7 +132,7 @@ router.put('', authUser, async (req, res) => {
             where: { id: body.id },
             include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
           }) : null
-          res.status(200).send({ rows, result })
+          res.status(200).send({ rows: rows ? rows[0] : 0, result })
         } else throw Error('Bad Request: User not found')
       } else throw Error('Bad Request: User ID is Missing')
     } else throw Error('Bad Request: Your Request Body is Null')

@@ -155,7 +155,7 @@ router.put('', authUser, async (req, res, err) => {
           include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }],
           where: { id: body.id }
         }) : body
-        res.send({ rows, result })
+        res.send({ rows: rows ? rows[0] : 0, result })
       } else throw Error('Bad Request: Job not found')
     } else throw Error('Bad Request: Job ID is Missing')
   } catch (error) {
