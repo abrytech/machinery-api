@@ -78,6 +78,8 @@ router.put('', authUser, async (req, res) => {
           body.deleted = body.deleted || _user.deleted
           body.isActivated = body.isActivated || _user.isActivated
           body.activationKey = body.activationKey || _user.activationKey
+          delete body.createdAt
+          delete body.updatedAt
           if (body.address) {
             if (_user.address) {
               body.address.id = body.address.id || _user.address.id
