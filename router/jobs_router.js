@@ -165,7 +165,7 @@ router.put('', authUser, async (req, res, err) => {
 
 router.get('', authUser, async (req, res) => {
   const jobs = await Job.findAll({
-    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }],
+    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
     offset: 0,
     limit: 25
   }).catch((error) => {
@@ -182,7 +182,7 @@ router.get('/:query', authUser, async (req, res, err) => {
       const params = getParams(query)
       const jobs = await Job.findAll({
         where: params.where,
-        include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }],
+        include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
