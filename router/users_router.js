@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { User, Address, Picture } from '../sequelize/db/models'
+import { User, Address, Picture } from '../sequelize/models'
 import { authUser, checkRole, getParams } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import sendConfirmation from '../middleware/gmail'
@@ -91,8 +91,8 @@ router.put('', authUser, async (req, res) => {
               body.address.phone = body.address.phone || _user.address.phone
             }
             if (body.address.id) {
-              await Address.update(body.address, { where: { id: body.address.id } })
-              console.log(`[update] body.address.id: ${body.address.id}`)
+              const rows = await Address.update(body.address, { where: { id: body.address.id } })
+              console.log(`[update] body.address.id: ${body.address.id}, rows: ${rows}`)
             } else {
               const _address = await Address.create(body.address)
               body.addressId = _address.id
@@ -105,11 +105,14 @@ router.put('', authUser, async (req, res) => {
             if (_user.picture) {
               if (_user.picture.fileName) await deleteFileFromS3(_user.picture.fileName)
               const pic = await uploadFileIntoS3(image)
-              await Picture.update(pic, { where: { id: _user.picture.id } })
+              body.pictureId = _user.picture.id
+              const rows = await Picture.update(pic, { where: { id: _user.picture.id } })
+              console.log(`[update] body.pictureId: ${body.pictureId}, rows: ${rows}`)
             } else {
               const pic = await uploadFileIntoS3(image)
               const _picture = await Picture.create(pic)
               body.pictureId = _picture.id
+              console.log(`[new] body.pictureId: ${body.pictureId}`)
             }
           }
 
@@ -186,46 +189,3 @@ router.get('/:query', authUser, checkRole(['User', 'Admin']), async (req, res, e
 })
 
 export default router
-
-// router.post('/delete/:id', authUser, checkRole(['User', 'Admin']), async (req, res) => {
-//   const users = await User.destroy({
-//     where: { id: req.params.id }
-//   }).catch((error) => {
-//     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-//   })
-//   res.send(users)
-// })
-
-// router.post('/delete', authUser, checkRole(['User', 'Admin']), async (req, res) => {
-//   const users = await User.destroy({
-//     where: req.body
-//   }).catch((error) => {
-//     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-//   })
-//   res.send(users)
-// })
-
-// router.get('/:query', authUser, checkRole(['User', 'Admin']), async (req, res, err) => {
-//   const query = req.params.query
-//   try {
-//     const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
-//     console.info('req.params.query', query, 'isQueryValid', isQueryValid)
-//     if (isQueryValid) {
-//       // console.log('getParams(query)', query)
-//       const params = getParams(query)
-//       const amount = await User.count()
-//       const users = await User.findAll({
-//         where: params.where,
-//         include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
-//         offset: (params.page - 1) * params.limit,
-//         limit: params.limit,
-//         order: [
-//           [params.sort, params.order]
-//         ]
-//       })
-//       res.set({ 'X-Total-Count': amount }).send(users)
-//     } else throw Error('Bad Format', 'Invalid Request URL format')
-//   } catch (error) {
-//     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-//   }
-// })

@@ -1,5 +1,5 @@
 
-import { Picture, User, Machine, Machinery } from '../../sequelize/db/models'
+import { Picture, User, Machine, Machinery } from '../../sequelize/models'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../../middleware/aws'
 import { Router } from 'express'
 // import path from 'path'

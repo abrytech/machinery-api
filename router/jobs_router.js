@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { Job, User, Machine, RequestQueue, Picture, Address } from '../sequelize/db/models'
+import { Job, User, Machine, RequestQueue, Picture, Address } from '../sequelize/models'
 import { authUser, getParams } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 

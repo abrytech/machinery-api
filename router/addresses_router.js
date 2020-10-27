@@ -1,6 +1,6 @@
 
 import { Router } from 'express'
-import { User, Address, Job } from '../sequelize/db/models'
+import { User, Address, Job } from '../sequelize/models'
 import { authUser, checkRole, getParams } from '../middleware/auth'
 
 const router = Router()

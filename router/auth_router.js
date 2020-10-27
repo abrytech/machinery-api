@@ -1,6 +1,6 @@
 
 import { Router } from 'express'
-import { User, Address, Picture } from '../sequelize/db/models'
+import { User, Address, Picture } from '../sequelize/models'
 import { compareSync, genSaltSync, hashSync } from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { validate } from 'uuid'

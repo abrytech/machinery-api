@@ -1,4 +1,4 @@
-import { Picture, User, Machine, Machinery } from '../../sequelize/db/models'
+import { Picture, User, Machine, Machinery } from '../../sequelize/models'
 import { Router } from 'express'
 import path from 'path'
 const router = Router()

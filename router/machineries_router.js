@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { authUser, checkRole, getParams } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
-import { Machinery, User, Machine, Picture } from '../sequelize/db/models'
+import { Machinery, User, Machine, Picture } from '../sequelize/models'
 const router = Router()
 
 router.get('/:id(\\d+)', async (req, res) => {
