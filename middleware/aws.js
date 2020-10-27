@@ -17,7 +17,7 @@ const uploadFileIntoS3 = async (file) => {
   const res = await new Promise((resolve, reject) => {
     s3.upload(params, (err, data) => err == null ? resolve(data) : reject(err))
   })
-  console.log(res)
+  console.log('Uploaded picture', res)
   return { filePath: res.Location, fileName: res.Key, fileSize: file.size, mimeType: mimetype }
 }
 
@@ -38,7 +38,6 @@ const deleteFileFromS3 = async (fileName) => {
       }
     })
   })
-  console.log(res)
   return res
 }
 
