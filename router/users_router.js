@@ -64,7 +64,7 @@ router.put('', authUser, async (req, res) => {
     if (body) {
       console.log(body)
       if (body.id) {
-        const _user = await User.findOne({ where: { id: body.id }, include: [{ model: Address, as: 'address' }] })
+        const _user = await User.findOne({ where: { id: body.id }, include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }] })
         if (_user) {
           body.firstName = body.firstName || _user.firstName
           body.lastName = body.lastName || _user.lastName
