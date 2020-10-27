@@ -17,7 +17,7 @@ const uploadFileIntoS3 = async (file) => {
   const res = await new Promise((resolve, reject) => {
     s3.upload(params, (err, data) => err == null ? resolve(data) : reject(err))
   })
-  console.log('Uploaded picture', res)
+  console.log('The uploaded picture', res)
   return { filePath: res.Location, fileName: res.Key, fileSize: file.size, mimeType: mimetype }
 }
 
@@ -26,14 +26,14 @@ const deleteFileFromS3 = async (fileName) => {
     Bucket: process.env.AWS_S3_BUCKET,
     Key: fileName
   }
-  console.log(params)
+  console.warn('Parameters of the file going to be deleted', params)
   const res = await new Promise((resolve, reject) => {
     s3.deleteObject(params, function (err, data) {
       if (err) {
         console.log(err, err.stack) // error
         reject(err)
       } else {
-        console.log('File Successfully Deleted!')
+        console.info('File Successfully Deleted!')
         resolve(data)
       }
     })
