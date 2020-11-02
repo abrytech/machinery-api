@@ -66,15 +66,17 @@ function getParams (query = '') {
 
 function removeUserFields (object) {
   if (object.user == null) return object
-  delete object.user.password
-  delete object.user.userType
-  delete object.user.isActivated
-  delete object.user.isApproved
-  delete object.user.activationKey
-  delete object.user.deleted
-  delete object.user.addressId
-  delete object.user.createdAt
-  delete object.user.updatedAt
-  return object
+  else {
+    delete object.user.password
+    delete object.user.userType
+    delete object.user.isActivated
+    delete object.user.isApproved
+    delete object.user.activationKey
+    delete object.user.deleted
+    delete object.user.addressId
+    delete object.user.createdAt
+    delete object.user.updatedAt
+    return object
+  }
 }
 export { authUser, checkRole, getParams, removeUserFields }

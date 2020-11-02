@@ -185,13 +185,13 @@ router.get('/:query', authUser, async (req, res, err) => {
     const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
     if (isQueryValid) {
       const params = getParams(query)
-      const jobs = await Job.findAll({
+      let jobs = await Job.findAll({
         where: params.where,
         include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
-      jobs.map(job => removeUserFields(job))
+      jobs = jobs.map(job => removeUserFields(job))
       res.send(jobs)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
