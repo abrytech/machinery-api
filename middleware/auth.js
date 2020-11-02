@@ -67,7 +67,7 @@ function getParams (query = '') {
 function removeUserFields (object) {
   if (object.user == null) return object
   delete object.user.password
-  delete object.user.object.userType
+  delete object.user.userType
   delete object.user.isActivated
   delete object.user.isApproved
   delete object.user.activationKey
