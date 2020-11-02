@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authUser, checkRole, getParams } from '../middleware/auth'
+import { authUser, checkRole, getParams, removeUserFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import { Machine, Machinery, Picture } from '../sequelize/models'
 const router = Router()
@@ -10,8 +10,10 @@ router.get('/:id(\\d+)', async (req, res) => {
     include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
     where: { id: id }
   }).then((result) => {
-    if (result) res.send(result)
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Machine Found', stack: '' } })
+    if (result) {
+      result = removeUserFields(result.user)
+      res.send(result)
+    } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Machine Found', stack: '' } })
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
@@ -86,6 +88,7 @@ router.get('', async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
+  machines.map(machine => removeUserFields(machine))
   res.send(machines)
 })
 
@@ -101,6 +104,7 @@ router.get('/:query', async (req, res, err) => {
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
+      machines.map(machine => removeUserFields(machine))
       res.send(machines)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {

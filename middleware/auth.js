@@ -64,4 +64,17 @@ function getParams (query = '') {
   }
 }
 
-export { authUser, checkRole, getParams }
+function removeUserFields (object) {
+  if (object.user == null) return object
+  delete object.user.password
+  delete object.user.object.userType
+  delete object.user.isActivated
+  delete object.user.isApproved
+  delete object.user.activationKey
+  delete object.user.deleted
+  delete object.user.addressId
+  delete object.user.createdAt
+  delete object.user.updatedAt
+  return object
+}
+export { authUser, checkRole, getParams, removeUserFields }
