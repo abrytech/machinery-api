@@ -44,8 +44,8 @@ router.put('', async (req, res, next) => {
       body.woreda = body.woreda || _address.woreda
       body.zone = body.zone || _address.zone
       body.city = body.city || _address.city
-      body.city = body.lat || _address.lat
-      body.city = body.long || _address.long
+      body.lat = body.lat || _address.lat
+      body.long = body.long || _address.long
       body.company = body.company || _address.company
       body.phone = body.phone || _address.phone
 
