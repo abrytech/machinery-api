@@ -31,9 +31,32 @@ router.post('', async (req, res, next) => {
   res.send(address)
 })
 
+router.put('', async (req, res, next) => {
+  const body = req.body
+  // let rows results
+  if (body.id) {
+    const _address = await Address.findOne({ where: { id: body.id } }).catch((error) => {
+      res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    })
+    if (_address) {
+      body.id = body.id || _address.id
+      body.kebele = body.kebele || _address.kebele
+      body.woreda = body.woreda || _address.woreda
+      body.zone = body.zone || _address.zone
+      body.city = body.city || _address.city
+      body.city = body.lat || _address.lat
+      body.city = body.long || _address.long
+      body.company = body.company || _address.company
+      body.phone = body.phone || _address.phone
+
+      const rows = await Address.update(body, { where: { id: body.id } })
+      res.send({ rows, result: body })
+    } else res.status(400).send({ error: { name: 'Update failed', message: 'update failed b/c it couldn\'t find address in the db', stack: '' } })
+  } else res.status(400).send({ error: { name: 'Update failed', message: 'update failed b/c it couldn\'t find address id', stack: '' } })
+})
 router.get('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   const addresses = await Address.findAll({ offset: 0, limit: 25 }).catch((error) => {
-    res.send({ name: error.name, message: error.message, stack: error.stack })
+    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   res.send(addresses)
 })
