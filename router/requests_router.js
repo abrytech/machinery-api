@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { Job, User, Machinery, RequestQueue } from '../sequelize/models'
-import { authUser, checkRole, getParams } from '../middleware/auth'
+import { authUser, checkRole, getParams, removeUserFields } from '../middleware/auth'
 
 const router = Router()
 
@@ -9,9 +9,11 @@ router.get('/:id(\\d+)', authUser, checkRole(['User', 'Admin']), async (req, res
   RequestQueue.findOne({
     include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
     where: { id: id }
-  }).then((request) => {
-    if (request) res.send(request)
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
+  }).then((result) => {
+    if (result) {
+      result = removeUserFields(result)
+      res.send(result)
+    } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
@@ -22,9 +24,11 @@ router.get('/me/:id', authUser, async (req, res) => {
   RequestQueue.findOne({
     include: [{ model: Machinery, as: 'machinery' }, { model: Job, as: 'job' }],
     where: { id, userId: req.userId }
-  }).then((request) => {
-    if (request) res.send(request)
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
+  }).then((result) => {
+    if (result) {
+      result = removeUserFields(result)
+      res.send(result)
+    } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
@@ -71,6 +75,7 @@ router.get('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
+  requests.map(request => removeUserFields(request))
   res.send(requests)
 })
 
@@ -83,6 +88,7 @@ router.get('/me', authUser, async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
+  requests.map(request => removeUserFields(request))
   res.send(requests)
 })
 
@@ -98,6 +104,7 @@ router.get('/:query', async (req, res, err) => {
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
+      requests.map(request => removeUserFields(request))
       res.send(requests)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
@@ -118,6 +125,7 @@ router.get('/me/:query', authUser, async (req, res, err) => {
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
+      requests.map(request => removeUserFields(request))
       res.send(requests)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {

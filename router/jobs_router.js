@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { Job, User, Machine, RequestQueue, Picture, Address } from '../sequelize/models'
-import { authUser, getParams } from '../middleware/auth'
+import { authUser, getParams, removeUserFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 
 const router = Router()
@@ -10,9 +10,11 @@ router.get('/:id(\\d+)', authUser, async (req, res) => {
   Job.findOne({
     include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
     where: { id }
-  }).then((request) => {
-    if (request) res.send(request)
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
+  }).then((result) => {
+    if (result) {
+      result.user = removeUserFields(result.user)
+      res.send(result)
+    } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
@@ -23,9 +25,11 @@ router.get('/me/:id(\\d+)', authUser, async (req, res) => {
   Job.findOne({
     include: [{ model: Machine, as: 'machine' }, { model: RequestQueue, as: 'requests' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
     where: { id, userId: req.userId }
-  }).then((request) => {
-    if (request) res.send(request)
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
+  }).then((result) => {
+    if (result) {
+      result.user = removeUserFields(result.user)
+      res.send(result)
+    } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
@@ -171,6 +175,7 @@ router.get('', authUser, async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
+  jobs.map(job => removeUserFields(job))
   res.send(jobs)
 })
 
@@ -180,12 +185,13 @@ router.get('/:query', authUser, async (req, res, err) => {
     const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
     if (isQueryValid) {
       const params = getParams(query)
-      const jobs = await Job.findAll({
+      let jobs = await Job.findAll({
         where: params.where,
         include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
+      jobs = jobs.map(job => removeUserFields(job))
       res.send(jobs)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {

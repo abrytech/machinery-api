@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authUser, checkRole, getParams } from '../middleware/auth'
+import { authUser, checkRole, getParams, removeUserFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import { Machinery, User, Machine, Picture } from '../sequelize/models'
 const router = Router()
@@ -9,9 +9,11 @@ router.get('/:id(\\d+)', async (req, res) => {
   Machinery.findOne({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
     where: { id: id }
-  }).then((machinery) => {
-    if (machinery) res.send(machinery)
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Machinery Found', stack: '' } })
+  }).then((result) => {
+    if (result) {
+      result = removeUserFields(result.user)
+      res.send(result)
+    } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Machinery Found', stack: '' } })
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
@@ -111,6 +113,7 @@ router.get('', async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
+  machineries.map(machinery => removeUserFields(machinery))
   res.send(machineries)
 })
 
@@ -120,13 +123,14 @@ router.get('/:query', async (req, res, err) => {
     const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
     if (isQueryValid) {
       const params = getParams(query)
-      const requests = await Machinery.findAll({
+      const machineries = await Machinery.findAll({
         where: params.where,
         include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
-      res.send(requests)
+      machineries.map(machinery => removeUserFields(machinery))
+      res.send(machineries)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
@@ -140,13 +144,14 @@ router.get('/me/:query', async (req, res, err) => {
     if (isQueryValid) {
       const params = getParams(query)
       params.where.userId = req.userId
-      const requests = await Machinery.findAll({
+      const machineries = await Machinery.findAll({
         where: params.where,
         include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
-      res.send(requests)
+      machineries.map(machinery => removeUserFields(machinery))
+      res.send(machineries)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
