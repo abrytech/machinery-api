@@ -11,7 +11,7 @@ router.get('/:id(\\d+)', async (req, res) => {
     where: { id: id }
   }).then((result) => {
     if (result) {
-      result = removeUserFields(result.user)
+      // result = removeUserFields(result.user)
       res.send(result)
     } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Machine Found', stack: '' } })
   }).catch((error) => {
