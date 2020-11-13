@@ -45,7 +45,7 @@ router.post('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
       body.machineId = _picture.id
     }
     const _machinery = await Machinery.create(body)
-    const response = await Machinery.findAll({
+    const response = await Machinery.findOne({
       include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
       where: { id: _machinery.id }
     })

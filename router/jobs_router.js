@@ -103,7 +103,7 @@ router.put('', authUser, async (req, res, err) => {
         body.status = body.status || _job.status
         if (body.pickUpAddress) {
           if (_job.pickUpAddress) {
-            body.pickUpAddress.id = body.address.id || _job.address.id
+            body.pickUpAddress.id = body.pickUpAddress.id || _job.pickUpAddress.id
             body.pickUpAddress.kebele = body.pickUpAddress.kebele || _job.pickUpAddress.kebele
             body.pickUpAddress.woreda = body.pickUpAddress.woreda || _job.pickUpAddress.woreda
             body.pickUpAddress.zone = body.pickUpAddress.zone || _job.pickUpAddress.zone
@@ -122,7 +122,7 @@ router.put('', authUser, async (req, res, err) => {
         }
         if (body.dropOffAddress) {
           if (_job.dropOffAddress) {
-            body.dropOffAddress.id = body.address.id || _job.address.id
+            body.dropOffAddress.id = body.dropOffAddress.id || _job.dropOffAddress.id
             body.dropOffAddress.kebele = body.dropOffAddress.kebele || _job.dropOffAddress.kebele
             body.dropOffAddress.woreda = body.dropOffAddress.woreda || _job.dropOffAddress.woreda
             body.dropOffAddress.zone = body.dropOffAddress.zone || _job.dropOffAddress.zone
