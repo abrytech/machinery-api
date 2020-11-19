@@ -1,13 +1,13 @@
 import { Router } from 'express'
 import { User, Address, Picture } from '../sequelize/models'
-import { authUser, checkRole, getParams } from '../middleware/auth'
+import { authUser, checkRole, getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import sendConfirmation from '../middleware/gmail'
 import { hashSync, genSaltSync, compareSync } from 'bcrypt'
 
 const router = Router()
 
-router.get('/:id(\\d+)', authUser, checkRole(['User', 'Admin']), async (req, res) => {
+router.get('/:id(\\d+)', authUser, checkRole, async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
   const user = await User.findOne({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
@@ -15,7 +15,7 @@ router.get('/:id(\\d+)', authUser, checkRole(['User', 'Admin']), async (req, res
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.send(user)
+  res.send(removeFields(user))
 })
 
 router.post('', async (req, res) => {
@@ -52,7 +52,7 @@ router.post('', async (req, res) => {
       include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
       where: { id: _user.id }
     })
-    res.send(response)
+    res.send(removeFields(response))
   } catch (error) {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
@@ -139,7 +139,7 @@ router.put('', authUser, async (req, res) => {
             where: { id: body.id },
             include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
           }) : null
-          res.status(200).send({ rows: rows ? rows[0] : 0, result })
+          res.status(200).send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
         } else throw Error('Bad Request: User not found')
       } else throw Error('Bad Request: User ID is Missing')
     } else throw Error('Bad Request: Your Request Body is Null')
@@ -162,7 +162,7 @@ router.get('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(users)
+  res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
 })
 
 router.get('/:query', authUser, checkRole(['User', 'Admin']), async (req, res, err) => {
@@ -171,7 +171,6 @@ router.get('/:query', authUser, checkRole(['User', 'Admin']), async (req, res, e
     const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
     console.info('req.params.query', query, 'isQueryValid', isQueryValid)
     if (isQueryValid) {
-    // console.log('getParams(query)', query)
       const params = getParams(query)
       const amount = await User.count()
       const users = await User.findAll({
@@ -183,7 +182,7 @@ router.get('/:query', authUser, checkRole(['User', 'Admin']), async (req, res, e
           [params.sort, params.order]
         ]
       })
-      res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(users)
+      res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })

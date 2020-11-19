@@ -1,12 +1,12 @@
 
 import { Router } from 'express'
 import { User, Address, Picture } from '../sequelize/models'
-import { compareSync, genSaltSync, hashSync } from 'bcrypt'
+import { compareSync } from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { validate } from 'uuid'
-import { authUser } from '../middleware/auth'
+import { authUser, removeFields } from '../middleware/auth'
 import sendConfirmation from '../middleware/gmail'
-import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
+import { uploadFileIntoS3 } from '../middleware/aws'
 const { ACCESS_TOKEN_SECRET_KEY } = process.env
 const router = Router()
 
@@ -16,7 +16,7 @@ router.get('/me', authUser, async (req, res) => {
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
     where
   }).then((user) => {
-    if (user) res.send(user)
+    if (user) res.send(removeFields(user))
     else res.status(404).send({ error: { name: 'Resource not found', message: 'User Not Found', stack: '' } })
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
@@ -40,7 +40,7 @@ router.post('/login', async (req, res) => {
           else {
             jwt.sign({ userId: user.id, role: user.role, username: user.username }, ACCESS_TOKEN_SECRET_KEY, (error, token) => {
               if (error) res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
-              res.set({ Authorization: 'Bearer ' + token, 'Access-control-expose-headers': 'Authorization' }).send(user)
+              res.set({ Authorization: 'Bearer ' + token, 'Access-control-expose-headers': 'Authorization' }).send(removeFields(user))
             })
           }
         } else {
@@ -84,91 +84,6 @@ router.post('/register', async (req, res) => {
     res.status(200).send(response)
   } catch (error) {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  }
-})
-
-router.put('/me', authUser, async (req, res) => {
-  const body = req.body
-  try {
-    if (body) {
-      if (body.id === req.userId) {
-        const where = { id: body.id, isApproved: true, isActivated: true, spam: false, deleted: false }
-        const _user = await User.findOne({ where, include: [{ model: Address, as: 'address' }] })
-        if (_user) {
-          body.firstName = body.firstName || _user.firstName
-          body.lastName = body.lastName || _user.lastName
-          body.email = body.email || _user.email
-          body.username = body.username || _user.username
-          body.phone = body.phone || _user.phone
-          body.userType = body.userType || _user.userType
-          body.role = body.role || _user.role
-          body.isApproved = body.isApproved || _user.isApproved
-          body.spam = body.spam || _user.spam
-          body.deleted = body.deleted || _user.deleted
-          body.isActivated = body.isActivated || _user.isActivated
-          body.activationKey = body.activationKey || _user.activationKey
-          if (body.address) {
-            if (_user.address) {
-              body.address.id = body.address.id || _user.address.id
-              body.address.kebele = body.address.kebele || _user.address.kebele
-              body.address.woreda = body.address.woreda || _user.address.woreda
-              body.address.zone = body.address.zone || _user.address.zone
-              body.address.city = body.address.city || _user.address.city
-              body.address.company = body.address.company || _user.address.company
-              body.address.phone = body.address.phone || _user.address.phone
-            }
-            if (body.address.id) {
-              await Address.update(body.address, { where: { id: body.address.id } })
-              console.log(`[update] body.address.id: ${body.address.id}`)
-            } else {
-              const _address = await Address.create(body.address)
-              body.addressId = _address.id
-              console.log(`[new] body.addressId: ${body.addressId}`)
-            }
-            delete body.address
-          }
-
-          if (req.files || Object.keys(req.files || []).length !== 0) {
-            const image = req.files.file
-            if (_user.picture) {
-              if (_user.picture.fileName) await deleteFileFromS3(_user.picture.fileName)
-              const pic = await uploadFileIntoS3(image)
-              await Picture.update(pic, { where: { id: _user.picture.id } })
-            } else {
-              const pic = await uploadFileIntoS3(image)
-              const _picture = await Picture.create(pic)
-              body.pictureId = _picture.id
-            }
-          }
-
-          if (body.password || body.oldPassword) {
-            if (body.password && body.oldPassword) {
-              const isMatch = compareSync(body.oldPassword, _user.password)
-              console.log('isMatch: ', isMatch)
-              if (isMatch) {
-                body.password = hashSync(body.password, genSaltSync(8), null)
-                delete body.oldPassword
-              } else {
-                delete body.password
-                delete body.oldPassword
-              }
-            } else {
-              delete body.password
-              delete body.oldPassword
-            }
-          }
-          const _newuser = await User.update(body, { where: { id: body.id } })
-          console.log(`[put] _newuser: ${_newuser}`)
-          const response = await User.findOne({
-            where: { id: body.id },
-            include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
-          })
-          res.send(response)
-        } else throw Error('Bad Request: User not found')
-      } else throw Error('Bad Request: Invalid User ID')
-    } else throw Error('Bad Request: Your Request Body is Null')
-  } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
 })
 

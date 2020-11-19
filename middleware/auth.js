@@ -10,7 +10,7 @@ const authUser = (req, res, next) => {
     authHeader.toString()
     // console.log('2nd typeof authHeader', typeof authHeader)
     const token = `${authHeader}`.split(' ')[1]
-    console.log('3rd $token', token)
+    // console.log('3rd $token', token)
     if (!token || token === '') next(error)
     // console.log('4th (!req.userId || !req.role)', (!req.userId || !req.role))
     if (!req.userId || !req.role) {
@@ -30,13 +30,43 @@ const authUser = (req, res, next) => {
   next()
 }
 
+// const roles_table = [{ id: 1, role: 'Admin' }, { id: 1, role: 'User' }]
+// const resources_table = [{ id: 1, resource: 'users' }, { id: 2, resource: 'addresses' }, { id: 2, resource: 'machines' }, { id: 3, resource: 'machineries' }, { id: 4, resource: 'jobs' }, { id: 5, resource: 'requests' }]
+const permissionTable = [
+  { id: 1, role: 'Admin', resource: 'users', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 2, role: 'Admin', resource: 'addresses', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 3, role: 'Admin', resource: 'machines', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 4, role: 'Admin', resource: 'machineries', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 5, role: 'Admin', resource: 'jobs', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 6, role: 'Admin', resource: 'requests', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 7, role: 'User', resource: 'requests', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } },
+  { id: 8, role: 'User', resource: 'users', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } },
+  { id: 9, role: 'User', resource: 'jobs', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } },
+  { id: 10, role: 'User', resource: 'machineries', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } }
+]
+
+const checkRole = function (req, res, next) {
+  if (req.userId) {
+    const perms = permissionTable.filter(perm => perm.resource === req.path && perm.role === req.role)
+    var allow = false
+    // you can do this mapping of methods to permissions before the db call and just get the specific permission you want.
+    perms.forEach(function (perm) {
+      if (req.method === 'POST' && perm.permissions.create) allow = true
+      else if (req.method === 'GET' && perm.permissions.read) allow = true
+      else if (req.method === 'PUT' && perm.permissions.write) allow = true
+      else if (req.method === 'DELETE' && perm.permissions.delete) allow = true
+    })
+    if (allow) next()
+    else res.status(403).send({ error: { name: 'Access denied', message: 'You dont have this level of access ', stack: '' } })
+  } else res.status(400).send({ error: { name: 'Bad Request', message: 'This User does\'t exist', stack: '' } })
+}
 /**
  * @DESC Check Role Middleware
  */
-const checkRole = roles => (req, res, next) =>
-  !roles.includes(req.role)
-    ? next(error)
-    : next()
+// const checkRole = roles => (req, res, next) =>
+//   !roles.includes(req.role)
+//     ? next(error)
+//     : next()
 
 function getParams (query = '') {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
@@ -64,19 +94,59 @@ function getParams (query = '') {
   }
 }
 
-function removeUserFields (object) {
-  if (object.user == null) return object
-  else {
+function removeFields (object) {
+  if ((typeof object).toString() === 'array') {
+    object.map(obj => {
+      if ((typeof obj.user).toString() === 'object') {
+        delete object.user.password
+        delete object.user.userType
+        delete object.isActivated
+        delete object.user.isApproved
+        delete object.user.activationKey
+        delete object.user.deleted
+        delete object.user.addressId
+        delete object.user.pictureId
+        return object
+      } else {
+        delete object.password
+        delete object.userType
+        delete object.isActivated
+        delete object.isApproved
+        delete object.activationKey
+        delete object.deleted
+        delete object.pictureId
+        delete object.addressId
+        delete object.machineId
+        delete object.userId
+        return object
+      }
+    })
+  }
+  if (object.id == null) return object
+  if ((typeof object.user).toString() === 'object') {
     delete object.user.password
     delete object.user.userType
-    delete object.user.isActivated
+    delete object.isActivated
     delete object.user.isApproved
     delete object.user.activationKey
     delete object.user.deleted
     delete object.user.addressId
-    delete object.user.createdAt
-    delete object.user.updatedAt
+    delete object.user.pictureId
+    return object
+  } else {
+    delete object.password
+    delete object.userType
+    delete object.isActivated
+    delete object.isApproved
+    delete object.activationKey
+    delete object.deleted
+    delete object.addressId
+    delete object.pictureId
+    delete object.machineId
+    delete object.userId
+    // delete object.createdAt
+    // delete object.updatedAt
     return object
   }
 }
-export { authUser, checkRole, getParams, removeUserFields }
+export { authUser, checkRole, getParams, removeFields }

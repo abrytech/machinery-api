@@ -3,8 +3,9 @@ module.exports = (sequelize, DataTypes) => {
   const Address = sequelize.define('Address', {
     kebele: DataTypes.STRING,
     woreda: DataTypes.STRING,
-    zone: DataTypes.STRING,
     city: DataTypes.STRING,
+    zone: DataTypes.STRING,
+    region: DataTypes.STRING,
     lat: DataTypes.FLOAT,
     long: DataTypes.FLOAT,
     company: {
