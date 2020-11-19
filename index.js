@@ -6,6 +6,7 @@ import apiRouter from './router/index'
 import { urlencoded, json } from 'body-parser'
 import authRouter from './router/auth_router'
 import fileUpload from 'express-fileupload'
+import { authUser, checkRole } from './middleware/auth'
 // import fs from 'fs'
 // import path from 'path'
 // import https from 'https'
@@ -32,7 +33,7 @@ app.get('/', function (req, res) {
   res.sendFile('index.html')
 })
 app.use('/auth', authRouter)
-app.use('/api', apiRouter)
+app.use('/api', authUser, checkRole, apiRouter)
 app.use((req, res, next) => {
   const error = new Error('Resource not found')
   error.status = 404

@@ -58,11 +58,18 @@ router.post('/login', async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const body = req.body
+    console.log(body)
     if (body.role === 'Admin') body.isApproved = true
     if (body.address) {
-      const _address = await Address.create(body.address)
-      delete body.address
-      body.addressId = _address
+      if (body.address.id) {
+        await Address.update(body.address, { where: { id: body.address.id } })
+        body.addressId = body.address.id
+        delete body.address
+      } else {
+        const _address = await Address.create(body.address)
+        body.addressId = _address.id
+        delete body.address
+      }
     }
     if (!req.files || Object.keys(req.files || []).length === 0) {
       console.warn('No files were uploaded.')
@@ -73,6 +80,7 @@ router.post('/register', async (req, res) => {
       console.info(`[user] [put] _picture.id: ${_picture.id}`)
       body.pictureId = _picture.id
     }
+    console.info(body)
     const _user = await User.create(body)
     if (_user) {
       sendConfirmation(_user.firstName + ' ' + _user.lastName, _user.email, _user.activationKey)
@@ -81,7 +89,7 @@ router.post('/register', async (req, res) => {
       include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
       where: { id: _user.id }
     })
-    res.status(200).send(response)
+    res.send(removeFields(response))
   } catch (error) {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
