@@ -32,7 +32,7 @@ router.get('/me/:id(\\d+)', async (req, res) => {
   })
 })
 
-router.post('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
+router.post('', authUser, checkRole, async (req, res) => {
   const body = req.body
   try {
     if (!req.files || Object.keys(req.files || []).length === 0) {
@@ -55,7 +55,7 @@ router.post('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   }
 })
 
-router.put('', authUser, checkRole(['User', 'Admin']), async (req, res, err) => {
+router.put('', authUser, checkRole, async (req, res, err) => {
   const body = req.body
   try {
     if (body.id) {

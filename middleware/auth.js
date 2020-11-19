@@ -45,7 +45,7 @@ const permissionTable = [
   { id: 10, role: 'User', resource: 'machineries', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } }
 ]
 
-const checkRole = function (req, res, next) {
+const checkRole = (req, res, next) => {
   if (req.userId) {
     const perms = permissionTable.filter(perm => perm.resource === req.path && perm.role === req.role)
     var allow = false

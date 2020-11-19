@@ -148,7 +148,7 @@ router.put('', authUser, async (req, res) => {
   }
 })
 
-router.get('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
+router.get('', authUser, checkRole, async (req, res) => {
   const amount = await User.count()
   const params = getParams()
   const users = await User.findAll({
@@ -165,7 +165,7 @@ router.get('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
 })
 
-router.get('/:query', authUser, checkRole(['User', 'Admin']), async (req, res, err) => {
+router.get('/:query', authUser, checkRole, async (req, res, err) => {
   const query = req.params.query
   try {
     const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
