@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
     if (username && password) {
       user = await User.findOne({
         include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
-        where: { username, isActivated: true }
+        where: { username }
       })
       if (user) {
         if (compareSync(password, user.password)) {
