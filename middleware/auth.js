@@ -33,16 +33,16 @@ const authUser = (req, res, next) => {
 // const roles_table = [{ id: 1, role: 'Admin' }, { id: 1, role: 'User' }]
 // const resources_table = [{ id: 1, resource: 'users' }, { id: 2, resource: 'addresses' }, { id: 2, resource: 'machines' }, { id: 3, resource: 'machineries' }, { id: 4, resource: 'jobs' }, { id: 5, resource: 'requests' }]
 const permissionTable = [
-  { id: 1, role: 'Admin', resource: '/api/users', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
-  { id: 2, role: 'Admin', resource: '/api/addresses', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
-  { id: 3, role: 'Admin', resource: '/api/machines', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
-  { id: 4, role: 'Admin', resource: '/api/machineries', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
-  { id: 5, role: 'Admin', resource: '/api/jobs', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
-  { id: 6, role: 'Admin', resource: '/api/requests', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
-  { id: 7, role: 'User', resource: '/api/requests', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } },
-  { id: 8, role: 'User', resource: '/api/users', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } },
-  { id: 9, role: 'User', resource: '/api/jobs', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } },
-  { id: 10, role: 'User', resource: '/api/machineries', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } }
+  { id: 1, role: 'Admin', resource: '/users', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 2, role: 'Admin', resource: '/addresses', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 3, role: 'Admin', resource: '/machines', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 4, role: 'Admin', resource: '/machineries', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 5, role: 'Admin', resource: '/jobs', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 6, role: 'Admin', resource: '/requests', permissions: { create: true, read: true, write: true, delete: true, own: true, any: true } },
+  { id: 7, role: 'User', resource: '/requests', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } },
+  { id: 8, role: 'User', resource: '/users', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } },
+  { id: 9, role: 'User', resource: '/jobs', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } },
+  { id: 10, role: 'User', resource: '/machineries', permissions: { create: true, read: true, write: true, delete: true, own: true, any: false } }
 ]
 
 const checkRole = (req, res, next) => {
