@@ -54,7 +54,7 @@ const checkRole = (req, res, next) => {
     // you can do this mapping of methods to permissions before the db call and just get the specific permission you want.
     perms.forEach(function (perm) {
       console.log('perm.resource === req.path && perm.role === req.role ::>', `${perm.resource} === ${req.path} && ${perm.role} === ${req.role}`)
-      console.log('req.method && perm.permissions::>', ` ${req.method} && ${perm.permissions}`)
+      console.log("req.method === 'GET' && perm.permissions.read", ` ${req.method === 'GET'} && ${perm.permissions.read}`)
       if (req.method === 'POST' && perm.permissions.create) allow = true
       else if (req.method === 'GET' && perm.permissions.read) allow = true
       else if (req.method === 'PUT' && perm.permissions.write) allow = true
