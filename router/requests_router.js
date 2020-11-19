@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { Job, User, Machinery, RequestQueue } from '../sequelize/models'
-import { authUser, checkRole, getParams, removeUserFields } from '../middleware/auth'
+import { authUser, checkRole, getParams, removeFields } from '../middleware/auth'
 
 const router = Router()
 
@@ -11,7 +11,7 @@ router.get('/:id(\\d+)', authUser, checkRole(['User', 'Admin']), async (req, res
     where: { id: id }
   }).then((result) => {
     if (result) {
-      result = removeUserFields(result)
+      result = removeFields(result)
       res.send(result)
     } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
   }).catch((error) => {
@@ -26,7 +26,7 @@ router.get('/me/:id', authUser, async (req, res) => {
     where: { id, userId: req.userId }
   }).then((result) => {
     if (result) {
-      result = removeUserFields(result)
+      result = removeFields(result)
       res.send(result)
     } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
   }).catch((error) => {
@@ -75,7 +75,7 @@ router.get('', authUser, checkRole(['User', 'Admin']), async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  requests.map(request => removeUserFields(request))
+  requests.map(request => removeFields(request))
   res.send(requests)
 })
 
@@ -88,7 +88,7 @@ router.get('/me', authUser, async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  requests.map(request => removeUserFields(request))
+  requests.map(request => removeFields(request))
   res.send(requests)
 })
 
@@ -104,7 +104,7 @@ router.get('/:query', async (req, res, err) => {
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
-      requests.map(request => removeUserFields(request))
+      requests.map(request => removeFields(request))
       res.send(requests)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
@@ -125,7 +125,7 @@ router.get('/me/:query', authUser, async (req, res, err) => {
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
-      requests.map(request => removeUserFields(request))
+      requests.map(request => removeFields(request))
       res.send(requests)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {

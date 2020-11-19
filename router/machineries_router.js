@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authUser, checkRole, getParams, removeUserFields } from '../middleware/auth'
+import { authUser, checkRole, getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import { Machinery, User, Machine, Picture } from '../sequelize/models'
 const router = Router()
@@ -11,7 +11,7 @@ router.get('/:id(\\d+)', async (req, res) => {
     where: { id: id }
   }).then((result) => {
     if (result) {
-      // result = removeUserFields(result.user)
+      // result = removeFields(result.user)
       res.send(result)
     } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Machinery Found', stack: '' } })
   }).catch((error) => {
@@ -113,7 +113,7 @@ router.get('', async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  machineries.map(machinery => removeUserFields(machinery))
+  machineries.map(machinery => removeFields(machinery))
   res.send(machineries)
 })
 
@@ -129,7 +129,7 @@ router.get('/:query', async (req, res, err) => {
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
-      machineries.map(machinery => removeUserFields(machinery))
+      machineries.map(machinery => removeFields(machinery))
       res.send(machineries)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
@@ -150,7 +150,7 @@ router.get('/me/:query', async (req, res, err) => {
         offset: (params.page - 1) * params.limit,
         limit: params.limit
       })
-      machineries.map(machinery => removeUserFields(machinery))
+      machineries.map(machinery => removeFields(machinery))
       res.send(machineries)
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
