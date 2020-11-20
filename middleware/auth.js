@@ -105,10 +105,10 @@ const getParams = (req, res, next) => {
 
 const removeFields = (object) => {
   if (object == null) return object
-  console.log('(typeof object).toString() === \'array\'', (typeof object).toString() === 'array')
+  console.log('::::::::::::::::::::>>>>>>>>(typeof object).toString()', (typeof object).toString())
   if ((typeof object).toString() === 'array') {
     object = object.map(obj => {
-      console.log('(typeof obj.user).toString() === \'object\'', (typeof obj.user).toString() === 'object')
+      console.log('::::::::::::::::::::>>>>>>>>(typeof obj.user).toString()', (typeof obj.user).toString())
       if ((typeof obj.user).toString() === 'object') {
         obj.user = remover(obj.user)
         return obj
@@ -118,9 +118,10 @@ const removeFields = (object) => {
     })
     return object
   }
+  console.log('::::::::::::::::::::>>>>>>>>object>>>>>>>>>', object)
   console.log('object.id == null', object.id == null)
   if (object.id == null) return object
-  console.log('(typeof object.user).toString() === \'object\'', (typeof object.user).toString() === 'object')
+  console.log('::::::::::::::::::::>>>>>>>>(typeof object.user).toString()', (typeof object.user).toString())
   if ((typeof object.user).toString() === 'object') {
     object.user = remover(object.user)
     return object
