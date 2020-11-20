@@ -19,20 +19,20 @@ router.get('/:id(\\d+)', authUser, async (req, res) => {
   })
 })
 
-router.get('/me/:id', authUser, async (req, res) => {
-  const id = req.params.id
-  RequestQueue.findOne({
-    include: [{ model: Machinery, as: 'machinery' }, { model: Job, as: 'job' }],
-    where: { id, userId: req.userId }
-  }).then((result) => {
-    if (result) {
-      result = removeFields(result)
-      res.send(result)
-    } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
-  }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  })
-})
+// router.get('/me/:id', authUser, async (req, res) => {
+//   const id = req.params.id
+//   RequestQueue.findOne({
+//     include: [{ model: Machinery, as: 'machinery' }, { model: Job, as: 'job' }],
+//     where: { id, userId: req.userId }
+//   }).then((result) => {
+//     if (result) {
+//       result = removeFields(result)
+//       res.send(result)
+//     } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
+//   }).catch((error) => {
+//     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+//   })
+// })
 
 router.post('', authUser, async (req, res) => {
   const body = req.body
@@ -67,70 +67,37 @@ router.put('', authUser, async (req, res, err) => {
   }
 })
 
-router.get('', authUser, async (req, res) => {
-  const requests = await RequestQueue.findAll({
-    include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'request' }],
-    offset: 0,
-    limit: 25
-  }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  })
-  requests.map(request => removeFields(request))
-  res.send(requests)
-})
-
-router.get('/me', authUser, async (req, res) => {
+router.get('/', authUser, async (req, res) => {
+  const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const requests = await RequestQueue.findAll({
     include: [{ model: Machinery, as: 'machinery' }, { model: Job, as: 'request' }],
-    where: { userId: req.userId },
-    offset: 0,
-    limit: 25
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  requests.map(request => removeFields(request))
-  res.send(requests)
+  res.send(removeFields(requests))
 })
 
-router.get('/:query', async (req, res, err) => {
-  const query = req.params.query
-  try {
-    const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
-    if (isQueryValid) {
-      const params = getParams(query)
-      const requests = await RequestQueue.findAll({
-        where: params.where,
-        include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
-        offset: (params.page - 1) * params.limit,
-        limit: params.limit
-      })
-      requests.map(request => removeFields(request))
-      res.send(requests)
-    } else throw Error('Bad Format', 'Invalid Request URL format')
-  } catch (error) {
+router.get('/:query', authUser, getParams, async (req, res, err) => {
+  const params = req.queries
+  params.where.userId = req.userId
+  const requests = await RequestQueue.findAll({
+    include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
+  }).catch((error) => {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  }
-})
-
-router.get('/me/:query', authUser, async (req, res, err) => {
-  const query = req.params.query
-  try {
-    const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
-    if (isQueryValid) {
-      const params = getParams(query)
-      params.where.userId = req.userId
-      const requests = await RequestQueue.findAll({
-        where: params.where,
-        include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
-        offset: (params.page - 1) * params.limit,
-        limit: params.limit
-      })
-      requests.map(request => removeFields(request))
-      res.send(requests)
-    } else throw Error('Bad Format', 'Invalid Request URL format')
-  } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  }
+  })
+  res.send(removeFields(requests))
 })
 
 export default router

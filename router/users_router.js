@@ -150,7 +150,7 @@ router.put('', authUser, async (req, res) => {
 
 router.get('', authUser, async (req, res) => {
   const amount = await User.count()
-  const params = getParams()
+  const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const users = await User.findAll({
     where: params.where,
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
@@ -165,28 +165,21 @@ router.get('', authUser, async (req, res) => {
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
 })
 
-router.get('/:query', authUser, async (req, res, err) => {
-  const query = req.params.query
-  try {
-    const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
-    console.info('req.params.query', query, 'isQueryValid', isQueryValid)
-    if (isQueryValid) {
-      const params = getParams(query)
-      const amount = await User.count()
-      const users = await User.findAll({
-        where: params.where,
-        include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
-        offset: (params.page - 1) * params.limit,
-        limit: params.limit,
-        order: [
-          [params.sort, params.order]
-        ]
-      })
-      res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
-    } else throw Error('Bad Format', 'Invalid Request URL format')
-  } catch (error) {
+router.get('/:query', authUser, getParams, async (req, res, next) => {
+  const params = req.queries
+  const amount = await User.count()
+  const users = await User.findAll({
+    include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
+  }).catch((error) => {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  }
+  })
+  res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
 })
 
 export default router

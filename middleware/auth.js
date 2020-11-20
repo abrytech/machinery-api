@@ -72,89 +72,75 @@ const authUser = (req, res, next) => {
 //     ? next(error)
 //     : next()
 
-function getParams (query = '') {
+const getParams = (req, res, next) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
-  if (query) {
-    query = query.startsWith('?') ? query.substring(1) : query
-    const temp = query.split('&')
-    temp.forEach((param) => {
-      const key = param.split('=')[0]
-      const value = param.split('=')[1]
-      if (key && value) {
-        if (key === 'page' || key === 'limit') {
-          params[key] = parseInt(value)
-        } else if (key === 'order' || key === 'sort') {
-          params[key] = value
-        } else {
-          params.where[key] = value
+  let query = req.params.query
+  try {
+    const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
+    console.info('req.params.query', query, 'isQueryValid', isQueryValid)
+    if (isQueryValid) {
+      query = query.startsWith('?') ? query.substring(1) : query
+      const temp = query.split('&')
+      temp.forEach((param) => {
+        const key = param.split('=')[0]
+        const value = param.split('=')[1]
+        if (key && value) {
+          if (key === 'page' || key === 'limit') {
+            params[key] = parseInt(value)
+          } else if (key === 'order' || key === 'sort') {
+            params[key] = value
+          } else {
+            params.where[key] = value
+          }
         }
-      }
-    })
-    console.info('getParams(query)', params)
-    return params
-  } else {
-    console.info('getParams(query)', params)
-    return params
+      })
+      req.queries = params
+      console.info('getParams(query)', params)
+      next()
+    } else throw Error('Bad Format', 'Invalid Request URL format')
+  } catch (error) {
+    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
 }
 
-function removeFields (object) {
+const removeFields = (object) => {
+  if (object == null) return object
   console.log('(typeof object).toString() === \'array\'', (typeof object).toString() === 'array')
   if ((typeof object).toString() === 'array') {
-    object.map(obj => {
+    object = object.map(obj => {
       console.log('(typeof obj.user).toString() === \'object\'', (typeof obj.user).toString() === 'object')
       if ((typeof obj.user).toString() === 'object') {
-        delete object.user.password
-        delete object.user.userType
-        delete object.isActivated
-        delete object.user.isApproved
-        delete object.user.activationKey
-        delete object.user.deleted
-        delete object.user.addressId
-        delete object.user.pictureId
-        return object
+        obj.user = remover(obj.user)
+        return obj
       } else {
-        delete object.password
-        delete object.userType
-        delete object.isActivated
-        delete object.isApproved
-        delete object.activationKey
-        delete object.deleted
-        delete object.pictureId
-        delete object.addressId
-        delete object.machineId
-        delete object.userId
-        return object
+        return remover(obj)
       }
     })
+    return object
   }
   console.log('object.id == null', object.id == null)
   if (object.id == null) return object
   console.log('(typeof object.user).toString() === \'object\'', (typeof object.user).toString() === 'object')
   if ((typeof object.user).toString() === 'object') {
-    delete object.user.password
-    delete object.user.userType
-    delete object.isActivated
-    delete object.user.isApproved
-    delete object.user.activationKey
-    delete object.user.deleted
-    delete object.user.addressId
-    delete object.user.pictureId
+    object.user = remover(object.user)
     return object
   } else {
-    delete object.password
-    delete object.userType
-    delete object.isActivated
-    delete object.isApproved
-    delete object.activationKey
-    delete object.deleted
-    delete object.addressId
-    delete object.pictureId
-    delete object.machineId
-    delete object.userId
-    // delete object.createdAt
-    // delete object.updatedAt
-    return object
+    return remover(object)
   }
+}
+function remover (object) {
+  delete object.password
+  delete object.userType
+  delete object.isActivated
+  delete object.isApproved
+  delete object.activationKey
+  delete object.deleted
+  delete object.addressId
+  delete object.pictureId
+  delete object.machineId
+  delete object.userId
+  // delete object.createdAt
+  // delete object.updatedAt
+  return object
 }
 export { authUser, getParams, removeFields }

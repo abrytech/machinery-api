@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { Job, User, Machine, RequestQueue, Picture, Address } from '../sequelize/models'
-import { authUser, getParams } from '../middleware/auth'
+import { authUser, getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 
 const router = Router()
@@ -165,33 +165,35 @@ router.put('', authUser, async (req, res, err) => {
 })
 
 router.get('', authUser, async (req, res) => {
+  const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const jobs = await Job.findAll({
     include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
-    offset: 0,
-    limit: 25
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.send(jobs)
+  res.send(removeFields(jobs))
 })
 
-router.get('/:query', authUser, async (req, res, err) => {
-  const query = req.params.query
-  try {
-    const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
-    if (isQueryValid) {
-      const params = getParams(query)
-      const jobs = await Job.findAll({
-        where: params.where,
-        include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
-        offset: (params.page - 1) * params.limit,
-        limit: params.limit
-      })
-      res.send(jobs)
-    } else throw Error('Bad Format', 'Invalid Request URL format')
-  } catch (error) {
+router.get('/:query', authUser, getParams, async (req, res) => {
+  const params = req.queries
+  const jobs = await Job.findAll({
+    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
+  }).catch((error) => {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  }
+  })
+  res.send(removeFields(jobs))
 })
 
 export default router

@@ -11,8 +11,7 @@ router.get('/:id(\\d+)', async (req, res) => {
     where: { id: id }
   }).then((result) => {
     if (result) {
-      // result = removeFields(result.user)
-      res.send(result)
+      res.send(removeFields(result))
     } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Machine Found', stack: '' } })
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
@@ -81,35 +80,35 @@ router.put('', authUser, async (req, res, err) => {
 })
 
 router.get('', async (req, res) => {
+  const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const machines = await Machine.findAll({
     include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
-    offset: 0,
-    limit: 25
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  machines.map(machine => removeFields(machine))
-  res.send(machines)
+  res.send(removeFields(machines))
 })
 
-router.get('/:query', async (req, res, err) => {
-  const query = req.params.query
-  try {
-    const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
-    if (isQueryValid) {
-      const params = getParams(query)
-      const machines = await Machine.findAll({
-        where: params.where,
-        include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
-        offset: (params.page - 1) * params.limit,
-        limit: params.limit
-      })
-      machines.map(machine => removeFields(machine))
-      res.send(machines)
-    } else throw Error('Bad Format', 'Invalid Request URL format')
-  } catch (error) {
+router.get('/:query', authUser, getParams, async (req, res) => {
+  const params = req.queries
+  const machines = await Machine.findAll({
+    include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
+  }).catch((error) => {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  }
+  })
+  res.send(removeFields(machines))
 })
 
 export default router

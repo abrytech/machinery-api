@@ -1,6 +1,6 @@
 
 import { Router } from 'express'
-import { User, Address, Job } from '../sequelize/models'
+import { Address } from '../sequelize/models'
 import { authUser, getParams } from '../middleware/auth'
 
 const router = Router()
@@ -12,14 +12,6 @@ router.get('/:id(\\d+)', authUser, async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-})
-
-router.get('/me', authUser, async (req, res) => {
-  const where = { id: req.userId }
-  const address = await Address.findOne({ where }).catch((error) => {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  })
-  res.send(address)
 })
 
 router.post('', async (req, res, next) => {
@@ -55,34 +47,33 @@ router.put('', async (req, res, next) => {
   } else res.status(400).send({ error: { name: 'Update failed', message: 'update failed b/c it couldn\'t find address id', stack: '' } })
 })
 router.get('', authUser, async (req, res) => {
-  const addresses = await Address.findAll({ offset: 0, limit: 25 }).catch((error) => {
+  const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
+  const addresses = await Address.findAll({
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
+  }).catch((error) => {
     res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   res.send(addresses)
 })
 
-router.get('/:query', authUser, async (req, res, err) => {
-  const query = req.params.query
-  const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
-  if (isQueryValid) {
-    const params = getParams(query)
-    const addresses = await Address.findAll({
-      where: params.where,
-      include: [{ model: User, as: 'user' }, { model: Job, as: 'job' }],
-      offset: (params.page - 1) * params.limit,
-      limit: params.limit
-    }).catch((error) => {
-      res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
-    })
-    res.send(addresses)
-  } else {
-    res.json({
-      error: {
-        message: 'Bad Request URL format',
-        stack: ''
-      }
-    })
-  }
+router.get('/:query', authUser, getParams, async (req, res) => {
+  const params = req.queries
+  const addresses = await Address.findAll({
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
+  }).catch((error) => {
+    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
+  })
+  res.send(addresses)
 })
 
 export default router

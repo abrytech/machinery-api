@@ -106,56 +106,57 @@ router.put('', authUser, async (req, res, err) => {
 })
 
 router.get('', async (req, res) => {
+  const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const machineries = await Machinery.findAll({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
-    offset: 0,
-    limit: 25
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   machineries.map(machinery => removeFields(machinery))
-  res.send(machineries)
+  res.send(removeFields(machineries))
 })
 
-router.get('/:query', async (req, res, err) => {
-  const query = req.params.query
-  try {
-    const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
-    if (isQueryValid) {
-      const params = getParams(query)
-      const machineries = await Machinery.findAll({
-        where: params.where,
-        include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
-        offset: (params.page - 1) * params.limit,
-        limit: params.limit
-      })
-      machineries.map(machinery => removeFields(machinery))
-      res.send(machineries)
-    } else throw Error('Bad Format', 'Invalid Request URL format')
-  } catch (error) {
+router.get('/:query', getParams, async (req, res) => {
+  const params = req.queries
+  const machineries = await Machinery.findAll({
+    include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
+    where: params.where,
+    offset: (params.page - 1) * params.limit,
+    limit: params.limit,
+    order: [
+      [params.sort, params.order]
+    ]
+  }).catch((error) => {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  }
+  })
+  res.send(removeFields(machineries))
 })
 
-router.get('/me/:query', async (req, res, err) => {
-  const query = req.params.query
-  try {
-    const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
-    if (isQueryValid) {
-      const params = getParams(query)
-      params.where.userId = req.userId
-      const machineries = await Machinery.findAll({
-        where: params.where,
-        include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
-        offset: (params.page - 1) * params.limit,
-        limit: params.limit
-      })
-      machineries.map(machinery => removeFields(machinery))
-      res.send(machineries)
-    } else throw Error('Bad Format', 'Invalid Request URL format')
-  } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  }
-})
+// router.get('/me/:query', async (req, res, err) => {
+//   const query = req.params.query
+//   try {
+//     const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
+//     if (isQueryValid) {
+//       const params = getParams(query)
+//       params.where.userId = req.userId
+//       const machineries = await Machinery.findAll({
+//         where: params.where,
+//         include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
+//         offset: (params.page - 1) * params.limit,
+//         limit: params.limit
+//       })
+//       machineries.map(machinery => removeFields(machinery))
+//       res.send(machineries)
+//     } else throw Error('Bad Format', 'Invalid Request URL format')
+//   } catch (error) {
+//     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+//   }
+// })
 
 export default router
