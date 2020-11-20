@@ -105,28 +105,31 @@ const getParams = (req, res, next) => {
 
 const removeFields = (object) => {
   if (object == null) return object
-  console.log('::::::::::::::::::::>>>>>>>>(typeof object).toString()', (typeof object).toString())
-  if ((typeof object).toString() === 'array') {
+  console.log('::::::::::::::::::::>>>>>>>>Array.isArray(object)', Array.isArray(object))
+  if (Array.isArray(object)) {
     object = object.map(obj => {
-      console.log('::::::::::::::::::::>>>>>>>>(typeof obj.user).toString()', (typeof obj.user).toString())
-      if ((typeof obj.user).toString() === 'object') {
-        obj.user = remover(obj.user)
-        return obj
+      let result = obj.dataValues
+      console.log('::::::::::::::::::::>>>>>>>>(typeof result.user).toString()', (typeof result.user).toString())
+      if (result.user) {
+        result.user = remover(result.user)
       } else {
-        return remover(obj)
+        result = remover(result)
       }
+      return result
     })
     return object
-  }
-  console.log('::::::::::::::::::::>>>>>>>>object>>>>>>>>>', object)
-  console.log('object.id == null', object.id == null)
-  if (object.id == null) return object
-  console.log('::::::::::::::::::::>>>>>>>>(typeof object.user).toString()', (typeof object.user).toString())
-  if ((typeof object.user).toString() === 'object') {
-    object.user = remover(object.user)
-    return object
   } else {
-    return remover(object)
+    if (object.dataValues == null) return object
+    if (object.dataValues.id == null) return object
+    let result = object.dataValues
+    console.log('::::::::::::::::::::>>>>>>>>result.id == null', result.id == null)
+    console.log('::::::::::::::::::::>>>>>>>>(typeof result.user).toString()', (typeof result.user).toString())
+    if (result.user) {
+      result.user = remover(result.user)
+    } else {
+      result = remover(result)
+    }
+    return result
   }
 }
 function remover (object) {
