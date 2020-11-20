@@ -73,7 +73,7 @@ router.put('', authUser, async (req, res) => {
           body.phone = body.phone || _user.phone
           body.userType = body.userType || _user.userType
           body.role = body.role || _user.role
-          body.isApproved = body.isApproved || _user.isApproved
+          body.isApproved = body.isApproved == null ? _user.isApproved : body.isApproved
           body.spam = body.spam == null ? _user.spam : body.spam
           body.deleted = body.deleted == null ? _user.deleted : body.deleted
           body.isActivated = body.isActivated == null ? _user.isActivated : body.isActivated

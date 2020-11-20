@@ -23,25 +23,22 @@ router.post('', async (req, res, next) => {
   res.send(address)
 })
 
-router.put('', async (req, res, next) => {
+router.put('', async (req, res) => {
   const body = req.body
-  // let rows results
   if (body.id) {
     const _address = await Address.findOne({ where: { id: body.id } }).catch((error) => {
       res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
     })
     if (_address) {
-      body.id = body.id || _address.id
       body.kebele = body.kebele || _address.kebele
       body.woreda = body.woreda || _address.woreda
       body.city = body.city || _address.city
       body.zone = body.zone || _address.zone
-      body.zone = body.region || _address.region
+      body.region = body.region || _address.region
       body.lat = body.lat || _address.lat
       body.long = body.long || _address.long
       body.company = body.company || _address.company
       body.phone = body.phone || _address.phone
-
       const rows = await Address.update(body, { where: { id: body.id } })
       res.send({ rows, result: body })
     } else res.status(400).send({ error: { name: 'Update failed', message: 'update failed b/c it couldn\'t find address in the db', stack: '' } })

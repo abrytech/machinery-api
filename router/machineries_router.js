@@ -63,7 +63,7 @@ router.put('', authUser, async (req, res, err) => {
         body.tyreNo = body.tyreNo || _machinery.tyreNo
         body.userId = body.userId || _machinery.userId
         body.loadingCapacity = body.loadingCapacity || _machinery.loadingCapacity
-        body.withJackHammer = body.withJackHammer || _machinery.withJackHammer
+        body.withJackHammer = body.withJackHammer == null ? _machinery.withJackHammer : body.withJackHammer
         body.serialNo = body.serialNo || _machinery.serialNo
         body.horsePower = body.horsePower || _machinery.horsePower
         if (req.files || Object.keys(req.files || []).length !== 0) {

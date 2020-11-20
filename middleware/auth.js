@@ -1,30 +1,52 @@
 import { verify } from 'jsonwebtoken'
+import { User } from '../sequelize/models'
 const { ACCESS_TOKEN_SECRET_KEY } = process.env
-const error = Error('Your not an Authorized Users, please SingIn first')
+const error = Error('Your not an authorized user, please singIn first')
 error.name = '401 Unauthorized'
 error.status = 401
-const authUser = (req, res, next) => {
+const authUser = async (req, res, next) => {
   const authHeader = req.get('Authorization')
-  // console.log('1st $authHeader', `${authHeader}`)
   if (authHeader) {
-    authHeader.toString()
+    console.log(`::::::::::::::::::<<<<<<<<<<<<<<< typeof (authHeader): ${typeof (authHeader)} >>>>>>>>>>>:::::::::::::::::`)
+    console.log(`::::::::::::::::::<<<<<<<<<<<<<<< authHeader: ${authHeader} >>>>>>>>>>>:::::::::::::::::`)
     // console.log('2nd typeof authHeader', typeof authHeader)
     const token = `${authHeader}`.split(' ')[1]
     // console.log('3rd $token', token)
     if (!token || token === '') next(error)
     // console.log('4th (!req.userId || !req.role)', (!req.userId || !req.role))
-    if (!req.userId || !req.role) {
-      try {
-        const decodedToken = verify(token, ACCESS_TOKEN_SECRET_KEY)
-        // console.log(' $decodedToken: ', decodedToken)
-        if (decodedToken) {
-          req.userId = decodedToken.userId
-          req.role = decodedToken.role
-          req.username = decodedToken.username
-        } else next(error)
-      } catch (err) {
-        next(err)
-      }
+    if (!req.userId || !req.role || !req.username) {
+      verify(token, ACCESS_TOKEN_SECRET_KEY, async (err, decoded) => {
+        if (err) {
+          error.message = err.message
+          error.name = err.name
+        } else {
+          const isUser = await User.findOne({
+            where: { id: decoded.userId, role: decoded.role, username: decoded.username }
+          }).catch(err => {
+            error.message = err.message
+            error.stack = err.stack
+            next(error)
+          })
+          if (isUser) {
+            req.userId = isUser.id
+            req.role = isUser.role
+            req.username = isUser.username
+            next()
+          } else error.message = 'Invalid token,  Please signin again your access token may be expired'
+          next(error)
+        }
+      })
+    } else {
+      const isUser = await User.findOne({
+        where: { id: req.userId, role: req.role, username: req.username }
+      }).catch(err => {
+        error.message = err.message
+        error.stack = err.stack
+        next(error)
+      })
+      if (isUser) next()
+      else error.message = 'Invalid token,  Please signin again your access token may be expired'
+      next(error)
     }
   } else next(error)
   next()
@@ -77,7 +99,7 @@ const getParams = (req, res, next) => {
   let query = req.params.query
   try {
     const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
-    console.info('req.params.query', query, 'isQueryValid', isQueryValid)
+    // console.info('req.params.query', query, 'isQueryValid', isQueryValid)
     if (isQueryValid) {
       query = query.startsWith('?') ? query.substring(1) : query
       const temp = query.split('&')
@@ -95,7 +117,7 @@ const getParams = (req, res, next) => {
         }
       })
       req.queries = params
-      console.info('getParams(query)', params)
+      // console.info('getParams(query)', params)
       next()
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
