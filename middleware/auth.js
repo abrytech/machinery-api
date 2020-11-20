@@ -32,38 +32,38 @@ const authUser = (req, res, next) => {
 
 // const roles_table = [{ id: 1, role: 'Admin' }, { id: 1, role: 'User' }]
 // const resources_table = [{ id: 1, resource: 'users' }, { id: 2, resource: 'addresses' }, { id: 2, resource: 'machines' }, { id: 3, resource: 'machineries' }, { id: 4, resource: 'jobs' }, { id: 5, resource: 'requests' }]
-const permissionTable = [
-  { id: 1, role: 'Admin', resource: '/users', permissions: { create: true, read: true, write: true, delete: true } },
-  { id: 2, role: 'Admin', resource: '/addresses', permissions: { create: true, read: true, write: true, delete: true } },
-  { id: 3, role: 'Admin', resource: '/machines', permissions: { create: true, read: true, write: true, delete: true } },
-  { id: 4, role: 'Admin', resource: '/machineries', permissions: { create: true, read: true, write: true, delete: true } },
-  { id: 5, role: 'Admin', resource: '/jobs', permissions: { create: true, read: true, write: true, delete: true } },
-  { id: 6, role: 'Admin', resource: '/requests', permissions: { create: true, read: true, write: true, delete: true } },
-  { id: 7, role: 'User', resource: '/requests', permissions: { create: true, read: true, write: true, delete: true } },
-  { id: 8, role: 'User', resource: '/users', permissions: { create: true, read: true, write: true, delete: true } },
-  { id: 9, role: 'User', resource: '/jobs', permissions: { create: true, read: true, write: true, delete: true } },
-  { id: 10, role: 'User', resource: '/machineries', permissions: { create: true, read: true, write: true, delete: true } }
-]
+// const permissionTable = [
+//   { id: 1, role: 'Admin', resource: '/users', permissions: { create: true, read: true, write: true, delete: true } },
+//   { id: 2, role: 'Admin', resource: '/addresses', permissions: { create: true, read: true, write: true, delete: true } },
+//   { id: 3, role: 'Admin', resource: '/machines', permissions: { create: true, read: true, write: true, delete: true } },
+//   { id: 4, role: 'Admin', resource: '/machineries', permissions: { create: true, read: true, write: true, delete: true } },
+//   { id: 5, role: 'Admin', resource: '/jobs', permissions: { create: true, read: true, write: true, delete: true } },
+//   { id: 6, role: 'Admin', resource: '/requests', permissions: { create: true, read: true, write: true, delete: true } },
+//   { id: 7, role: 'User', resource: '/requests', permissions: { create: true, read: true, write: true, delete: true } },
+//   { id: 8, role: 'User', resource: '/users', permissions: { create: true, read: true, write: true, delete: true } },
+//   { id: 9, role: 'User', resource: '/jobs', permissions: { create: true, read: true, write: true, delete: true } },
+//   { id: 10, role: 'User', resource: '/machineries', permissions: { create: true, read: true, write: true, delete: true } }
+// ]
 
-const checkRole = (req, res, next) => {
-  if (req.userId) {
-    const perms = permissionTable.filter(perm => {
-      return perm.resource === req.path && perm.role === req.role
-    })
-    var allow = false
-    // you can do this mapping of methods to permissions before the db call and just get the specific permission you want.
-    for (const perm in perms) {
-      console.log('perm.resource === req.path && perm.role === req.role ::>', `${perm.resource} === ${req.path} && ${perm.role} === ${req.role}`)
-      console.log("req.method === 'GET' && perm.permissions.read", ` ${req.method === 'GET'} && ${perm.permissions.read}`)
-      if (req.method === 'POST' && perm.permissions.create) allow = true
-      else if (req.method === 'GET' && perm.permissions.read) allow = true
-      else if (req.method === 'PUT' && perm.permissions.write) allow = true
-      else if (req.method === 'DELETE' && perm.permissions.delete) allow = true
-    }
-    if (allow) next()
-    else res.status(403).send({ error: { name: 'Access denied', message: 'You dont have this level of access ', stack: '' } })
-  } else res.status(400).send({ error: { name: 'Bad Request', message: 'This User does\'t exist', stack: '' } })
-}
+// const checkRole = (req, res, next) => {
+//   if (req.userId) {
+//     const perms = permissionTable.filter(perm => {
+//       return perm.resource === req.path && perm.role === req.role
+//     })
+//     var allow = false
+//     // you can do this mapping of methods to permissions before the db call and just get the specific permission you want.
+//     for (const perm in perms) {
+//       console.log('perm.resource === req.path && perm.role === req.role ::>', `${perm.resource} === ${req.path} && ${perm.role} === ${req.role}`)
+//       console.log("req.method === 'GET' && perm.permissions.read", ` ${req.method === 'GET'} && ${perm.permissions.read}`)
+//       if (req.method === 'POST' && perm.permissions.create) allow = true
+//       else if (req.method === 'GET' && perm.permissions.read) allow = true
+//       else if (req.method === 'PUT' && perm.permissions.write) allow = true
+//       else if (req.method === 'DELETE' && perm.permissions.delete) allow = true
+//     }
+//     if (allow) next()
+//     else res.status(403).send({ error: { name: 'Access denied', message: 'You dont have this level of access ', stack: '' } })
+//   } else res.status(400).send({ error: { name: 'Bad Request', message: 'This User does\'t exist', stack: '' } })
+// }
 /**
  * @DESC Check Role Middleware
  */
@@ -157,4 +157,4 @@ function removeFields (object) {
     return object
   }
 }
-export { authUser, checkRole, getParams, removeFields }
+export { authUser, getParams, removeFields }

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authUser, checkRole, getParams, removeFields } from '../middleware/auth'
+import { authUser, getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import { Machinery, User, Machine, Picture } from '../sequelize/models'
 const router = Router()
@@ -32,7 +32,7 @@ router.get('/me/:id(\\d+)', async (req, res) => {
   })
 })
 
-router.post('', authUser, checkRole, async (req, res) => {
+router.post('', authUser, async (req, res) => {
   const body = req.body
   try {
     if (!req.files || Object.keys(req.files || []).length === 0) {
@@ -55,7 +55,7 @@ router.post('', authUser, checkRole, async (req, res) => {
   }
 })
 
-router.put('', authUser, checkRole, async (req, res, err) => {
+router.put('', authUser, async (req, res, err) => {
   const body = req.body
   try {
     if (body.id) {

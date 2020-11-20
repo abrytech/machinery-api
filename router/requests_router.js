@@ -1,10 +1,10 @@
 import { Router } from 'express'
 import { Job, User, Machinery, RequestQueue } from '../sequelize/models'
-import { authUser, checkRole, getParams, removeFields } from '../middleware/auth'
+import { authUser, getParams, removeFields } from '../middleware/auth'
 
 const router = Router()
 
-router.get('/:id(\\d+)', authUser, checkRole, async (req, res) => {
+router.get('/:id(\\d+)', authUser, async (req, res) => {
   const id = parseInt(req.params.id)
   RequestQueue.findOne({
     include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
@@ -67,7 +67,7 @@ router.put('', authUser, async (req, res, err) => {
   }
 })
 
-router.get('', authUser, checkRole, async (req, res) => {
+router.get('', authUser, async (req, res) => {
   const requests = await RequestQueue.findAll({
     include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'request' }],
     offset: 0,

@@ -1,10 +1,10 @@
 
 import { Router } from 'express'
 import { User, Address, Job } from '../sequelize/models'
-import { authUser, checkRole, getParams } from '../middleware/auth'
+import { authUser, getParams } from '../middleware/auth'
 
 const router = Router()
-router.get('/:id(\\d+)', authUser, checkRole, async (req, res) => {
+router.get('/:id(\\d+)', authUser, async (req, res) => {
   const where = { id: req.params.id }
   Address.findOne({ where }).then((request) => {
     if (request) res.send(request)
@@ -54,14 +54,14 @@ router.put('', async (req, res, next) => {
     } else res.status(400).send({ error: { name: 'Update failed', message: 'update failed b/c it couldn\'t find address in the db', stack: '' } })
   } else res.status(400).send({ error: { name: 'Update failed', message: 'update failed b/c it couldn\'t find address id', stack: '' } })
 })
-router.get('', authUser, checkRole, async (req, res) => {
+router.get('', authUser, async (req, res) => {
   const addresses = await Address.findAll({ offset: 0, limit: 25 }).catch((error) => {
     res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
   res.send(addresses)
 })
 
-router.get('/:query', authUser, checkRole, async (req, res, err) => {
+router.get('/:query', authUser, async (req, res, err) => {
   const query = req.params.query
   const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
   if (isQueryValid) {

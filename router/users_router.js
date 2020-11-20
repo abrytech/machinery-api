@@ -1,13 +1,13 @@
 import { Router } from 'express'
 import { User, Address, Picture } from '../sequelize/models'
-import { authUser, checkRole, getParams, removeFields } from '../middleware/auth'
+import { authUser, getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import sendConfirmation from '../middleware/gmail'
 import { hashSync, genSaltSync, compareSync } from 'bcrypt'
 
 const router = Router()
 
-router.get('/:id(\\d+)', authUser, checkRole, async (req, res) => {
+router.get('/:id(\\d+)', authUser, async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
   const user = await User.findOne({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
@@ -148,7 +148,7 @@ router.put('', authUser, async (req, res) => {
   }
 })
 
-router.get('', authUser, checkRole, async (req, res) => {
+router.get('', authUser, async (req, res) => {
   const amount = await User.count()
   const params = getParams()
   const users = await User.findAll({
@@ -165,7 +165,7 @@ router.get('', authUser, checkRole, async (req, res) => {
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
 })
 
-router.get('/:query', authUser, checkRole, async (req, res, err) => {
+router.get('/:query', authUser, async (req, res, err) => {
   const query = req.params.query
   try {
     const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
