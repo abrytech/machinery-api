@@ -11,22 +11,8 @@ router.get('/:id(\\d+)', async (req, res) => {
     where: { id: id }
   }).then((result) => {
     if (result) {
-      // result = removeFields(result.user)
-      res.send(result)
+      res.send(removeFields(result))
     } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Machinery Found', stack: '' } })
-  }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  })
-})
-
-router.get('/me/:id(\\d+)', async (req, res) => {
-  const id = req.params.id
-  Machinery.findOne({
-    include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
-    where: { id, userId: req.userId }
-  }).then((machinery) => {
-    if (machinery) res.send(machinery)
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Machinery Found', stack: '' } })
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
@@ -49,7 +35,7 @@ router.post('', authUser, async (req, res) => {
       include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
       where: { id: _machinery.id }
     })
-    res.send(response)
+    res.send(removeFields(response))
   } catch (error) {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
@@ -97,7 +83,7 @@ router.put('', authUser, async (req, res, err) => {
           include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
           where: { id: body.id }
         }) : body
-        res.send({ rows: rows ? rows[0] : 0, result })
+        res.send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
       } else throw Error('Bad Request: Machinery not found')
     } else throw Error('Bad Request: Machinery ID is Missing')
   } catch (error) {
@@ -105,7 +91,7 @@ router.put('', authUser, async (req, res, err) => {
   }
 })
 
-router.get('', async (req, res) => {
+router.get('', authUser, async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const machineries = await Machinery.findAll({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
@@ -118,11 +104,10 @@ router.get('', async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  machineries.map(machinery => removeFields(machinery))
   res.send(removeFields(machineries))
 })
 
-router.get('/:query', getParams, async (req, res) => {
+router.get('/:query', authUser, getParams, async (req, res) => {
   const params = req.queries
   const machineries = await Machinery.findAll({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
@@ -137,26 +122,5 @@ router.get('/:query', getParams, async (req, res) => {
   })
   res.send(removeFields(machineries))
 })
-
-// router.get('/me/:query', async (req, res, err) => {
-//   const query = req.params.query
-//   try {
-//     const isQueryValid = !(new RegExp('[^a-zA-Z0-9&=@.]').test(query))
-//     if (isQueryValid) {
-//       const params = getParams(query)
-//       params.where.userId = req.userId
-//       const machineries = await Machinery.findAll({
-//         where: params.where,
-//         include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
-//         offset: (params.page - 1) * params.limit,
-//         limit: params.limit
-//       })
-//       machineries.map(machinery => removeFields(machinery))
-//       res.send(machineries)
-//     } else throw Error('Bad Format', 'Invalid Request URL format')
-//   } catch (error) {
-//     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-//   }
-// })
 
 export default router

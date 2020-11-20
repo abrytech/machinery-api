@@ -7,7 +7,7 @@ const router = Router()
 router.get('/:id(\\d+)', authUser, async (req, res) => {
   const id = parseInt(req.params.id)
   RequestQueue.findOne({
-    include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
+    include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
     where: { id: id }
   }).then((result) => {
     if (result) {
@@ -19,31 +19,16 @@ router.get('/:id(\\d+)', authUser, async (req, res) => {
   })
 })
 
-// router.get('/me/:id', authUser, async (req, res) => {
-//   const id = req.params.id
-//   RequestQueue.findOne({
-//     include: [{ model: Machinery, as: 'machinery' }, { model: Job, as: 'job' }],
-//     where: { id, userId: req.userId }
-//   }).then((result) => {
-//     if (result) {
-//       result = removeFields(result)
-//       res.send(result)
-//     } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
-//   }).catch((error) => {
-//     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-//   })
-// })
-
 router.post('', authUser, async (req, res) => {
   const body = req.body
   console.log(body)
   const request = await RequestQueue.create(body).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.send(request)
+  res.send(removeFields(request))
 })
 
-router.put('', authUser, async (req, res, err) => {
+router.put('', authUser, async (req, res) => {
   const body = req.body
   try {
     if (body.id) {
@@ -56,10 +41,10 @@ router.put('', authUser, async (req, res, err) => {
         body.status = body.status || _request.status
         const rows = await RequestQueue.update(body, { where: { id: body.id } })
         const result = rows ? await RequestQueue.findOne({
-          include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
+          include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
           where: { id: body.id }
         }) : body
-        res.send({ rows: rows ? rows[0] : 0, result })
+        res.send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
       } else throw Error('Bad Request: Offer not found')
     } else throw Error('Bad Request: Offer ID is Missing')
   } catch (error) {
@@ -70,7 +55,7 @@ router.put('', authUser, async (req, res, err) => {
 router.get('/', authUser, async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const requests = await RequestQueue.findAll({
-    include: [{ model: Machinery, as: 'machinery' }, { model: Job, as: 'request' }],
+    include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
@@ -83,11 +68,11 @@ router.get('/', authUser, async (req, res) => {
   res.send(removeFields(requests))
 })
 
-router.get('/:query', authUser, getParams, async (req, res, err) => {
+router.get('/:query', authUser, getParams, async (req, res) => {
   const params = req.queries
   params.where.userId = req.userId
   const requests = await RequestQueue.findAll({
-    include: [{ model: Machinery, as: 'machinery' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
+    include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,

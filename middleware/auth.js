@@ -134,10 +134,9 @@ const removeFields = (object) => {
 }
 function remover (object) {
   delete object.password
-  delete object.userType
-  delete object.isActivated
   delete object.isApproved
   delete object.activationKey
+  delete object.spam
   delete object.deleted
   delete object.addressId
   delete object.pictureId

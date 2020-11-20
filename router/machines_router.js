@@ -35,7 +35,7 @@ router.post('', authUser, async (req, res) => {
       include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
       where: { id: _machine.id }
     })
-    res.send(response)
+    res.send(removeFields(response))
   } catch (error) {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
@@ -71,7 +71,7 @@ router.put('', authUser, async (req, res, err) => {
           include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
           where: { id: body.id }
         }) : null
-        res.send({ rows: rows ? rows[0] : 0, result })
+        res.send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
       } else throw Error('Bad Request: Machine not found')
     } else throw Error('Bad Request: Machine ID is Missing')
   } catch (error) {
@@ -79,7 +79,7 @@ router.put('', authUser, async (req, res, err) => {
   }
 })
 
-router.get('', async (req, res) => {
+router.get('', authUser, async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const machines = await Machine.findAll({
     include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],

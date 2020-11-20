@@ -8,23 +8,10 @@ const router = Router()
 router.get('/:id(\\d+)', authUser, async (req, res) => {
   const id = req.params.id
   Job.findOne({
-    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
+    include: [{ model: Machine, as: 'machine' }, { model: RequestQueue, as: 'requests' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
     where: { id }
-  }).then((request) => {
-    if (request) res.send(request)
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
-  }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
-  })
-})
-
-router.get('/me/:id(\\d+)', authUser, async (req, res) => {
-  const id = req.params.id
-  Job.findOne({
-    include: [{ model: Machine, as: 'machine' }, { model: RequestQueue, as: 'requests' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
-    where: { id, userId: req.userId }
-  }).then((request) => {
-    if (request) res.send(request)
+  }).then((result) => {
+    if (result) res.send(removeFields(result))
     else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
@@ -70,7 +57,7 @@ router.post('', authUser, async (req, res) => {
       include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
       where: { id: _job.id }
     })
-    res.send(response)
+    res.send(removeFields(response))
   } catch (error) {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   }
@@ -99,15 +86,18 @@ router.put('', authUser, async (req, res, err) => {
         body.quantity = body.quantity || _job.quantity
         body.distance = body.distance || _job.distance
         body.offRoadDistance = body.offRoadDistance || _job.offRoadDistance
-        body.hasOffroad = body.hasOffroad || _job.hasOffroad
+        body.hasOffroad = body.hasOffroad == null ? _job.hasOffroad : body.hasOffroad
         body.status = body.status || _job.status
         if (body.pickUpAddress) {
           if (_job.pickUpAddress) {
             body.pickUpAddress.id = body.pickUpAddress.id || _job.pickUpAddress.id
             body.pickUpAddress.kebele = body.pickUpAddress.kebele || _job.pickUpAddress.kebele
             body.pickUpAddress.woreda = body.pickUpAddress.woreda || _job.pickUpAddress.woreda
-            body.pickUpAddress.zone = body.pickUpAddress.zone || _job.pickUpAddress.zone
             body.pickUpAddress.city = body.pickUpAddress.city || _job.pickUpAddress.city
+            body.pickUpAddress.zone = body.pickUpAddress.zone || _job.pickUpAddress.zone
+            body.pickUpAddress.region = body.pickUpAddress.region || _job.pickUpAddress.region
+            body.pickUpAddress.lat = body.pickUpAddress.lat || _job.pickUpAddress.lat
+            body.pickUpAddress.long = body.pickUpAddress.long || _job.pickUpAddress.long
             body.pickUpAddress.company = body.pickUpAddress.company || _job.pickUpAddress.company
             body.pickUpAddress.phone = body.pickUpAddress.phone || _job.pickUpAddress.phone
           }
@@ -125,8 +115,11 @@ router.put('', authUser, async (req, res, err) => {
             body.dropOffAddress.id = body.dropOffAddress.id || _job.dropOffAddress.id
             body.dropOffAddress.kebele = body.dropOffAddress.kebele || _job.dropOffAddress.kebele
             body.dropOffAddress.woreda = body.dropOffAddress.woreda || _job.dropOffAddress.woreda
-            body.dropOffAddress.zone = body.dropOffAddress.zone || _job.dropOffAddress.zone
             body.dropOffAddress.city = body.dropOffAddress.city || _job.dropOffAddress.city
+            body.dropOffAddress.zone = body.dropOffAddress.zone || _job.dropOffAddress.zone
+            body.dropOffAddress.region = body.dropOffAddress.region || _job.dropOffAddress.region
+            body.dropOffAddress.lat = body.dropOffAddress.lat || _job.dropOffAddress.lat
+            body.dropOffAddress.long = body.dropOffAddress.long || _job.dropOffAddress.long
             body.dropOffAddress.company = body.dropOffAddress.company || _job.dropOffAddress.company
             body.dropOffAddress.phone = body.dropOffAddress.phone || _job.dropOffAddress.phone
           }
@@ -156,7 +149,7 @@ router.put('', authUser, async (req, res, err) => {
           include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }],
           where: { id: body.id }
         }) : body
-        res.send({ rows: rows ? rows[0] : 0, result })
+        res.send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
       } else throw Error('Bad Request: Job not found')
     } else throw Error('Bad Request: Job ID is Missing')
   } catch (error) {

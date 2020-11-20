@@ -62,7 +62,7 @@ router.put('', authUser, async (req, res) => {
   const body = req.body
   try {
     if (body) {
-      console.log(body)
+      // console.log(body)
       if (body.id) {
         const _user = await User.findOne({ where: { id: body.id }, include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }] })
         if (_user) {
@@ -74,10 +74,10 @@ router.put('', authUser, async (req, res) => {
           body.userType = body.userType || _user.userType
           body.role = body.role || _user.role
           body.isApproved = body.isApproved || _user.isApproved
-          body.spam = body.spam || _user.spam
-          body.deleted = body.deleted || _user.deleted
-          body.isActivated = body.isActivated || _user.isActivated
-          body.activationKey = body.activationKey || _user.activationKey
+          body.spam = body.spam == null ? _user.spam : body.spam
+          body.deleted = body.deleted == null ? _user.deleted : body.deleted
+          body.isActivated = body.isActivated == null ? _user.isActivated : body.isActivated
+          body.activationKey = body.activationKey == null ? _user.activationKey : body.activationKey
           body.addressId = body.addressId || _user.addressId
           body.pictureId = body.pictureId || _user.pictureId
           delete body.createdAt
@@ -88,7 +88,10 @@ router.put('', authUser, async (req, res) => {
               body.address.kebele = body.address.kebele || _user.address.kebele
               body.address.woreda = body.address.woreda || _user.address.woreda
               body.address.zone = body.address.zone || _user.address.zone
+              body.address.region = body.address.region || _user.address.region
               body.address.city = body.address.city || _user.address.city
+              body.address.lat = body.address.lat || _user.address.lat
+              body.address.long = body.address.long || _user.address.long
               body.address.company = body.address.company || _user.address.company
               body.address.phone = body.address.phone || _user.address.phone
             }
