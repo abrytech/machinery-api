@@ -8,8 +8,8 @@ error.status = 401
 const authUser = async (req, res, next) => {
   const authHeader = req.get('Authorization')
   if (authHeader) {
-    console.log(`::::::::::::::::::<<<<<<<<<<<<<<< typeof (authHeader): ${typeof (authHeader)} >>>>>>>>>>>:::::::::::::::::`)
-    console.log(`::::::::::::::::::<<<<<<<<<<<<<<< authHeader: ${authHeader} >>>>>>>>>>>:::::::::::::::::`)
+    // console.log(`::::::::::::::::::<<<<<<<<<<<<<<< typeof (authHeader): ${typeof (authHeader)} >>>>>>>>>>>:::::::::::::::::`)
+    // console.log(`::::::::::::::::::<<<<<<<<<<<<<<< authHeader: ${authHeader} >>>>>>>>>>>:::::::::::::::::`)
     // console.log('2nd typeof authHeader', typeof authHeader)
     const token = `${authHeader}`.split(' ')[1]
     // console.log('3rd $token', token)
@@ -131,11 +131,13 @@ const getParams = (req, res, next) => {
 
 const removeFields = (object) => {
   if (object == null) return object
-  console.log('::::::::::::::::::::>>>>>>>>Array.isArray(object)', Array.isArray(object))
+  // console.log('::::::::::::::::::::>>>>>>>>Array.isArray(object)', Array.isArray(object))
   if (Array.isArray(object)) {
     object = object.map(obj => {
       let result = obj.dataValues
-      console.log('::::::::::::::::::::>>>>>>>>(typeof result.user).toString()', (typeof result.user).toString())
+      console.log('::::::::::::::::::::>>>>>>>> obj: ', obj)
+      console.log('::::::::::::::::::::>>>>>>>> obj.user: ', obj.user)
+      console.log('::::::::::::::::::::>>>>>>>> result.user: ', result.user)
       if (result.user) {
         result.user = remover(result.user)
       } else {
