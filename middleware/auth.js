@@ -100,7 +100,7 @@ const authUser = async (req, res, next) => {
 
 const getParams = (req, res, next) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
-  let query = req.params.query
+  let query = req.params.query || ''
   try {
     const isQueryValid = (new RegExp('[?]{1}[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}|[a-zA-Z0-9%&=@.]+[a-zA-Z0-9]{1,}').test(query))
     // console.info('req.params.query', query, 'isQueryValid', isQueryValid)
@@ -121,7 +121,6 @@ const getParams = (req, res, next) => {
         }
       })
       req.queries = params
-      // console.info('getParams(query)', params)
       next()
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
@@ -130,35 +129,40 @@ const getParams = (req, res, next) => {
 }
 
 const removeFields = (object) => {
-  if (object == null) return object
-  // console.log('::::::::::::::::::::>>>>>>>>Array.isArray(object)', Array.isArray(object))
-  if (Array.isArray(object)) {
-    object = object.map(obj => {
-      let result = obj.dataValues
-      console.log('::::::::::::::::::::>>>>>>>> obj: ', obj)
-      console.log('::::::::::::::::::::>>>>>>>> obj.user: ', obj.user)
-      console.log('::::::::::::::::::::>>>>>>>> result.user: ', result.user)
+  try {
+    if (object == null) return object
+    if (Array.isArray(object)) {
+      object = object.map(obj => {
+        let result = obj.dataValues
+        if (result.user) {
+          result.user = remover(result.user.dataValues)
+        } else {
+          result = remover(result)
+        }
+        return result
+      })
+      return object
+    } else {
+      if (object.dataValues == null) return object
+      if (object.dataValues.id == null) return object
+      let result = object.dataValues
       if (result.user) {
-        result.user = remover(result.user)
+        result.user = remover(result.user.dataValues)
       } else {
         result = remover(result)
       }
       return result
-    })
-    return object
-  } else {
-    if (object.dataValues == null) return object
-    if (object.dataValues.id == null) return object
-    let result = object.dataValues
-    console.log('::::::::::::::::::::>>>>>>>>result.id == null', result.id == null)
-    console.log('::::::::::::::::::::>>>>>>>>(typeof result.user).toString()', (typeof result.user).toString())
-    if (result.user) {
-      result.user = remover(result.user)
-    } else {
-      result = remover(result)
     }
-    return result
+  } catch (error) {
+    console.log(`\n ::::::::::::::::::::>>>>>>>> \n ${error} \n ::::::::::::::::::::>>>>>>>> \n`)
+    return object
   }
+  // console.log('::::::::::::::::::::>>>>>>>>Array.isArray(object)', Array.isArray(object))
+  // console.log('::::::::::::::::::::>>>>>>>> obj: ', obj)
+  // console.log('::::::::::::::::::::>>>>>>>> obj.user: ', obj.user)
+  // console.log('::::::::::::::::::::>>>>>>>> result.user: ', result.user)
+  // console.log('::::::::::::::::::::>>>>>>>>result.id == null', result.id == null)
+  // console.log('::::::::::::::::::::>>>>>>>>(typeof result.user).toString()', (typeof result.user).toString())
 }
 function remover (object) {
   delete object.password
