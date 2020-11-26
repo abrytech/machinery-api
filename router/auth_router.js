@@ -38,7 +38,7 @@ router.post('/login', async (req, res) => {
           else if (!user.isApproved) throw Error('Authentication Failed', 'Your account is not yet approved please contact the system Admin')
           else if (user.spam || user.deleted) throw Error('Authentication Failed', 'Sorry your account has been Spammed or Deleted please contact the system Admin')
           else {
-            jwt.sign({ userId: user.id, role: user.role, username: user.username }, ACCESS_TOKEN_SECRET_KEY, { expiresIn: '2h' }, (error, token) => {
+            jwt.sign({ userId: user.id, role: user.role, username: user.username }, ACCESS_TOKEN_SECRET_KEY, { expiresIn: '1d' }, (error, token) => {
               if (error) res.status(403).send({ error: { name: error.name, message: error.message, stack: error.stack, expiredAt: error.expiredAt } })
               res.set({ Authorization: `Bearer ${token}`, 'Access-control-expose-headers': 'Authorization' }).send(removeFields(user))
             })
