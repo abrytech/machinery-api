@@ -25,7 +25,13 @@ router.post('', authUser, async (req, res) => {
   const request = await RequestQueue.create(body).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.send(removeFields(request))
+  const result = request ? await RequestQueue.findOne({
+    include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
+    where: { id: request.id }
+  }).catch((error) => {
+    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+  }) : null
+  res.send(removeFields(result))
 })
 
 router.put('', authUser, async (req, res) => {
