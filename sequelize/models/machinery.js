@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
   Machinery.associate = function (models) {
     // associations can be defined here
     Machinery.belongsTo(models.User, { foreignKey: 'userId', sourceKey: 'id', as: 'user' })
-    Machinery.belongsTo(models.Picture, { foreignKey: 'pictureId', sourceKey: 'id', as: 'pictures' })
+    Machinery.belongsTo(models.Picture, { foreignKey: 'pictureId', sourceKey: 'id', as: 'picture' })
     Machinery.belongsTo(models.Machine, { foreignKey: 'machineId', sourceKey: 'id', as: 'machine' })
   }
   return Machinery

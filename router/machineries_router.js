@@ -7,7 +7,7 @@ const router = Router()
 router.get('/:id(\\d+)', async (req, res) => {
   const id = req.params.id
   Machinery.findOne({
-    include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
+    include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],
     where: { id: id }
   }).then((result) => {
     if (result) {
@@ -32,7 +32,7 @@ router.post('', authUser, async (req, res) => {
     }
     const _machinery = await Machinery.create(body)
     const response = await Machinery.findOne({
-      include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
+      include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],
       where: { id: _machinery.id }
     })
     res.send(removeFields(response))
@@ -46,7 +46,7 @@ router.put('', authUser, async (req, res, err) => {
   try {
     if (body.id) {
       const _machinery = await Machinery.findOne({
-        include: [{ model: Picture, as: 'pictures' }],
+        include: [{ model: Picture, as: 'picture' }],
         where: { id: body.id }
       })
       if (_machinery) {
@@ -80,7 +80,7 @@ router.put('', authUser, async (req, res, err) => {
         }
         const rows = await Machinery.update(body, { where: { id: body.id } })
         const result = rows ? await Machinery.findOne({
-          include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
+          include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],
           where: { id: body.id }
         }) : body
         res.send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
@@ -94,7 +94,7 @@ router.put('', authUser, async (req, res, err) => {
 router.get('', authUser, async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const machineries = await Machinery.findAll({
-    include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
+    include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
@@ -110,7 +110,7 @@ router.get('', authUser, async (req, res) => {
 router.get('/:query', authUser, getParams, async (req, res) => {
   const params = req.queries
   const machineries = await Machinery.findAll({
-    include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'pictures' }],
+    include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
