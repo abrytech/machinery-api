@@ -1,6 +1,19 @@
 'use strict'
+const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
-  const Job = sequelize.define('Job', {
+  class Job extends Model {
+    static associate (models) {
+      // define association here
+      Job.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
+      Job.belongsTo(models.Picture, { foreignKey: 'pictureId', as: 'picture' })
+      Job.belongsTo(models.Machine, { foreignKey: 'machineId', as: 'machine' })
+      Job.belongsTo(models.PriceBook, { foreignKey: 'jobId', as: 'machine' })
+      Job.hasMany(models.RequestQueue, { foreignKey: 'jobId', as: 'requests' })
+      Job.belongsTo(models.Address, { foreignKey: 'pickUpId', as: 'pickUpAddress' })
+      Job.belongsTo(models.Address, { foreignKey: 'dropOffId', as: 'dropOffAddress' })
+    }
+  };
+  Job.init({
     title: DataTypes.STRING,
     description: DataTypes.STRING,
     pickUpDate: DataTypes.DATE,
@@ -19,15 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     hasOffroad: DataTypes.BOOLEAN,
     status: DataTypes.STRING,
     pictureId: DataTypes.INTEGER
-  }, {})
-  Job.associate = function (models) {
-    // define association here
-    Job.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
-    Job.belongsTo(models.Picture, { foreignKey: 'pictureId', as: 'picture' })
-    Job.belongsTo(models.Machine, { foreignKey: 'machineId', as: 'machine' })
-    Job.hasMany(models.RequestQueue, { foreignKey: 'jobId', as: 'requests' })
-    Job.belongsTo(models.Address, { foreignKey: 'pickUpId', as: 'pickUpAddress' })
-    Job.belongsTo(models.Address, { foreignKey: 'dropOffId', as: 'dropOffAddress' })
-  }
+  },
+  { sequelize, modelName: 'Job' })
   return Job
 }

@@ -1,9 +1,22 @@
 'use strict'
 const { v4: uuidv4 } = require('uuid')
 const { hashSync, genSaltSync } = require('bcrypt')
+const { Model } = require('sequelize')
 
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
+  class User extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate (models) {
+      // define association here
+      User.belongsTo(models.Address, { foreignKey: 'addressId', as: 'address' })
+      User.belongsTo(models.Picture, { foreignKey: 'pictureId', as: 'picture' })
+    }
+  };
+  User.init({
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     email: {
@@ -37,7 +50,8 @@ module.exports = (sequelize, DataTypes) => {
     activationKey: DataTypes.STRING,
     deleted: DataTypes.BOOLEAN,
     spam: DataTypes.BOOLEAN
-  }, {
+  },
+  {
     hooks: {
       beforeCreate: (user, option) => {
         user.activationKey = uuidv4()
@@ -50,12 +64,9 @@ module.exports = (sequelize, DataTypes) => {
           user.password = hashSync(user.password, genSaltSync(8), null)
         }
       }
-    }
+    },
+    sequelize,
+    modelName: 'User'
   })
-  User.associate = function (models) {
-    // associations can be defined here
-    User.belongsTo(models.Address, { foreignKey: 'addressId', as: 'address' })
-    User.belongsTo(models.Picture, { foreignKey: 'pictureId', as: 'picture' })
-  }
   return User
 }
