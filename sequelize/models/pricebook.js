@@ -9,8 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate (models) {
       // define association here
-      this.hasOne(models.Job, { foreignKey: 'jobId', as: 'job' })
-      this.hasOne(models.PriceRate, { foreignKey: 'priceRateId', as: 'pricerate' })
+      PriceBook.belongsTo(models.Job, { foreignKey: 'jobId', as: 'job' })
+      PriceBook.belongsTo(models.PriceRate, { foreignKey: 'priceRateId', as: 'pricerate' })
     }
   };
   PriceBook.init({
