@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     Picture.hasOne(models.User, { foreignKey: 'pictureId', as: 'user' })
     Picture.hasOne(models.Machine, { foreignKey: 'pictureId', as: 'machine' })
     Picture.hasOne(models.Machinery, { foreignKey: 'pictureId', as: 'machinery' })
+    Picture.hasOne(models.Job, { foreignKey: 'pictureId', as: 'job' })
   }
   return Picture
 }
