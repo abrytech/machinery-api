@@ -115,8 +115,8 @@ router.put('', async (req, res) => {
               console.log(`[update] body.pictureId: ${body.pictureId}, rows: ${rows}`)
             } else {
               const pic = await uploadFileIntoS3(image)
-              console.log(`The uploaded picture: ${pic}`)
-              const _picture = await Picture.create(pic)
+              console.log(`The uploaded picture: ${JSON.stringify(pic)}`)
+              const _picture = await Picture.create(JSON.stringify(pic))
               body.pictureId = _picture.id
               console.log(`[new] body.pictureId: ${body.pictureId}`)
             }
