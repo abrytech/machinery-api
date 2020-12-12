@@ -1,13 +1,13 @@
 import { Router } from 'express'
 import { User, Address, Picture } from '../sequelize/models'
-import { authUser, getParams, removeFields } from '../middleware/auth'
+import { getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import sendConfirmation from '../middleware/gmail'
 import { hashSync, genSaltSync, compareSync } from 'bcrypt'
 
 const router = Router()
 
-router.get('/:id(\\d+)', authUser, async (req, res) => {
+router.get('/:id(\\d+)', async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
   const user = await User.findOne({
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
@@ -58,7 +58,7 @@ router.post('', async (req, res) => {
   }
 })
 
-router.put('', authUser, async (req, res) => {
+router.put('', async (req, res) => {
   const body = req.body
   try {
     if (body) {
@@ -151,7 +151,7 @@ router.put('', authUser, async (req, res) => {
   }
 })
 
-router.get('', authUser, async (req, res) => {
+router.get('', async (req, res) => {
   const amount = await User.count()
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const users = await User.findAll({
@@ -168,7 +168,7 @@ router.get('', authUser, async (req, res) => {
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
 })
 
-router.get('/:query', authUser, getParams, async (req, res, next) => {
+router.get('/:query', getParams, async (req, res, next) => {
   const params = req.queries
   const amount = await User.count()
   const users = await User.findAll({

@@ -1,10 +1,10 @@
 
 import { Router } from 'express'
 import { Address } from '../sequelize/models'
-import { authUser, getParams } from '../middleware/auth'
+import { getParams } from '../middleware/auth'
 
 const router = Router()
-router.get('/:id(\\d+)', authUser, async (req, res) => {
+router.get('/:id(\\d+)', async (req, res) => {
   const where = { id: req.params.id }
   Address.findOne({ where }).then((request) => {
     if (request) res.send(request)
@@ -44,7 +44,7 @@ router.put('', async (req, res) => {
     } else res.status(400).send({ error: { name: 'Update failed', message: 'update failed b/c it couldn\'t find address in the db', stack: '' } })
   } else res.status(400).send({ error: { name: 'Update failed', message: 'update failed b/c it couldn\'t find address id', stack: '' } })
 })
-router.get('', authUser, async (req, res) => {
+router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const addresses = await Address.findAll({
     where: params.where,
@@ -59,7 +59,7 @@ router.get('', authUser, async (req, res) => {
   res.send(addresses)
 })
 
-router.get('/:query', authUser, getParams, async (req, res) => {
+router.get('/:query', getParams, async (req, res) => {
   const params = req.queries
   const addresses = await Address.findAll({
     where: params.where,

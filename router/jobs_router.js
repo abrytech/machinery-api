@@ -1,11 +1,11 @@
 import { Router } from 'express'
 import { Job, User, Machine, RequestQueue, Picture, Address } from '../sequelize/models'
-import { authUser, getParams, removeFields } from '../middleware/auth'
+import { getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 
 const router = Router()
 
-router.get('/:id(\\d+)', authUser, async (req, res) => {
+router.get('/:id(\\d+)', async (req, res) => {
   const id = req.params.id
   Job.findOne({
     include: [{ model: Machine, as: 'machine' }, { model: RequestQueue, as: 'requests' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
@@ -18,7 +18,7 @@ router.get('/:id(\\d+)', authUser, async (req, res) => {
   })
 })
 
-router.post('', authUser, async (req, res) => {
+router.post('', async (req, res) => {
   const body = req.body
   try {
     if (!req.files || Object.keys(req.files || []).length === 0) {
@@ -63,7 +63,7 @@ router.post('', authUser, async (req, res) => {
   }
 })
 
-router.put('', authUser, async (req, res, err) => {
+router.put('', async (req, res, err) => {
   const body = req.body
   console.log(body)
   try {
@@ -157,7 +157,7 @@ router.put('', authUser, async (req, res, err) => {
   }
 })
 
-router.get('', authUser, async (req, res) => {
+router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const jobs = await Job.findAll({
     include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
@@ -173,7 +173,7 @@ router.get('', authUser, async (req, res) => {
   res.send(removeFields(jobs))
 })
 
-router.get('/:query', authUser, getParams, async (req, res) => {
+router.get('/:query', getParams, async (req, res) => {
   const params = req.queries
   const jobs = await Job.findAll({
     include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],

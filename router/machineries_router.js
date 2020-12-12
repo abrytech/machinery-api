@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authUser, getParams, removeFields } from '../middleware/auth'
+import { getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import { Machinery, User, Machine, Picture } from '../sequelize/models'
 const router = Router()
@@ -18,7 +18,7 @@ router.get('/:id(\\d+)', async (req, res) => {
   })
 })
 
-router.post('', authUser, async (req, res) => {
+router.post('', async (req, res) => {
   const body = req.body
   try {
     if (!req.files || Object.keys(req.files || []).length === 0) {
@@ -41,7 +41,7 @@ router.post('', authUser, async (req, res) => {
   }
 })
 
-router.put('', authUser, async (req, res, err) => {
+router.put('', async (req, res, err) => {
   const body = req.body
   try {
     if (body.id) {
@@ -91,7 +91,7 @@ router.put('', authUser, async (req, res, err) => {
   }
 })
 
-router.get('', authUser, async (req, res) => {
+router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const machineries = await Machinery.findAll({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],
@@ -107,7 +107,7 @@ router.get('', authUser, async (req, res) => {
   res.send(removeFields(machineries))
 })
 
-router.get('/:query', authUser, getParams, async (req, res) => {
+router.get('/:query', getParams, async (req, res) => {
   const params = req.queries
   const machineries = await Machinery.findAll({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],

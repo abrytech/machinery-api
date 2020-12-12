@@ -1,10 +1,10 @@
 import { Router } from 'express'
 import { Job, User, Machinery, RequestQueue } from '../sequelize/models'
-import { authUser, getParams, removeFields } from '../middleware/auth'
+import { getParams, removeFields } from '../middleware/auth'
 
 const router = Router()
 
-router.get('/:id(\\d+)', authUser, async (req, res) => {
+router.get('/:id(\\d+)', async (req, res) => {
   const id = parseInt(req.params.id)
   RequestQueue.findOne({
     include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
@@ -19,7 +19,7 @@ router.get('/:id(\\d+)', authUser, async (req, res) => {
   })
 })
 
-router.post('', authUser, async (req, res) => {
+router.post('', async (req, res) => {
   const body = req.body
   console.log(body)
   const request = await RequestQueue.create(body).catch((error) => {
@@ -34,7 +34,7 @@ router.post('', authUser, async (req, res) => {
   res.send(removeFields(result))
 })
 
-router.put('', authUser, async (req, res) => {
+router.put('', async (req, res) => {
   const body = req.body
   try {
     if (body.id) {
@@ -58,7 +58,7 @@ router.put('', authUser, async (req, res) => {
   }
 })
 
-router.get('/', authUser, async (req, res) => {
+router.get('/', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const requests = await RequestQueue.findAll({
     include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
@@ -74,7 +74,7 @@ router.get('/', authUser, async (req, res) => {
   res.send(removeFields(requests))
 })
 
-router.get('/:query', authUser, getParams, async (req, res) => {
+router.get('/:query', getParams, async (req, res) => {
   const params = req.queries
   params.where.userId = req.userId
   const requests = await RequestQueue.findAll({

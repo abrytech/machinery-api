@@ -1,10 +1,10 @@
 import { Router } from 'express'
 import { PriceRate, PriceBook } from '../sequelize/models'
-import { authUser, getParams, removeFields } from '../middleware/auth'
+import { getParams, removeFields } from '../middleware/auth'
 
 const router = Router()
 
-router.get('/:id(\\d+)', authUser, async (req, res) => {
+router.get('/:id(\\d+)', async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
   const pricebook = await PriceRate.findOne({ include: [{ model: PriceBook, as: 'pricebook' }], where })
     .catch((error) => {
@@ -24,7 +24,7 @@ router.post('', async (req, res) => {
   }
 })
 
-router.put('', authUser, async (req, res) => {
+router.put('', async (req, res) => {
   const body = req.body
   try {
     if (body) {
@@ -54,7 +54,7 @@ router.put('', authUser, async (req, res) => {
   }
 })
 
-router.get('', authUser, async (req, res) => {
+router.get('', async (req, res) => {
   const amount = await PriceRate.count()
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const pricebooks = await PriceRate.findAll({
@@ -71,7 +71,7 @@ router.get('', authUser, async (req, res) => {
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(pricebooks))
 })
 
-router.get('/:query', authUser, getParams, async (req, res, next) => {
+router.get('/:query', getParams, async (req, res, next) => {
   const params = req.queries
   const amount = await PriceRate.count()
   const pricebooks = await PriceRate.findAll({
