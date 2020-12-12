@@ -14,7 +14,7 @@ const authUser = async (req, res, next) => {
     const token = `${authHeader}`.split(' ')[1]
     // console.log('3rd $token', token)
     if (!token || token === '') next(error)
-    console.log('{!req.userId} || {!req.role} || {!req.username}', `${req.userId} || ${req.role} || ${req.username}`)
+    // console.log('{!req.userId} || {!req.role} || {!req.username}', `${req.userId} || ${req.role} || ${req.username}`)
     if (!req.userId || !req.role || !req.username) {
       verify(token, ACCESS_TOKEN_SECRET_KEY, async (err, decoded) => {
         if (err) {
@@ -40,17 +40,17 @@ const authUser = async (req, res, next) => {
         }
       })
     } else {
-      // const where = { id: req.userId, isApproved: true, isActivated: true, spam: false, deleted: false, role: req.role, username: req.username }
-      // const isUser = await User.findOne({ where }).catch((err) => {
-      //   error.message = err.message
-      //   error.stack = err.stack
-      //   next(error)
-      // })
-      // if (isUser) next()
-      // else {
-      //   error.message = 'Invalid token,  Please signin again your access token may be expired'
-      //   next(error)
-      // }
+      const where = { id: req.userId, isApproved: true, isActivated: true, spam: false, deleted: false, role: req.role, username: req.username }
+      const isUser = await User.findOne({ where }).catch((err) => {
+        error.message = err.message
+        error.stack = err.stack
+        next(error)
+      })
+      if (isUser) next()
+      else {
+        error.message = 'Invalid token,  Please signin again your access token may be expired'
+        next(error)
+      }
       next()
     }
   } else next(error)
