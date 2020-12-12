@@ -115,14 +115,7 @@ router.put('', async (req, res) => {
               console.log(`[update] body.pictureId: ${body.pictureId}, rows: ${rows}`)
             } else {
               const pic = await uploadFileIntoS3(image)
-              console.log(`The uploaded picture: ${JSON.stringify(pic)}`)
-              const _picture = await Picture.create(pic).then(function (pic) {
-                // you can now access the newly created user
-                console.log('success', pic.toJSON())
-                return pic
-              }).catch(function (err) {
-                console.log(err, JSON.stringify(pic))
-              })
+              const _picture = await Picture.create(pic)
               body.pictureId = _picture.id
               console.log(`[new] body.pictureId: ${body.pictureId}`)
             }
