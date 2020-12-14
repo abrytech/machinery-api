@@ -20,6 +20,7 @@ router.get('/:id(\\d+)', async (req, res) => {
 
 router.post('', async (req, res) => {
   const body = req.body
+  console.log(JSON.stringify(body))
   try {
     if (!req.files || Object.keys(req.files || []).length === 0) {
       console.warn('No files were uploaded.')
