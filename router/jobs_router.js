@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { Job, User, Machine, RequestQueue, Picture, Address } from '../sequelize/models'
+import { Job, User, Machine, RequestQueue, Picture, Address, PriceRate, PriceBook } from '../sequelize/models'
 import { getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 
@@ -52,9 +52,15 @@ router.post('', async (req, res) => {
         delete body.dropOffAddress
       }
     }
-    const _job = await Job.create(body)
+    const _job = await Job.create(body).then(async (value) => {
+      const defaultRate = await PriceRate.findAll({ where: { isDefault: true } })
+      if (defaultRate.length && !!value) {
+        const _jobPrice = { jobId: value.id, priceRateId: defaultRate[0].id, estimatedPrice: ((defaultRate[0].weightPrice * value.weight) + (defaultRate[0].onRoadPrice * value.distance) + (defaultRate[0].offRoadPrice * value.offRoadDistance)) }
+        await PriceBook.create(_jobPrice)
+      }
+    })
     const response = await Job.findOne({
-      include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
+      include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
       where: { id: _job.id }
     })
     res.send(removeFields(response))
