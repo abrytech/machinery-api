@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   class PriceRate extends Model {
     static associate (models) {
       // define association here
-      PriceRate.hasOne(models.PriceBook, { foreignKey: 'priceRateId', as: 'pricebook' })
+      PriceRate.hasMany(models.PriceBook, { foreignKey: 'priceRateId', as: 'pricebooks' })
     }
   };
   PriceRate.init({

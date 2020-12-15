@@ -6,7 +6,7 @@ const router = Router()
 
 router.get('/:id(\\d+)', async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
-  const pricebook = await PriceRate.findOne({ include: [{ model: PriceBook, as: 'pricebook' }], where })
+  const pricebook = await PriceRate.findOne({ include: [{ model: PriceBook, as: 'pricebooks' }], where })
     .catch((error) => {
       res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
     })
@@ -17,7 +17,7 @@ router.post('', async (req, res) => {
   try {
     const body = req.body
     const _pricebook = await PriceRate.create(body)
-    const response = await PriceRate.findOne({ include: [{ model: PriceBook, as: 'pricebook' }], where: { id: _pricebook.id } })
+    const response = await PriceRate.findOne({ include: [{ model: PriceBook, as: 'pricebooks' }], where: { id: _pricebook.id } })
     res.send(removeFields(response))
   } catch (error) {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
@@ -30,7 +30,7 @@ router.put('', async (req, res) => {
     if (body) {
       // console.log(body)
       if (body.id) {
-        const _pricebook = await PriceRate.findOne({ where: { id: body.id }, include: [{ model: PriceBook, as: 'pricebook' }] })
+        const _pricebook = await PriceRate.findOne({ where: { id: body.id }, include: [{ model: PriceBook, as: 'pricebooks' }] })
         if (_pricebook) {
           body.name = body.name || _pricebook.name
           body.discoutBy = body.discoutBy || _pricebook.discoutBy
@@ -43,7 +43,7 @@ router.put('', async (req, res) => {
           const rows = await PriceRate.update(body, { where: { id: body.id } })
           const result = rows ? await PriceRate.findOne({
             where: { id: body.id },
-            include: [{ model: PriceBook, as: 'pricebook' }]
+            include: [{ model: PriceBook, as: 'pricebooks' }]
           }) : null
           res.status(200).send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
         } else throw Error('Bad Request: PriceRate not found')
@@ -59,7 +59,7 @@ router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const pricebooks = await PriceRate.findAll({
     where: params.where,
-    include: [{ model: PriceBook, as: 'pricebook' }],
+    include: [{ model: PriceBook, as: 'pricebooks' }],
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
     order: [
@@ -75,7 +75,7 @@ router.get('/:query', getParams, async (req, res, next) => {
   const params = req.queries
   const amount = await PriceRate.count()
   const pricebooks = await PriceRate.findAll({
-    include: [{ model: PriceBook, as: 'pricebook' }],
+    include: [{ model: PriceBook, as: 'pricebooks' }],
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
