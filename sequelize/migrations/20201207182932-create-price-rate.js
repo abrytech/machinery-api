@@ -13,6 +13,10 @@ module.exports = {
         allowNull: false,
         unique: true
       },
+      isDefault: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       discoutBy: {
         type: Sequelize.STRING,
         defaultValue: 'percent'

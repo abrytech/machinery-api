@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       Job.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
       Job.belongsTo(models.Picture, { foreignKey: 'pictureId', as: 'picture' })
       Job.belongsTo(models.Machine, { foreignKey: 'machineId', as: 'machine' })
-      // Job.belongsTo(models.PriceBook, { foreignKey: 'priceBookId', as: 'pricebook' })
+      Job.hasOne(models.PriceBook, { foreignKey: 'jobId', as: 'pricebook' })
       Job.hasMany(models.RequestQueue, { foreignKey: 'jobId', as: 'requests' })
       Job.belongsTo(models.Address, { foreignKey: 'pickUpId', as: 'pickUpAddress' })
       Job.belongsTo(models.Address, { foreignKey: 'dropOffId', as: 'dropOffAddress' })
