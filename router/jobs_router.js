@@ -52,13 +52,14 @@ router.post('', async (req, res) => {
         delete body.dropOffAddress
       }
     }
-    const _job = await Job.create(body).then(async (value) => {
-      const defaultRate = await PriceRate.findAll({ where: { isDefault: true } })
-      if (defaultRate.length && !!value) {
-        const _jobPrice = { jobId: value.id, priceRateId: defaultRate[0].id, estimatedPrice: ((defaultRate[0].weightPrice * value.weight) + (defaultRate[0].onRoadPrice * value.distance) + (defaultRate[0].offRoadPrice * value.offRoadDistance)) * value.quantity }
-        await PriceBook.create(_jobPrice)
-      }
-    })
+    const _job = await Job.create(body)
+    const defaultRate = await PriceRate.findAll({ where: { isDefault: true } })
+    const rate = defaultRate.length > 0 ? defaultRate[0] : null
+    if (rate && _job) {
+      const _jobPrice = { jobId: _job.id, priceRateId: defaultRate[0].id, estimatedPrice: ((defaultRate[0].weightPrice * _job.weight) + (defaultRate[0].onRoadPrice * _job.distance) + (defaultRate[0].offRoadPrice * _job.offRoadDistance)) * _job.quantity }
+      const pricebook = await PriceBook.create(_jobPrice)
+      console.log('pricebook', pricebook)
+    }
     const response = await Job.findOne({
       include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
       where: { id: _job.id }
