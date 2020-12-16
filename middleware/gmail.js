@@ -9,15 +9,15 @@ export default async function (name, to, key) {
     ignoreTLS: false,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: 'abb2007hu@gmail.com', // generated ethereal user
-      pass: '0922964576' // generated ethereal password
+      user: 'elkadoshenterprise@gmail.com', // generated ethereal user
+      pass: '!@#123Elkadosh' // generated ethereal password
     }
   })
 
   const body = template(key)
   // send mail with defined transport object
   transporter.sendMail({
-    from: 'Abraham Bekele <abb2007hu@gmail.com>', // sender address
+    from: 'El-Tech <elkadoshenterprise@gmail.com>', // sender address
     to: `${name} <${to}>`, // list of receivers
     subject: 'Registration Confrimation', // Subject line
     // text: 'Test email'// plain text body
