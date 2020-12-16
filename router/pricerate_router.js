@@ -28,16 +28,15 @@ router.put('', async (req, res) => {
   const body = req.body
   try {
     if (body) {
-      // console.log(body)
       if (body.id) {
-        const _pricebook = await PriceRate.findOne({ where: { id: body.id }, include: [{ model: PriceBook, as: 'pricebooks' }] })
-        if (_pricebook) {
-          body.name = body.name || _pricebook.name
-          body.discoutBy = body.discoutBy || _pricebook.discoutBy
-          body.discountAmount = body.discountAmount || _pricebook.discountAmount
-          body.weightPrice = body.weightPrice || _pricebook.weightPrice
-          body.onRoadPrice = body.onRoadPrice || _pricebook.onRoadPrice
-          body.offRoadPrice = body.offRoadPrice || _pricebook.offRoadPrice
+        const _pricerate = await PriceRate.findOne({ where: { id: body.id }, include: [{ model: PriceBook, as: 'pricebooks' }] })
+        if (_pricerate) {
+          body.name = body.name || _pricerate.name
+          body.discoutBy = body.discoutBy || _pricerate.discoutBy
+          body.discountAmount = body.discountAmount || _pricerate.discountAmount
+          body.weightPrice = body.weightPrice || _pricerate.weightPrice
+          body.onRoadPrice = body.onRoadPrice || _pricerate.onRoadPrice
+          body.offRoadPrice = body.offRoadPrice || _pricerate.offRoadPrice
           delete body.createdAt
           delete body.updatedAt
           const rows = await PriceRate.update(body, { where: { id: body.id } })

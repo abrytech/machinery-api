@@ -76,7 +76,7 @@ router.put('', async (req, res, err) => {
   try {
     if (body.id) {
       const _job = await Job.findOne({
-        include: [{ model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
+        include: [{ model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
         where: { id: body.id }
       })
       if (_job) {
@@ -151,9 +151,17 @@ router.put('', async (req, res, err) => {
             body.pictureId = _picture.id
           }
         }
-        const rows = await Job.update(body, { where: { id: body.id } })
+        const rows = await Job.update(body, { where: { id: body.id } }) || []
+        const defaultRate = await PriceRate.findAll({ where: { isDefault: true } }) || []
+        console.log('*** await Job.update(body)', rows, '*** await PriceRate.findAll()', defaultRate.length)
+        const rate = defaultRate.length > 0 ? defaultRate[0] : null
+        if (rate && rows[0] > 0 && _job.pricebook && body.weight && body.quantity && body.distance && body.offRoadDistance) {
+          const _jobPrice = { id: _job.pricebook.id, jobId: body.id, priceRateId: rate.id, estimatedPrice: ((rate.weightPrice * body.weight) + (rate.onRoadPrice * body.distance) + (rate.offRoadPrice * body.offRoadDistance)) * body.quantity }
+          const pricebook = await PriceBook.update(_jobPrice)
+          console.log('pricebook', pricebook)
+        }
         const result = rows ? await Job.findOne({
-          include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }],
+          include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
           where: { id: body.id }
         }) : body
         res.send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
