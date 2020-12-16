@@ -15,6 +15,7 @@
   },
   "author": "Abraham Bekele",
   "dependencies": {
+    "@sendgrid/mail": "^7.4.0",
     "aws-sdk": "^2.773.0",
     "bcrypt": "^5.0.0",
     "compression": "^1.7.4",
