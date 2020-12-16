@@ -55,7 +55,7 @@ router.post('', async (req, res) => {
     const _job = await Job.create(body).then(async (value) => {
       const defaultRate = await PriceRate.findAll({ where: { isDefault: true } })
       if (defaultRate.length && !!value) {
-        const _jobPrice = { jobId: value.id, priceRateId: defaultRate[0].id, estimatedPrice: ((defaultRate[0].weightPrice * value.weight) + (defaultRate[0].onRoadPrice * value.distance) + (defaultRate[0].offRoadPrice * value.offRoadDistance)) }
+        const _jobPrice = { jobId: value.id, priceRateId: defaultRate[0].id, estimatedPrice: ((defaultRate[0].weightPrice * value.weight) + (defaultRate[0].onRoadPrice * value.distance) + (defaultRate[0].offRoadPrice * value.offRoadDistance)) * value.quantity }
         await PriceBook.create(_jobPrice)
       }
     })
@@ -166,7 +166,7 @@ router.put('', async (req, res, err) => {
 router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const jobs = await Job.findAll({
-    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
+    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
@@ -182,7 +182,7 @@ router.get('', async (req, res) => {
 router.get('/:query', getParams, async (req, res) => {
   const params = req.queries
   const jobs = await Job.findAll({
-    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
+    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
