@@ -164,10 +164,10 @@ export default (key) => {
       }
         .btn a {
           background-color: #ffffff;
-          border: solid 1px #3498db;
+          border: solid 1px #FFBF00;
           border-radius: 5px;
           box-sizing: border-box;
-          color: #3498db;
+          color: #FFBF00;
           cursor: pointer;
           display: inline-block;
           font-size: 14px;
@@ -179,12 +179,12 @@ export default (key) => {
       }
 
       .btn-primary table td {
-        background-color: #3498db; 
+        background-color: #FFBF00; 
       }
 
       .btn-primary a {
-        background-color: #3498db;
-        border-color: #3498db;
+        background-color: #FFBF00;
+        border-color: #FFBF00;
         color: #ffffff; 
       }
 
@@ -323,10 +323,10 @@ export default (key) => {
           line-height: inherit;
         }
         .btn-primary table td:hover {
-          background-color: #34495e !important; 
+          background-color: #FFBF00 !important; 
         }
         .btn-primary a:hover {
-          background-color: #34495e !important;
+          background-color: #FFBF00 !important;
           border-color: #34495e !important; 
         } 
       }
@@ -334,7 +334,7 @@ export default (key) => {
     </style>
   </head>
   <body class="">
-    <span class="preheader">This is preheader text. Some clients will show this text as a preview.</span>
+    <span class="preheader">Activate Your Account.</span>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
       <tr>
         <td>&nbsp;</td>
