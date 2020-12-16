@@ -30,12 +30,12 @@ module.exports = {
       },
       phone: {
         type: Sequelize.STRING,
-        unique: true,
-        allowNull: false
+        unique: true
       },
       userType: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 'Machinery Owner'
       },
       role: {
         type: Sequelize.STRING,

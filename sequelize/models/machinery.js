@@ -1,10 +1,24 @@
 'use strict'
+const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
-  const Machinery = sequelize.define('Machinery', {
+  class Machinery extends Model {
+    static associate (models) {
+      // associations can be defined here
+      Machinery.belongsTo(models.User, { foreignKey: 'userId', sourceKey: 'id', as: 'user' })
+      Machinery.belongsTo(models.Picture, { foreignKey: 'pictureId', sourceKey: 'id', as: 'picture' })
+      Machinery.belongsTo(models.Machine, { foreignKey: 'machineId', sourceKey: 'id', as: 'machine' })
+    }
+  };
+  Machinery.init({
     machineId: DataTypes.INTEGER,
     madeIn: DataTypes.STRING,
     manufacturingYear: DataTypes.INTEGER,
-    licensePlate: DataTypes.STRING,
+    licensePlate: {
+      type: DataTypes.STRING,
+      validate: {
+        len: [5, 7]
+      }
+    },
     motorNo: DataTypes.STRING,
     chassieNo: DataTypes.STRING,
     modelNo: DataTypes.STRING,
@@ -19,12 +33,8 @@ module.exports = (sequelize, DataTypes) => {
     serialNo: DataTypes.STRING,
     horsePower: DataTypes.FLOAT,
     pictureId: DataTypes.INTEGER
-  }, {})
-  Machinery.associate = function (models) {
-    // associations can be defined here
-    Machinery.belongsTo(models.User, { foreignKey: 'userId', sourceKey: 'id', as: 'user' })
-    Machinery.belongsTo(models.Picture, { foreignKey: 'pictureId', sourceKey: 'id', as: 'picture' })
-    Machinery.belongsTo(models.Machine, { foreignKey: 'machineId', sourceKey: 'id', as: 'machine' })
-  }
+  }, { sequelize, modelName: 'Machinery' }
+  )
+
   return Machinery
 }

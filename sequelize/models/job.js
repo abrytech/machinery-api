@@ -30,7 +30,12 @@ module.exports = (sequelize, DataTypes) => {
     distance: DataTypes.FLOAT,
     offRoadDistance: DataTypes.FLOAT,
     hasOffroad: DataTypes.BOOLEAN,
-    status: DataTypes.STRING,
+    status: {
+      type: DataTypes.STRING,
+      validate: {
+        isIn: [['pending', 'open', 'closed']]
+      }
+    },
     pictureId: DataTypes.INTEGER
   },
   { sequelize, modelName: 'Job' })

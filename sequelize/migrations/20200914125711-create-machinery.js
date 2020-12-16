@@ -9,7 +9,8 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       machineId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       madeIn: {
         type: Sequelize.STRING
@@ -18,19 +19,26 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       licensePlate: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
       },
       motorNo: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true
       },
       chassieNo: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true
       },
       modelNo: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
       },
       weight: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
+        allowNull: false
       },
       width: {
         type: Sequelize.FLOAT
@@ -39,27 +47,33 @@ module.exports = {
         type: Sequelize.FLOAT
       },
       length: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
+        allowNull: false
       },
       tyreNo: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       userId: {
         type: Sequelize.INTEGER
       },
       loadingCapacity: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
+        allowNull: false
       },
       withJackHammer: {
         type: Sequelize.BOOLEAN
       },
       serialNo: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
       },
       horsePower: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
+        allowNull: false
       },
-      pictureId: Sequelize.INTEGER,
+      pictureId: { type: Sequelize.INTEGER },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
