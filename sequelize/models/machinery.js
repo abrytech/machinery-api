@@ -25,7 +25,6 @@ module.exports = (sequelize, DataTypes) => {
     width: DataTypes.FLOAT,
     height: DataTypes.FLOAT,
     length: DataTypes.FLOAT,
-    weight: DataTypes.FLOAT,
     tyreNo: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
     loadingCapacity: DataTypes.FLOAT,
