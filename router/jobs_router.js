@@ -153,12 +153,18 @@ router.put('', async (req, res, err) => {
         }
         const rows = await Job.update(body, { where: { id: body.id } }) || []
         const defaultRate = await PriceRate.findAll({ where: { isDefault: true } }) || []
-        console.log('*** await Job.update(body)', rows, '*** await PriceRate.findAll()', defaultRate.length)
         const rate = defaultRate.length > 0 ? defaultRate[0] : null
-        if (rate && rows[0] > 0 && _job.pricebook && body.weight && body.quantity && body.distance && body.offRoadDistance) {
-          const _jobPrice = { id: _job.pricebook.id, jobId: body.id, priceRateId: rate.id, estimatedPrice: ((rate.weightPrice * body.weight) + (rate.onRoadPrice * body.distance) + (rate.offRoadPrice * body.offRoadDistance)) * body.quantity }
-          const pricebook = await PriceBook.update(_jobPrice)
-          console.log('pricebook', pricebook)
+        console.log(`rate.id: ${rate.id} && rows[0]: ${rows[0]} && _job.pricebook.id: ${_job.pricebook.id} && body.weight: ${body.weight} && body.quantity: ${body.quantity} && body.distance ${body.distance} && body.offRoadDistance: ${body.offRoadDistance} `)
+        if (body.pricebook && _job.pricebook) {
+          body.pricebook.id = body.pricebook.id || _job.pricebook.id
+          body.pricebook.jobId = body.pricebook.jobId || _job.pricebook.jobId
+          body.pricebook.priceRateId = body.pricebook.priceRateId || _job.pricebook.priceRateId
+          body.pricebook.estimatedPrice = body.pricebook.estimatedPrice || _job.pricebook.estimatedPrice
+          body.pricebook.actualPrice = body.pricebook.actualPrice || _job.pricebook.actualPrice
+          await PriceBook.update(body.pricebook, { where: { id: _job.pricebook.id, jobId: _job.id, priceRateId: rate.id } })
+        } else if (rate && rows[0] > 0 && _job.pricebook && body.weight && body.quantity && body.distance && body.offRoadDistance) {
+          const _newPrice = ((rate.weightPrice * body.weight) + (rate.onRoadPrice * body.distance) + (rate.offRoadPrice * body.offRoadDistance)) * body.quantity
+          await PriceBook.update({ estimatedPrice: _newPrice }, { where: { id: _job.pricebook.id, jobId: body.id, priceRateId: rate.id } })
         }
         const result = rows ? await Job.findOne({
           include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],

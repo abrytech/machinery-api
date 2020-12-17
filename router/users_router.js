@@ -137,8 +137,8 @@ router.put('', async (req, res) => {
             delete body.password
             delete body.oldPassword
           }
-          const rows = await User.update(body, { where: { id: body.id } })
-          const result = rows ? await User.findOne({
+          const rows = await User.update(body, { where: { id: body.id } }) || []
+          const result = rows.length > 0 ? await User.findOne({
             where: { id: body.id },
             include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
           }) : null

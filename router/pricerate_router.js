@@ -39,8 +39,8 @@ router.put('', async (req, res) => {
           body.offRoadPrice = body.offRoadPrice || _pricerate.offRoadPrice
           delete body.createdAt
           delete body.updatedAt
-          const rows = await PriceRate.update(body, { where: { id: body.id } })
-          const result = rows ? await PriceRate.findOne({
+          const rows = await PriceRate.update(body, { where: { id: body.id } }) || []
+          const result = rows.length > 0 ? await PriceRate.findOne({
             where: { id: body.id },
             include: [{ model: PriceBook, as: 'pricebooks' }]
           }) : null

@@ -66,8 +66,8 @@ router.put('', async (req, res, err) => {
             body.pictureId = _picture.id
           }
         }
-        const rows = await Machine.update(body, { where: { id: body.id } })
-        const result = rows ? await Machine.findOne({
+        const rows = await Machine.update(body, { where: { id: body.id } }) || []
+        const result = rows.length > 0 ? await Machine.findOne({
           include: [{ model: Machinery, as: 'machinery' }, { model: Picture, as: 'picture' }],
           where: { id: body.id }
         }) : null

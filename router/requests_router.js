@@ -45,8 +45,8 @@ router.put('', async (req, res) => {
         body.lowbedId = body.lowbedId || _request.lowbedId
         body.price = body.price || _request.price
         body.status = body.status || _request.status
-        const rows = await RequestQueue.update(body, { where: { id: body.id } })
-        const result = rows ? await RequestQueue.findOne({
+        const rows = await RequestQueue.update(body, { where: { id: body.id } }) || []
+        const result = rows.length > 0 ? await RequestQueue.findOne({
           include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
           where: { id: body.id }
         }) : body

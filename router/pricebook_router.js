@@ -6,23 +6,23 @@ const router = Router()
 
 router.get('/:id(\\d+)', async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
-  const pricerate = await PriceBook.findOne({
+  const pricebook = await PriceBook.findOne({
     include: [{ model: PriceRate, as: 'pricerate' }, { model: Job, as: 'job' }],
     where
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.send(removeFields(pricerate))
+  res.send(removeFields(pricebook))
 })
 
 router.post('', async (req, res) => {
   try {
     const body = req.body
     console.log(body)
-    const _pricerate = await PriceBook.create(body)
+    const _pricebook = await PriceBook.create(body)
     const response = await PriceBook.findOne({
       include: [{ model: PriceRate, as: 'pricerate' }, { model: Job, as: 'job' }],
-      where: { id: _pricerate.id }
+      where: { id: _pricebook.id }
     })
     res.send(removeFields(response))
   } catch (error) {
@@ -35,33 +35,15 @@ router.put('', async (req, res) => {
   try {
     if (body) {
       if (body.id) {
-        const _pricerate = await PriceBook.findOne({ where: { id: body.id }, include: [{ model: PriceRate, as: 'pricerate' }, { model: Job, as: 'job' }] })
-        if (_pricerate) {
-          body.priceRateId = body.priceRateId || _pricerate.priceRateId
-          body.estimatedPrice = body.estimatedPrice || _pricerate.estimatedPrice
-          body.actualPrice = body.actualPrice || _pricerate.actualPrice
+        const _pricebook = await PriceBook.findOne({ where: { id: body.id }, include: [{ model: PriceRate, as: 'pricerate' }, { model: Job, as: 'job' }] })
+        if (_pricebook) {
+          body.priceRateId = body.priceRateId || _pricebook.priceRateId
+          body.estimatedPrice = body.estimatedPrice || _pricebook.estimatedPrice
+          body.actualPrice = body.actualPrice || _pricebook.actualPrice
           delete body.createdAt
           delete body.updatedAt
-          if (body.pricerate) {
-            if (_pricerate.pricerate) {
-              body.pricerate.name = body.pricerate.name || _pricerate.pricerate.name
-              body.pricerate.discoutBy = body.pricerate.discoutBy || _pricerate.pricerate.discoutBy
-              body.pricerate.discountAmount = body.pricerate.discountAmount || _pricerate.pricerate.discountAmount
-              body.pricerate.weightPrice = body.pricerate.weightPrice || _pricerate.pricerate.weightPrice
-              body.pricerate.onRoadPrice = body.pricerate.onRoadPrice || _pricerate.pricerate.onRoadPrice
-              body.pricerate.offRoadPrice = body.pricerate.offRoadPrice || _pricerate.pricerate.offRoadPrice
-            }
-            if (body.pricerate.id) {
-              const rows = await PriceRate.update(body.pricerate, { where: { id: body.pricerate.id } })
-              console.log(`[update] body.pricerate.id: ${body.pricerate.id}, rows: ${rows}`)
-            } else {
-              const _pricerate = await PriceRate.create(body.pricerate)
-              body.priceRateId = _pricerate.id
-              console.log(`[new] body.priceRateId: ${body.priceRateId}`)
-            }
-          }
-          const rows = await PriceBook.update(body, { where: { id: body.id } })
-          const result = rows ? await PriceBook.findOne({
+          const rows = await PriceBook.update(body, { where: { id: body.id } }) || []
+          const result = rows.length > 0 ? await PriceBook.findOne({
             where: { id: body.id },
             include: [{ model: PriceRate, as: 'pricerate' }, { model: Job, as: 'job' }]
           }) : null
