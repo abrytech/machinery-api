@@ -71,7 +71,21 @@ router.get('/', async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.send(removeFields(requests))
+  if (requests) {
+    if (requests.length > 0) {
+      if (req.userType === 'Lowbed Owner') {
+        const reqst = requests.filter((request) => (request.userId === req.userId))
+        res.send(removeFields(reqst))
+      } else if (req.userType === 'Machinery Owner') {
+        const reqst = requests.filter((request) => (request.job.userId === req.userId))
+        res.send(removeFields(reqst))
+      } else if (req.userType === 'Admin') {
+        res.send(removeFields(requests))
+      }
+    }
+  } else {
+    res.status(404).send({ error: { name: '404 ', message: '404, No Request Found', stack: '' } })
+  }
 })
 
 router.get('/:query', async (req, res) => {
@@ -100,6 +114,8 @@ router.get('/:query', async (req, res) => {
         res.send(removeFields(requests))
       }
     }
+  } else {
+    res.status(404).send({ error: { name: '404 ', message: '404, No Request Faound', stack: '' } })
   }
 })
 
