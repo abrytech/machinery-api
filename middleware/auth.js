@@ -32,6 +32,7 @@ const authUser = async (req, res, next) => {
             req.userId = isUser.id
             req.role = isUser.role
             req.username = isUser.username
+            req.userType = isUser.userType
             next()
           } else {
             error.message = 'Invalid token,  Please signin again your access token may be expired'

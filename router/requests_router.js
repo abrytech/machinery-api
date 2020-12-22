@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { Job, User, Machinery, RequestQueue } from '../sequelize/models'
-import { getParams, removeFields } from '../middleware/auth'
+import { removeFields } from '../middleware/auth'
 
 const router = Router()
 
@@ -74,7 +74,7 @@ router.get('/', async (req, res) => {
   res.send(removeFields(requests))
 })
 
-router.get('/:query', getParams, async (req, res) => {
+router.get('/:query', async (req, res) => {
   const params = req.queries
   params.where.userId = req.userId
   const requests = await RequestQueue.findAll({
@@ -88,7 +88,19 @@ router.get('/:query', getParams, async (req, res) => {
   }).catch((error) => {
     res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
   })
-  res.send(removeFields(requests))
+  if (requests) {
+    if (requests.length > 0) {
+      if (req.userType === 'Lowbed Owner') {
+        const reqst = requests.filter((request) => (request.userId === req.userId))
+        res.send(removeFields(reqst))
+      } else if (req.userType === 'Machinery Owner') {
+        const reqst = requests.filter((request) => (request.job.userId === req.userId))
+        res.send(removeFields(reqst))
+      } else if (req.userType === 'Admin') {
+        res.send(removeFields(requests))
+      }
+    }
+  }
 })
 
 export default router
