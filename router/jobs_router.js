@@ -107,12 +107,10 @@ router.put('', async (req, res, err) => {
             body.pickUpAddress.long = body.pickUpAddress.long || _job.pickUpAddress.long
             body.pickUpAddress.company = body.pickUpAddress.company || _job.pickUpAddress.company
             body.pickUpAddress.phone = body.pickUpAddress.phone || _job.pickUpAddress.phone
-          }
-          if (body.pickUpAddress.id) {
-            await Address.update(body.address, { where: { id: body.pickUpAddress.id } })
+            await Address.update(body.pickUpAddress, { where: { id: body.pickUpAddress.id } })
             console.log(`[update] body.pickUpAddress.id: ${body.pickUpAddress.id}`)
           } else {
-            const _address = await Address.create(body.address)
+            const _address = await Address.create(body.pickUpAddress)
             body.pickUpAddress = _address.id
             console.log(`[new] body.pickUpAddress: ${body.pickUpAddress}`)
           }
@@ -129,12 +127,10 @@ router.put('', async (req, res, err) => {
             body.dropOffAddress.long = body.dropOffAddress.long || _job.dropOffAddress.long
             body.dropOffAddress.company = body.dropOffAddress.company || _job.dropOffAddress.company
             body.dropOffAddress.phone = body.dropOffAddress.phone || _job.dropOffAddress.phone
-          }
-          if (body.dropOffAddress.id) {
-            await Address.update(body.address, { where: { id: body.dropOffAddress.id } })
+            await Address.update(body.dropOffAddress, { where: { id: body.dropOffAddress.id } })
             console.log(`[update] body.dropOffAddress.id: ${body.dropOffAddress.id}`)
           } else {
-            const _address = await Address.create(body.address)
+            const _address = await Address.create(body.dropOffAddress)
             body.dropOffAddress = _address.id
             console.log(`[new] body.dropOffAddress: ${body.dropOffAddress}`)
           }
