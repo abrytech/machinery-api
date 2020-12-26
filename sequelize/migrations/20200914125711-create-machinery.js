@@ -8,19 +8,15 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      name: { type: Sequelize.STRING },
       machineId: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      madeIn: {
-        type: Sequelize.STRING
-      },
-      manufacturingYear: {
-        type: Sequelize.INTEGER
-      },
+      madeIn: { type: Sequelize.STRING },
+      manufacturingYear: { type: Sequelize.INTEGER },
       licensePlate: {
         type: Sequelize.STRING,
-        allowNull: false,
         unique: true
       },
       motorNo: {
@@ -32,43 +28,21 @@ module.exports = {
         unique: true
       },
       modelNo: {
-        type: Sequelize.STRING,
-        unique: true,
-        allowNull: false
-      },
-      width: {
-        type: Sequelize.FLOAT
-      },
-      height: {
-        type: Sequelize.FLOAT
-      },
-      length: {
-        type: Sequelize.FLOAT,
-        allowNull: false
-      },
-      tyreNo: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
-      userId: {
-        type: Sequelize.INTEGER
-      },
-      loadingCapacity: {
-        type: Sequelize.FLOAT,
-        allowNull: false
-      },
-      withJackHammer: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.STRING
       },
       serialNo: {
         type: Sequelize.STRING,
-        unique: true,
-        allowNull: false
+        unique: true
       },
-      horsePower: {
-        type: Sequelize.FLOAT,
-        allowNull: false
-      },
+      width: { type: Sequelize.DOUBLE },
+      weight: { type: Sequelize.DOUBLE },
+      height: { type: Sequelize.DOUBLE },
+      length: { type: Sequelize.DOUBLE },
+      tyreNo: { type: Sequelize.INTEGER },
+      userId: { type: Sequelize.INTEGER },
+      loadingCapacity: { type: Sequelize.DOUBLE },
+      description: { type: Sequelize.STRING(1000) },
+      horsePower: { type: Sequelize.DOUBLE },
       pictureId: { type: Sequelize.INTEGER },
       createdAt: {
         allowNull: false,

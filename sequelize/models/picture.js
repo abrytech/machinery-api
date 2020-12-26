@@ -4,10 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     fileName: DataTypes.STRING,
     filePath: DataTypes.STRING,
     mimeType: DataTypes.STRING,
-    fileSize: DataTypes.FLOAT
-    // userId: DataTypes.INTEGER,
-    // machineId: DataTypes.INTEGER,
-    // machineryId: DataTypes.INTEGER
+    fileSize: DataTypes.DOUBLE
   }, {})
   Picture.associate = function (models) {
     // associations can be defined here

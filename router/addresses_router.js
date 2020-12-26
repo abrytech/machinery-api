@@ -8,9 +8,9 @@ router.get('/:id(\\d+)', async (req, res) => {
   const where = { id: req.params.id }
   Address.findOne({ where }).then((request) => {
     if (request) res.send(request)
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
+    else res.status(404).send({ name: 'Resource not found', message: 'No Offer Found', stack: '' })
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
 })
 
@@ -18,7 +18,7 @@ router.post('', async (req, res, next) => {
   const body = req.body
   console.log(body)
   const address = await Address.create(body).catch((error) => {
-    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(address)
 })
@@ -27,7 +27,7 @@ router.put('', async (req, res) => {
   const body = req.body
   if (body.id) {
     const _address = await Address.findOne({ where: { id: body.id } }).catch((error) => {
-      res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+      res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
     })
     if (_address) {
       body.kebele = body.kebele || _address.kebele
@@ -41,8 +41,8 @@ router.put('', async (req, res) => {
       body.phone = body.phone || _address.phone
       const rows = await Address.update(body, { where: { id: body.id } })
       res.send({ rows, result: body })
-    } else res.status(400).send({ error: { name: 'Update failed', message: 'update failed b/c it couldn\'t find address in the db', stack: '' } })
-  } else res.status(400).send({ error: { name: 'Update failed', message: 'update failed b/c it couldn\'t find address id', stack: '' } })
+    } else res.status(400).send({ name: 'Update failed', message: 'update failed b/c it couldn\'t find address in the db', stack: '' })
+  } else res.status(400).send({ name: 'Update failed', message: 'update failed b/c it couldn\'t find address id', stack: '' })
 })
 router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
@@ -54,7 +54,7 @@ router.get('', async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(addresses)
 })
@@ -69,7 +69,7 @@ router.get('/:query', getParams, async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(addresses)
 })

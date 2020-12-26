@@ -8,27 +8,13 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      kebele: {
-        allowNull: false,
-        type: Sequelize.STRING
-      },
-      woreda: {
-        allowNull: false,
-        type: Sequelize.STRING
-      },
-      zone: {
-        allowNull: false,
-        type: Sequelize.STRING
-      },
-      city: {
-        allowNull: false,
-        type: Sequelize.STRING
-      },
-      region: {
-        type: Sequelize.STRING
-      },
-      lat: { type: Sequelize.FLOAT },
-      long: { type: Sequelize.FLOAT },
+      kebele: { type: Sequelize.STRING },
+      woreda: { type: Sequelize.STRING },
+      zone: { type: Sequelize.STRING },
+      city: { type: Sequelize.STRING },
+      region: { type: Sequelize.STRING },
+      lat: { type: Sequelize.DOUBLE },
+      long: { type: Sequelize.DOUBLE },
       company: {
         type: Sequelize.STRING,
         unique: true

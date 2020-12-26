@@ -1,7 +1,7 @@
 'use strict'
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('PriceBooks', {
+    await queryInterface.createTable('Transactions', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,13 +11,10 @@ module.exports = {
       jobId: {
         type: Sequelize.INTEGER
       },
-      priceRateId: {
+      paymentId: {
         type: Sequelize.INTEGER
       },
-      estimatedPrice: {
-        type: Sequelize.DOUBLE
-      },
-      actualPrice: {
+      amount: {
         type: Sequelize.DOUBLE
       },
       createdAt: {
@@ -31,6 +28,6 @@ module.exports = {
     })
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('PriceBooks')
+    await queryInterface.dropTable('Transactions')
   }
 }

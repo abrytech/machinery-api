@@ -34,7 +34,6 @@ module.exports = {
       },
       userType: {
         type: Sequelize.STRING,
-        allowNull: false,
         defaultValue: 'Machinery Owner'
       },
       role: {

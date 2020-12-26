@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Machinery.init({
+    name: DataTypes.STRING,
     machineId: DataTypes.INTEGER,
     madeIn: DataTypes.STRING,
     manufacturingYear: DataTypes.INTEGER,
@@ -22,15 +23,16 @@ module.exports = (sequelize, DataTypes) => {
     motorNo: DataTypes.STRING,
     chassieNo: DataTypes.STRING,
     modelNo: DataTypes.STRING,
-    width: DataTypes.FLOAT,
-    height: DataTypes.FLOAT,
-    length: DataTypes.FLOAT,
+    serialNo: DataTypes.STRING,
+    width: DataTypes.DOUBLE,
+    weight: DataTypes.DOUBLE,
+    height: DataTypes.DOUBLE,
+    length: DataTypes.DOUBLE,
     tyreNo: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
-    loadingCapacity: DataTypes.FLOAT,
-    withJackHammer: DataTypes.BOOLEAN,
-    serialNo: DataTypes.STRING,
-    horsePower: DataTypes.FLOAT,
+    loadingCapacity: DataTypes.DOUBLE,
+    description: DataTypes.STRING(1000),
+    horsePower: DataTypes.DOUBLE,
     pictureId: DataTypes.INTEGER
   }, { sequelize, modelName: 'Machinery' }
   )

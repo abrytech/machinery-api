@@ -4,8 +4,12 @@ module.exports = (sequelize, DataTypes) => {
     jobId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
     lowbedId: DataTypes.INTEGER,
-    price: DataTypes.FLOAT,
-    status: DataTypes.STRING
+    status: {
+      type: DataTypes.STRING,
+      validate: {
+        isIn: [['pending', 'accepted', 'declined']]
+      }
+    }
   }, {})
   RequestQueue.associate = function (models) {
     // define association here

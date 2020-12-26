@@ -24,47 +24,28 @@ module.exports = {
         allowNull: false
       },
       pickUpId: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
       dropOffId: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
       userId: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
-      machineId: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
-      weight: {
-        type: Sequelize.FLOAT,
-        allowNull: false
-      },
-      length: {
-        type: Sequelize.FLOAT
-      },
-      width: {
-        type: Sequelize.FLOAT
-      },
-      height: {
-        type: Sequelize.FLOAT
+      machineryId: {
+        type: Sequelize.INTEGER
       },
       quantity: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        defaultValue: 1
       },
       distance: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.DOUBLE,
         allowNull: false
       },
       offRoadDistance: {
-        type: Sequelize.FLOAT
-      },
-      hasOffroad: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.DOUBLE,
+        defaultValue: 0.0
       },
       status: {
         type: Sequelize.STRING,

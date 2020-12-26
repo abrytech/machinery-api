@@ -17,9 +17,6 @@ module.exports = {
       lowbedId: {
         type: Sequelize.INTEGER
       },
-      price: {
-        type: Sequelize.FLOAT
-      },
       status: {
         type: Sequelize.STRING
       },

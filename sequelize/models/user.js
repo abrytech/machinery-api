@@ -14,24 +14,13 @@ module.exports = (sequelize, DataTypes) => {
   User.init({
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    phone: {
-      type: DataTypes.STRING
-    },
+    email: DataTypes.STRING,
+    username: DataTypes.STRING,
+    password: DataTypes.STRING,
+    phone: DataTypes.STRING,
     userType: {
       type: DataTypes.STRING,
-      allowNull: false,
+      defaultValue: 'Lowbed Owner',
       validate: {
         isIn: [['Machinery Owner', 'Lowbed Owner', 'Admin']]
       }

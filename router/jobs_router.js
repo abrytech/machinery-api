@@ -1,20 +1,19 @@
 import { Router } from 'express'
-import { Job, User, Machine, RequestQueue, Picture, Address, PriceRate, PriceBook } from '../sequelize/models'
+import { Job, User, Machinery, RequestQueue, Picture, Address, PriceRate, PriceBook } from '../sequelize/models'
 import { getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 
 const router = Router()
+const include = [{ model: Machinery, as: 'machinery' }, { model: PriceBook, as: 'pricebook' }, { model: RequestQueue, as: 'requests' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }]
+const includeInt = [{ model: PriceBook, as: 'pricebook' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }]
 
 router.get('/:id(\\d+)', async (req, res) => {
   const id = req.params.id
-  Job.findOne({
-    include: [{ model: Machine, as: 'machine' }, { model: RequestQueue, as: 'requests' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }],
-    where: { id }
-  }).then((result) => {
+  Job.findOne({ include, where: { id } }).then((result) => {
     if (result) res.send(removeFields(result))
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
+    else res.status(404).send({ name: 'Resource not found', message: 'No Offer Found', stack: '' })
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
 })
 
@@ -27,12 +26,10 @@ router.post('', async (req, res) => {
       const image = req.files.file
       const pic = await uploadFileIntoS3(image)
       const _picture = await Picture.create(pic)
-      console.log(`[user] [put] _picture.id: ${_picture.id}`)
       body.pictureId = _picture.id
     }
     if (body.pickUpAddress) {
       if (body.pickUpAddress.id) {
-        await Address.update(body.pickUpAddress, { where: { id: body.pickUpAddress.id } })
         body.pickUpId = body.pickUpAddress.id
         delete body.pickUpAddress
       } else {
@@ -43,7 +40,6 @@ router.post('', async (req, res) => {
     }
     if (body.dropOffAddress) {
       if (body.dropOffAddress.id) {
-        await Address.update(body.dropOffAddress, { where: { id: body.dropOffAddress.id } })
         body.dropOffId = body.dropOffAddress.id
         delete body.pickUpAddress
       } else {
@@ -52,52 +48,47 @@ router.post('', async (req, res) => {
         delete body.dropOffAddress
       }
     }
-    const _job = await Job.create(body)
     const defaultRate = await PriceRate.findAll({ where: { isDefault: true } })
-    const rate = defaultRate.length > 0 ? defaultRate[0] : null
-    if (rate && _job) {
-      const _jobPrice = { jobId: _job.id, priceRateId: defaultRate[0].id, estimatedPrice: ((defaultRate[0].weightPrice * _job.weight) + (defaultRate[0].onRoadPrice * _job.distance) + (defaultRate[0].offRoadPrice * _job.offRoadDistance)) * _job.quantity }
-      const pricebook = await PriceBook.create(_jobPrice)
-      console.log('pricebook', pricebook)
+    const machinery = await Machinery.findOne({ where: { id: body.machineryId } })
+    if (defaultRate.length > 0) {
+      const _job = await Job.create(body)
+      const rate = defaultRate[0]
+      if (rate && _job) {
+        const _jobPrice = { jobId: _job.id, priceRateId: rate.id, estimatedPrice: ((rate.weightPrice * machinery.weight) + (rate.onRoadPrice * _job.distance) + (rate.offRoadPrice * _job.offRoadDistance)) * _job.quantity }
+        await PriceBook.create(_jobPrice)
+      }
+      const response = await Job.findOne({ include, where: { id: _job.id } })
+      res.send(removeFields(response))
+    } else {
+      res.status(400).send({ name: 'Price rate error', message: 'There is no default price rate, please set default price rate first', stack: '' })
     }
-    const response = await Job.findOne({
-      include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
-      where: { id: _job.id }
-    })
-    res.send(removeFields(response))
   } catch (error) {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   }
 })
 
 router.put('', async (req, res, err) => {
   const body = req.body
-  console.log(body)
   try {
     if (body.id) {
-      const _job = await Job.findOne({
-        include: [{ model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
-        where: { id: body.id }
-      })
+      const _job = await Job.findOne({ include: includeInt, where: { id: body.id } })
       if (_job) {
         body.title = body.title || _job.title
         body.description = body.description || _job.description
         body.pickUpDate = body.pickUpDate || _job.pickUpDate
-        body.dropOffpDate = body.dropOffpDate || _job.dropOffpDate
-        body.machineId = body.machineId || _job.machineId
+        body.dropOffDate = body.dropOffDate || _job.dropOffDate
+        body.pickUpId = body.pickUpId || _job.pickUpId
+        body.dropOffId = body.dropOffId || _job.dropOffId
+        body.machineryId = body.machineryId || _job.machineryId
         body.userId = body.userId || _job.userId
-        body.weight = body.weight || _job.weight
-        body.length = body.length || _job.length
-        body.width = body.width || _job.width
-        body.height = body.height || _job.height
+        body.pictureId = body.pictureId || _job.pictureId
         body.quantity = body.quantity || _job.quantity
         body.distance = body.distance || _job.distance
+        body.pricebook = body.pricebook || _job.pricebook
         body.offRoadDistance = body.offRoadDistance || _job.offRoadDistance
-        body.hasOffroad = body.hasOffroad == null ? _job.hasOffroad : body.hasOffroad
         body.status = body.status || _job.status
         if (body.pickUpAddress) {
           if (_job.pickUpAddress) {
-            body.pickUpAddress.id = body.pickUpAddress.id || _job.pickUpAddress.id
             body.pickUpAddress.kebele = body.pickUpAddress.kebele || _job.pickUpAddress.kebele
             body.pickUpAddress.woreda = body.pickUpAddress.woreda || _job.pickUpAddress.woreda
             body.pickUpAddress.city = body.pickUpAddress.city || _job.pickUpAddress.city
@@ -108,16 +99,13 @@ router.put('', async (req, res, err) => {
             body.pickUpAddress.company = body.pickUpAddress.company || _job.pickUpAddress.company
             body.pickUpAddress.phone = body.pickUpAddress.phone || _job.pickUpAddress.phone
             await Address.update(body.pickUpAddress, { where: { id: body.pickUpAddress.id } })
-            console.log(`[update] body.pickUpAddress.id: ${body.pickUpAddress.id}`)
           } else {
             const _address = await Address.create(body.pickUpAddress)
-            body.pickUpAddress = _address.id
-            console.log(`[new] body.pickUpAddress: ${body.pickUpAddress}`)
+            body.pickUpId = _address.id
           }
         }
         if (body.dropOffAddress) {
           if (_job.dropOffAddress) {
-            body.dropOffAddress.id = body.dropOffAddress.id || _job.dropOffAddress.id
             body.dropOffAddress.kebele = body.dropOffAddress.kebele || _job.dropOffAddress.kebele
             body.dropOffAddress.woreda = body.dropOffAddress.woreda || _job.dropOffAddress.woreda
             body.dropOffAddress.city = body.dropOffAddress.city || _job.dropOffAddress.city
@@ -128,11 +116,9 @@ router.put('', async (req, res, err) => {
             body.dropOffAddress.company = body.dropOffAddress.company || _job.dropOffAddress.company
             body.dropOffAddress.phone = body.dropOffAddress.phone || _job.dropOffAddress.phone
             await Address.update(body.dropOffAddress, { where: { id: body.dropOffAddress.id } })
-            console.log(`[update] body.dropOffAddress.id: ${body.dropOffAddress.id}`)
           } else {
             const _address = await Address.create(body.dropOffAddress)
-            body.dropOffAddress = _address.id
-            console.log(`[new] body.dropOffAddress: ${body.dropOffAddress}`)
+            body.dropOffId = _address.id
           }
         }
         if (req.files || Object.keys(req.files || []).length !== 0) {
@@ -147,37 +133,38 @@ router.put('', async (req, res, err) => {
             body.pictureId = _picture.id
           }
         }
-        const rows = await Job.update(body, { where: { id: body.id } }) || []
-        const defaultRate = await PriceRate.findAll({ where: { isDefault: true } }) || []
+        console.log('Before ::::>>>>> Job.update(body)', body, '<<<<<<<<<<<<<<<:::::::')
+        const rows = await Job.update(body, { where: { id: body.id } })
+        const defaultRate = await PriceRate.findAll({ where: { isDefault: true } })
+        const machinery = await Machinery.findOne({ where: { id: body.machineryId } })
         const rate = defaultRate.length > 0 ? defaultRate[0] : null
-        console.log(`*** rate.id: ${rate.id} && rows[0]: ${rows[0]} && _job.pricebook.id: ${_job.pricebook.id} && body.weight: ${body.weight} && body.quantity: ${body.quantity} && body.distance ${body.distance} && body.offRoadDistance: ${body.offRoadDistance} ***`)
-        if (body.pricebook && rate && rows[0] > 0 && _job.pricebook) {
-          body.pricebook.estimatedPrice = ((rate.weightPrice * body.weight) + (rate.onRoadPrice * body.distance) + (rate.offRoadPrice * body.offRoadDistance)) * body.quantity
-          body.pricebook.id = body.pricebook.id || _job.pricebook.id
-          body.pricebook.jobId = body.pricebook.jobId || _job.pricebook.jobId
-          body.pricebook.priceRateId = body.pricebook.priceRateId || _job.pricebook.priceRateId
-          body.pricebook.actualPrice = body.pricebook.actualPrice || _job.pricebook.actualPrice
-          await PriceBook.update(body.pricebook, { where: { id: _job.pricebook.id, jobId: _job.id, priceRateId: rate.id } })
+        if (body.pricebook) {
+          if (_job.pricebook) {
+            if (rate && rows[0] > 0) {
+              body.pricebook.estimatedPrice = ((rate.weightPrice * machinery.weight) + (rate.onRoadPrice * body.distance) + (rate.offRoadPrice * body.offRoadDistance)) * body.quantity
+              body.pricebook.jobId = body.pricebook.jobId || _job.pricebook.jobId
+              body.pricebook.priceRateId = body.pricebook.priceRateId || _job.pricebook.priceRateId
+              body.pricebook.actualPrice = body.pricebook.actualPrice || _job.pricebook.actualPrice
+              await PriceBook.update(body.pricebook, { where: { id: _job.pricebook.id } })
+            }
+          }
         } else if (rate && rows[0] > 0 && _job.pricebook) {
           const _newPrice = ((rate.weightPrice * body.weight) + (rate.onRoadPrice * body.distance) + (rate.offRoadPrice * body.offRoadDistance)) * body.quantity
-          await PriceBook.update({ estimatedPrice: _newPrice }, { where: { id: _job.pricebook.id, jobId: body.id, priceRateId: rate.id } })
+          await PriceBook.update({ estimatedPrice: _newPrice }, { where: { id: _job.pricebook.id } })
         }
-        const result = rows ? await Job.findOne({
-          include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
-          where: { id: body.id }
-        }) : body
+        const result = rows ? await Job.findOne({ include, where: { id: body.id } }) : body
         res.send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
-      } else throw Error('Bad Request: Job not found')
-    } else throw Error('Bad Request: Job ID is Missing')
+      } else throw Error('Job not found')
+    } else throw Error('Job ID is Missing')
   } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   }
 })
 
 router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const jobs = await Job.findAll({
-    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
+    include,
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
@@ -185,7 +172,7 @@ router.get('', async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(removeFields(jobs))
 })
@@ -193,7 +180,7 @@ router.get('', async (req, res) => {
 router.get('/:query', getParams, async (req, res) => {
   const params = req.queries
   const jobs = await Job.findAll({
-    include: [{ model: Machine, as: 'machine' }, { model: User, as: 'user' }, { model: Picture, as: 'picture' }, { model: Address, as: 'pickUpAddress' }, { model: Address, as: 'dropOffAddress' }, { model: PriceBook, as: 'pricebook' }],
+    include,
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
@@ -201,7 +188,7 @@ router.get('/:query', getParams, async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(removeFields(jobs))
 })

@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       Job.belongsTo(models.Picture, { foreignKey: 'pictureId', as: 'picture' })
       Job.belongsTo(models.Machine, { foreignKey: 'machineId', as: 'machine' })
       Job.hasOne(models.PriceBook, { foreignKey: 'jobId', as: 'pricebook' })
+      Job.hasOne(models.Transaction, { foreignKey: 'jobId', as: 'transaction' })
       Job.hasMany(models.RequestQueue, { foreignKey: 'jobId', as: 'requests' })
       Job.belongsTo(models.Address, { foreignKey: 'pickUpId', as: 'pickUpAddress' })
       Job.belongsTo(models.Address, { foreignKey: 'dropOffId', as: 'dropOffAddress' })
@@ -16,20 +17,15 @@ module.exports = (sequelize, DataTypes) => {
   Job.init({
     title: DataTypes.STRING,
     description: DataTypes.STRING,
+    machineryId: DataTypes.INTEGER,
     pickUpDate: DataTypes.DATE,
     dropOffpDate: DataTypes.DATE,
     pickUpId: DataTypes.INTEGER,
     dropOffId: DataTypes.INTEGER,
-    machineId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
-    weight: DataTypes.FLOAT,
-    length: DataTypes.FLOAT,
-    width: DataTypes.FLOAT,
-    height: DataTypes.FLOAT,
     quantity: DataTypes.INTEGER,
-    distance: DataTypes.FLOAT,
-    offRoadDistance: DataTypes.FLOAT,
-    hasOffroad: DataTypes.BOOLEAN,
+    distance: DataTypes.DOUBLE,
+    offRoadDistance: DataTypes.DOUBLE,
     status: {
       type: DataTypes.STRING,
       validate: {
