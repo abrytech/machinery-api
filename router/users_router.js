@@ -21,7 +21,6 @@ router.get('/:id(\\d+)', async (req, res) => {
 router.post('', async (req, res) => {
   try {
     const body = req.body
-    console.log(body)
     if (body.role === 'Admin') body.isApproved = true
     if (body.address) {
       if (body.address.id) {

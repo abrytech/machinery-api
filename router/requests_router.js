@@ -21,7 +21,6 @@ router.get('/:id(\\d+)', async (req, res) => {
 
 router.post('', async (req, res) => {
   const body = req.body
-  console.log(body)
   const request = await RequestQueue.create(body).catch((error) => {
     res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })

@@ -58,7 +58,6 @@ router.post('/login', async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const body = req.body
-    console.log(body)
     if (body.role === 'Admin') body.isApproved = true
     if (body.address) {
       if (body.address.id) {

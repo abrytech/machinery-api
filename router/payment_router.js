@@ -16,15 +16,19 @@ router.get('/:id(\\d+)', async (req, res) => {
 })
 
 router.post('', async (req, res) => {
+  const { balance, userId } = req.body
   try {
-    const body = req.body
-    console.log(body)
-    const _payment = await Payment.create(body)
-    const response = await Payment.findOne({
-      include: [{ model: User, as: 'user' }],
-      where: { id: _payment.id }
-    })
-    res.send(removeFields(response))
+    if (balance && userId) {
+      const body = { balance, userId, lastDeposit: balance, totalDeposit: balance }
+      const _payment = await Payment.create(body)
+      const response = await Payment.findOne({
+        include: [{ model: User, as: 'user' }],
+        where: { id: _payment.id }
+      })
+      res.send(removeFields(response))
+    } else {
+      res.status(400).send({ name: 'Bad Input', message: 'The payment request body has missing feilds, e.g balance & userId', stack: '' })
+    }
   } catch (error) {
     res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   }
@@ -34,13 +38,11 @@ router.put('', async (req, res) => {
   const body = req.body
   try {
     if (body) {
-      if (body.id) {
+      if (body.id && body.balance) {
         const _payment = await Payment.findOne({ where: { id: body.id } })
         if (_payment) {
           body.userId = body.userId || _payment.userId
           body.balance = body.balance || _payment.balance
-          body.lastDeposit = body.lastDeposit || _payment.lastDeposit
-          body.totalDeposit = body.totalDeposit || _payment.totalDeposit
           delete body.createdAt
           delete body.updatedAt
           const rows = await Payment.update(body, { where: { id: body.id } }) || []
@@ -50,7 +52,7 @@ router.put('', async (req, res) => {
           }) : null
           res.status(200).send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
         } else throw Error('Payment not found')
-      } else throw Error('Payment ID is Missing')
+      } else throw Error('The payment request body has missing feilds, e.g balance & ID')
     } else throw Error('Your Request Body is Null')
   } catch (error) {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack, location: 'Payment PUT method' })
@@ -58,8 +60,8 @@ router.put('', async (req, res) => {
 })
 
 router.put('/recharge', async (req, res) => {
-  const { id, balance } = req.body
   try {
+    const { id, balance } = req.body
     if (req.body) {
       if (id && balance) {
         const _payment = await Payment.findOne({ where: { id } })
@@ -76,7 +78,7 @@ router.put('/recharge', async (req, res) => {
           }) : null
           res.status(200).send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
         } else throw Error('Payment not found')
-      } else throw Error('Payment ID is Missing')
+      } else throw Error('The payment request body has missing feilds, e.g balance & ID')
     } else throw Error('Your Request Body is Null')
   } catch (error) {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack, location: 'Payment PUT method' })

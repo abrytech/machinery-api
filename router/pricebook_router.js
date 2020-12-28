@@ -18,7 +18,6 @@ router.get('/:id(\\d+)', async (req, res) => {
 router.post('', async (req, res) => {
   try {
     const body = req.body
-    console.log(body)
     const _pricebook = await PriceBook.create(body)
     const response = await PriceBook.findOne({
       include: [{ model: PriceRate, as: 'pricerate' }, { model: Job, as: 'job' }],

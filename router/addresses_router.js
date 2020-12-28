@@ -16,7 +16,6 @@ router.get('/:id(\\d+)', async (req, res) => {
 
 router.post('', async (req, res, next) => {
   const body = req.body
-  console.log(body)
   const address = await Address.create(body).catch((error) => {
     res.send({ name: error.name, message: error.message, stack: error.stack })
   })
