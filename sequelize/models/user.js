@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       User.belongsTo(models.Address, { foreignKey: 'addressId', as: 'address' })
       User.belongsTo(models.Picture, { foreignKey: 'pictureId', as: 'picture' })
+      User.hasOne(models.Payment, { foreignKey: 'userId', as: 'user' })
     }
   };
   User.init({

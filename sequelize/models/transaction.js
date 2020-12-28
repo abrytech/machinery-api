@@ -1,6 +1,6 @@
 'use strict'
-const { Model } = require('sequelize')
-module.exports = (sequelize, DataTypes) => {
+import { Model } from 'sequelize'
+export default (sequelize, DataTypes) => {
   class Transaction extends Model {
     /**
      * Helper method for defining associations.
@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate (models) {
       // define association here
       Transaction.belongsTo(models.Job, { foreignKey: 'JobId', as: 'job' })
-      Transaction.belongsTo(models.Paymnet, { foreignKey: 'paymentId', as: 'payment' })
+      Transaction.belongsTo(models.Payment, { foreignKey: 'paymentId', as: 'payment' })
     }
   };
   Transaction.init({
