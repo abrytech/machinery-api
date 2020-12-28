@@ -8,7 +8,7 @@ router.get('/:id(\\d+)', async (req, res) => {
   const where = { id: req.params.id }
   Address.findOne({ where }).then((request) => {
     if (request) res.send(request)
-    else res.status(404).send({ name: 'Resource not found', message: 'No Offer Found', stack: '' })
+    else res.status(404).send({ name: 'Resource not found', message: 'No Address Found', stack: '' })
   }).catch((error) => {
     res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })

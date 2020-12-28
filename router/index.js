@@ -7,12 +7,16 @@ import machines from './machines_router'
 import machineries from './machineries_router'
 import jobs from './jobs_router'
 import requests from './requests_router'
+import payment from './payment_router'
+import transaction from './transaction_router'
 
 const router = Router()
 
 router.use('/addresses', addresses)
 router.use('/users', users)
 router.use('/pricebooks', pricebooks)
+router.use('/payments', payment)
+router.use('/transactions', transaction)
 router.use('/pricerates', pricerates)
 router.use('/machines', machines)
 router.use('/machineries', machineries)

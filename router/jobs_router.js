@@ -11,7 +11,7 @@ router.get('/:id(\\d+)', async (req, res) => {
   const id = req.params.id
   Job.findOne({ include, where: { id } }).then((result) => {
     if (result) res.send(removeFields(result))
-    else res.status(404).send({ name: 'Resource not found', message: 'No Offer Found', stack: '' })
+    else res.status(404).send({ name: 'Resource not found', message: 'No Job Found', stack: '' })
   }).catch((error) => {
     res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })

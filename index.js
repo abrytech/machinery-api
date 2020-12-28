@@ -7,7 +7,6 @@ import { urlencoded, json } from 'body-parser'
 import authRouter from './router/auth_router'
 import fileUpload from 'express-fileupload'
 import { authUser } from './middleware/auth'
-import morgan from 'morgan'
 // import fs from 'fs'
 // import path from 'path'
 // import https from 'https'
@@ -30,7 +29,6 @@ app.use(express.static(www))
 app.use(fileUpload({
   limits: { fileSize: 5 * 1024 * 1024 }
 }))
-app.use(morgan('combined'))
 app.get('/', function (req, res) {
   res.sendFile('index.html')
 })
