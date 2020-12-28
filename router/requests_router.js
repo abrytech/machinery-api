@@ -13,9 +13,9 @@ router.get('/:id(\\d+)', async (req, res) => {
     if (result) {
       result = removeFields(result)
       res.send(result)
-    } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Offer Found', stack: '' } })
+    } else res.status(404).send({ name: 'Resource not found', message: 'No Offer Found', stack: '' })
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
 })
 
@@ -23,13 +23,13 @@ router.post('', async (req, res) => {
   const body = req.body
   console.log(body)
   const request = await RequestQueue.create(body).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
   const result = request ? await RequestQueue.findOne({
     include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
     where: { id: request.id }
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   }) : null
   res.send(removeFields(result))
 })
@@ -54,7 +54,7 @@ router.put('', async (req, res) => {
       } else throw Error('Bad Request: Offer not found')
     } else throw Error('Bad Request: Offer ID is Missing')
   } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   }
 })
 
@@ -69,7 +69,7 @@ router.get('/', async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
   if (requests) {
     if (requests.length > 0) {
@@ -84,7 +84,7 @@ router.get('/', async (req, res) => {
       }
     }
   } else {
-    res.status(404).send({ error: { name: '404 ', message: '404, No Request Found', stack: '' } })
+    res.status(404).send({ name: '404 ', message: '404, No Request Found', stack: '' })
   }
 })
 
@@ -100,7 +100,7 @@ router.get('/:query', async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   })
   if (requests) {
     if (requests.length > 0) {
@@ -115,7 +115,7 @@ router.get('/:query', async (req, res) => {
       }
     }
   } else {
-    res.status(404).send({ error: { name: '404 ', message: '404, No Request Faound', stack: '' } })
+    res.status(404).send({ name: '404 ', message: '404, No Request Faound', stack: '' })
   }
 })
 

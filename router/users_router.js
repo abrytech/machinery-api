@@ -13,7 +13,7 @@ router.get('/:id(\\d+)', async (req, res) => {
     include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
     where
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(removeFields(user))
 })
@@ -54,7 +54,7 @@ router.post('', async (req, res) => {
     })
     res.send(removeFields(response))
   } catch (error) {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   }
 })
 
@@ -131,7 +131,7 @@ router.put('', async (req, res) => {
             } else {
               delete body.password
               delete body.oldPassword
-              res.status(400).send({ error: { name: 'Bad Request', message: 'Your old password dont match', stack: '' }, location: 'User PUT method' })
+              res.status(400).send({ name: 'Bad Request', message: 'Your old password dont match', stack: '', location: 'User PUT method' })
             }
           } else {
             delete body.password
@@ -147,7 +147,7 @@ router.put('', async (req, res) => {
       } else throw Error('Bad Request: User ID is Missing')
     } else throw Error('Bad Request: Your Request Body is Null')
   } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack }, location: 'User PUT method' })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack, location: 'User PUT method' })
   }
 })
 
@@ -163,7 +163,7 @@ router.get('', async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
 })
@@ -180,7 +180,7 @@ router.get('/:query', getParams, async (req, res, next) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
 })

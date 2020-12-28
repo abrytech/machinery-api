@@ -17,9 +17,9 @@ router.get('/me', authUser, async (req, res) => {
     where
   }).then((user) => {
     if (user) res.send(removeFields(user))
-    else res.status(404).send({ error: { name: 'Resource not found', message: 'User Not Found', stack: '' } })
+    else res.status(404).send({ name: 'Resource not found', message: 'User Not Found', stack: '' })
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
 })
 
@@ -34,24 +34,24 @@ router.post('/login', async (req, res) => {
       })
       if (user) {
         if (compareSync(password, user.password)) {
-          if (!user.isActivated) res.status(400).send({ error: { name: 'Authentication Failed', message: 'Your email is not confirmed yet please go to your email and confirm' } })
-          else if (!user.isApproved) res.status(400).send({ error: { name: 'Authentication Failed', message: 'Your account is not yet approved please contact the system Admin' } })
-          else if (user.spam || user.deleted) res.status(400).send({ error: { name: 'Authentication Failed', message: 'Sorry your account has been Spammed or Deleted please contact the system Admin' } })
+          if (!user.isActivated) res.status(400).send({ name: 'Authentication Failed', message: 'Your email is not confirmed yet please go to your email and confirm' } })
+          else if (!user.isApproved) res.status(400).send({ name: 'Authentication Failed', message: 'Your account is not yet approved please contact the system Admin' } })
+          else if (user.spam || user.deleted) res.status(400).send({ name: 'Authentication Failed', message: 'Sorry your account has been Spammed or Deleted please contact the system Admin' } })
           else {
             jwt.sign({ userId: user.id, role: user.role, username: user.username }, ACCESS_TOKEN_SECRET_KEY, { expiresIn: '1d' }, (error, token) => {
-              if (error) res.status(403).send({ error: { name: error.name, message: error.message, stack: error.stack, expiredAt: error.expiredAt } })
+              if (error) res.status(403).send({ name: error.name, message: error.message, stack: error.stack, expiredAt: error.expiredAt } })
               res.set({ Authorization: `Bearer ${token}`, 'Access-control-expose-headers': 'Authorization' }).send(removeFields(user))
             })
           }
         } else {
-          res.status(400).send({ error: { name: 'Authentication Failed', message: 'Invalid Username or Password' } })
+          res.status(400).send({ name: 'Authentication Failed', message: 'Invalid Username or Password' } })
         }
       } else {
-        res.status(400).send({ error: { name: 'Authentication Failed', message: 'Invalid Username or Password' } })
+        res.status(400).send({ name: 'Authentication Failed', message: 'Invalid Username or Password' } })
       }
     }
   } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   }
 })
 
@@ -91,7 +91,7 @@ router.post('/register', async (req, res) => {
     })
     res.send(removeFields(response))
   } catch (error) {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   }
 })
 

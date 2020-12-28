@@ -88,8 +88,8 @@ const authUser = async (req, res, next) => {
 //       else if (req.method === 'DELETE' && perm.permissions.delete) allow = true
 //     }
 //     if (allow) next()
-//     else res.status(403).send({ error: { name: 'Access denied', message: 'You dont have this level of access ', stack: '' } })
-//   } else res.status(400).send({ error: { name: 'Bad Request', message: 'This User does\'t exist', stack: '' } })
+//     else res.status(403).send({ name: 'Access denied', message: 'You dont have this level of access ', stack: '' })
+//   } else res.status(400).send({ name: 'Bad Request', message: 'This User does\'t exist', stack: '' })
 // }
 /**
  * @DESC Check Role Middleware
@@ -125,7 +125,7 @@ const getParams = (req, res, next) => {
       next()
     } else throw Error('Bad Format', 'Invalid Request URL format')
   } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   }
 }
 

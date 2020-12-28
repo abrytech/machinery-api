@@ -10,7 +10,7 @@ router.get('/:id(\\d+)', async (req, res) => {
     include: [{ model: PriceRate, as: 'pricerate' }, { model: Job, as: 'job' }],
     where
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(removeFields(pricebook))
 })
@@ -26,7 +26,7 @@ router.post('', async (req, res) => {
     })
     res.send(removeFields(response))
   } catch (error) {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   }
 })
 
@@ -52,7 +52,7 @@ router.put('', async (req, res) => {
       } else throw Error('Bad Request: PriceBook ID is Missing')
     } else throw Error('Bad Request: Your Request Body is Null')
   } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack }, location: 'PriceBook PUT method' })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack, location: 'PriceBook PUT method' })
   }
 })
 
@@ -68,7 +68,7 @@ router.get('', async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(pricerates))
 })
@@ -85,7 +85,7 @@ router.get('/:query', getParams, async (req, res, next) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(pricerates))
 })

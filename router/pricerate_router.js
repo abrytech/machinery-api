@@ -8,7 +8,7 @@ router.get('/:id(\\d+)', async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
   const pricebook = await PriceRate.findOne({ include: [{ model: PriceBook, as: 'pricebooks' }], where })
     .catch((error) => {
-      res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+      res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
     })
   res.send(removeFields(pricebook))
 })
@@ -20,7 +20,7 @@ router.post('', async (req, res) => {
     const response = await PriceRate.findOne({ include: [{ model: PriceBook, as: 'pricebooks' }], where: { id: _pricebook.id } })
     res.send(removeFields(response))
   } catch (error) {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   }
 })
 
@@ -49,7 +49,7 @@ router.put('', async (req, res) => {
       } else throw Error('Bad Request: PriceRate ID is Missing')
     } else throw Error('Bad Request: Your Request Body is Null')
   } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack }, location: 'PriceRate PUT method' })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack, location: 'PriceRate PUT method' })
   }
 })
 
@@ -65,7 +65,7 @@ router.get('', async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(pricebooks))
 })
@@ -82,7 +82,7 @@ router.get('/:query', getParams, async (req, res, next) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(pricebooks))
 })

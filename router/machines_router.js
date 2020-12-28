@@ -12,9 +12,9 @@ router.get('/:id(\\d+)', async (req, res) => {
   }).then((result) => {
     if (result) {
       res.send(removeFields(result))
-    } else res.status(404).send({ error: { name: 'Resource not found', message: 'No Machine Found', stack: '' } })
+    } else res.status(404).send({ name: 'Resource not found', message: 'No Machine Found', stack: '' })
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
 })
 
@@ -37,7 +37,7 @@ router.post('', async (req, res) => {
     })
     res.send(removeFields(response))
   } catch (error) {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   }
 })
 
@@ -75,7 +75,7 @@ router.put('', async (req, res, err) => {
       } else throw Error('Bad Request: Machine not found')
     } else throw Error('Bad Request: Machine ID is Missing')
   } catch (error) {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   }
 })
 
@@ -90,7 +90,7 @@ router.get('', async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(500).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(removeFields(machines))
 })
@@ -106,7 +106,7 @@ router.get('/:query', getParams, async (req, res) => {
       [params.sort, params.order]
     ]
   }).catch((error) => {
-    res.status(400).send({ error: { name: error.name, message: error.message, stack: error.stack } })
+    res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   })
   res.send(removeFields(machines))
 })
