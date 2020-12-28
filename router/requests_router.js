@@ -51,8 +51,8 @@ router.put('', async (req, res) => {
           where: { id: body.id }
         }) : body
         res.send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
-      } else throw Error('Bad Request: Offer not found')
-    } else throw Error('Bad Request: Offer ID is Missing')
+      } else throw Error('Offer not found')
+    } else throw Error('Offer ID is Missing')
   } catch (error) {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   }

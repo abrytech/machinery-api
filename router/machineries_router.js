@@ -59,11 +59,12 @@ router.put('', async (req, res, err) => {
         body.modelNo = body.modelNo || _machinery.modelNo
         body.width = body.width || _machinery.width
         body.height = body.height || _machinery.height
+        body.weight = body.weight || _machinery.weight
         body.length = body.length || _machinery.length
         body.tyreNo = body.tyreNo || _machinery.tyreNo
         body.userId = body.userId || _machinery.userId
         body.loadingCapacity = body.loadingCapacity || _machinery.loadingCapacity
-        body.withJackHammer = body.withJackHammer == null ? _machinery.withJackHammer : body.withJackHammer
+        body.description = body.description || _machinery.description
         body.serialNo = body.serialNo || _machinery.serialNo
         body.horsePower = body.horsePower || _machinery.horsePower
         if (req.files || Object.keys(req.files || []).length !== 0) {
@@ -84,8 +85,8 @@ router.put('', async (req, res, err) => {
           where: { id: body.id }
         }) : body
         res.send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
-      } else throw Error('Bad Request: Machinery not found')
-    } else throw Error('Bad Request: Machinery ID is Missing')
+      } else throw Error('Machinery not found')
+    } else throw Error('Machinery ID is Missing')
   } catch (error) {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   }

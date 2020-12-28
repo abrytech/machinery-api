@@ -48,9 +48,9 @@ router.put('', async (req, res) => {
             include: [{ model: PriceRate, as: 'pricerate' }, { model: Job, as: 'job' }]
           }) : null
           res.status(200).send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
-        } else throw Error('Bad Request: PriceBook not found')
-      } else throw Error('Bad Request: PriceBook ID is Missing')
-    } else throw Error('Bad Request: Your Request Body is Null')
+        } else throw Error('PriceBook not found')
+      } else throw Error('PriceBook ID is Missing')
+    } else throw Error('Your Request Body is Null')
   } catch (error) {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack, location: 'PriceBook PUT method' })
   }

@@ -143,9 +143,9 @@ router.put('', async (req, res) => {
             include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
           }) : null
           res.status(200).send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
-        } else throw Error('Bad Request: User not found')
-      } else throw Error('Bad Request: User ID is Missing')
-    } else throw Error('Bad Request: Your Request Body is Null')
+        } else throw Error('User not found')
+      } else throw Error('User ID is Missing')
+    } else throw Error('Your Request Body is Null')
   } catch (error) {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack, location: 'User PUT method' })
   }

@@ -72,8 +72,8 @@ router.put('', async (req, res, err) => {
           where: { id: body.id }
         }) : null
         res.send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
-      } else throw Error('Bad Request: Machine not found')
-    } else throw Error('Bad Request: Machine ID is Missing')
+      } else throw Error('Machine not found')
+    } else throw Error('Machine ID is Missing')
   } catch (error) {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   }

@@ -27,13 +27,11 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true
       },
-      modelNo: {
-        type: Sequelize.STRING
-      },
       serialNo: {
         type: Sequelize.STRING,
         unique: true
       },
+      modelNo: { type: Sequelize.STRING },
       width: { type: Sequelize.DOUBLE },
       weight: { type: Sequelize.DOUBLE },
       height: { type: Sequelize.DOUBLE },
