@@ -81,7 +81,7 @@ router.get('/', async (req, res) => {
       } else if (req.userType === 'Admin') {
         res.send(removeFields(requests))
       }
-    }
+    } else res.send(requests)
   } else {
     res.status(404).send({ name: '404 ', message: '404, No Request Found', stack: '' })
   }
@@ -112,7 +112,7 @@ router.get('/:query', async (req, res) => {
       } else if (req.userType === 'Admin') {
         res.send(removeFields(requests))
       }
-    }
+    } else res.send(requests)
   } else {
     res.status(404).send({ name: '404 ', message: '404, No Request Faound', stack: '' })
   }
