@@ -34,20 +34,20 @@ router.post('/login', async (req, res) => {
       })
       if (user) {
         if (compareSync(password, user.password)) {
-          if (!user.isActivated) res.status(400).send({ name: 'Authentication Failed', message: 'Your email is not confirmed yet please go to your email and confirm' } })
-          else if (!user.isApproved) res.status(400).send({ name: 'Authentication Failed', message: 'Your account is not yet approved please contact the system Admin' } })
-          else if (user.spam || user.deleted) res.status(400).send({ name: 'Authentication Failed', message: 'Sorry your account has been Spammed or Deleted please contact the system Admin' } })
+          if (!user.isActivated) res.status(400).send({ name: 'Authentication Failed', message: 'Your email is not confirmed yet please go to your email and confirm' })
+          else if (!user.isApproved) res.status(400).send({ name: 'Authentication Failed', message: 'Your account is not yet approved please contact the system Admin' })
+          else if (user.spam || user.deleted) res.status(400).send({ name: 'Authentication Failed', message: 'Sorry your account has been Spammed or Deleted please contact the system Admin' })
           else {
             jwt.sign({ userId: user.id, role: user.role, username: user.username }, ACCESS_TOKEN_SECRET_KEY, { expiresIn: '1d' }, (error, token) => {
-              if (error) res.status(403).send({ name: error.name, message: error.message, stack: error.stack, expiredAt: error.expiredAt } })
+              if (error) res.status(403).send({ name: error.name, message: error.message, stack: error.stack, expiredAt: error.expiredAt })
               res.set({ Authorization: `Bearer ${token}`, 'Access-control-expose-headers': 'Authorization' }).send(removeFields(user))
             })
           }
         } else {
-          res.status(400).send({ name: 'Authentication Failed', message: 'Invalid Username or Password' } })
+          res.status(400).send({ name: 'Authentication Failed', message: 'Invalid Username or Password' })
         }
       } else {
-        res.status(400).send({ name: 'Authentication Failed', message: 'Invalid Username or Password' } })
+        res.status(400).send({ name: 'Authentication Failed', message: 'Invalid Username or Password' })
       }
     }
   } catch (error) {
