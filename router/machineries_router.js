@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import { Op } from 'sequelize'
 import { getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import { Machinery, User, Machine, Picture } from '../sequelize/models'
@@ -95,7 +94,7 @@ router.put('', async (req, res, err) => {
 })
 
 router.get('', async (req, res) => {
-  const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: { [Op.or]: [{ userId: req.userId }, req.userType === 'Admin'] } }
+  const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const machineries = await Machinery.findAll({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],
     where: params.where,
@@ -107,12 +106,11 @@ router.get('', async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
-  res.send(removeFields(machineries.filter((machinery) => machinery.user.userType === 'Admin')))
+  res.send(removeFields(machineries.filter((machinery) => (machinery.userId === req.userId || req.role === 'Admin'))))
 })
 
 router.get('/:query', getParams, async (req, res) => {
   const params = req.queries
-  params.where.add({ [Op.or]: [{ userId: req.userId }, req.userType === 'Admin'] })
   const machineries = await Machinery.findAll({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],
     where: params.where,
@@ -124,7 +122,7 @@ router.get('/:query', getParams, async (req, res) => {
   }).catch((error) => {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   })
-  res.send(removeFields(machineries))
+  res.send(removeFields(machineries.filter((machinery) => (machinery.userId === req.userId || req.role === 'Admin'))))
 })
 
 export default router
