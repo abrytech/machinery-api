@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { Op } from 'sequelize/types'
+import { Op } from 'sequelize'
 import { getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import { Machinery, User, Machine, Picture } from '../sequelize/models'
