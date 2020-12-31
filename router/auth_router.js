@@ -58,7 +58,13 @@ router.post('/login', async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const body = req.body
-    if (body.role === 'Admin') body.isApproved = true
+    if (body.userType === 'Admin' || body.role === 'Admin') {
+      body.isApproved = true
+      body.role = 'Admin'
+      body.userType = 'Admin'
+    } else {
+      body.role = 'User'
+    }
     if (body.address) {
       if (body.address.id) {
         await Address.update(body.address, { where: { id: body.address.id } })

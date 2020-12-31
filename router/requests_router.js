@@ -89,7 +89,6 @@ router.get('/', async (req, res) => {
 
 router.get('/:query', async (req, res) => {
   const params = req.queries
-  params.where.userId = req.userId
   const requests = await RequestQueue.findAll({
     include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
     where: params.where,
