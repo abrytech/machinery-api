@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { Job, User, Machinery, RequestQueue } from '../sequelize/models'
-import { removeFields } from '../middleware/auth'
+import { getParams, removeFields } from '../middleware/auth'
 
 const router = Router()
 
@@ -87,7 +87,7 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.get('/:query', async (req, res) => {
+router.get('/:query', getParams, async (req, res) => {
   const params = req.queries
   const requests = await RequestQueue.findAll({
     include: [{ model: Machinery, as: 'lowbed' }, { model: User, as: 'user' }, { model: Job, as: 'job' }],
