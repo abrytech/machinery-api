@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { Payment, User } from '../sequelize/models'
+import { Payment, User, Transaction } from '../sequelize/models'
 import { getParams, removeFields } from '../middleware/auth'
 
 const router = Router()
@@ -7,7 +7,7 @@ const router = Router()
 router.get('/:id(\\d+)', async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
   const payment = await Payment.findOne({
-    include: [{ model: User, as: 'user' }],
+    include: [{ model: User, as: 'user' }, { model: Transaction, as: 'transactions' }],
     where
   }).catch((error) => {
     res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
@@ -22,7 +22,7 @@ router.post('', async (req, res) => {
       const body = { balance, userId, lastDeposit: balance, totalDeposit: balance }
       const _payment = await Payment.create(body)
       const response = await Payment.findOne({
-        include: [{ model: User, as: 'user' }],
+        include: [{ model: User, as: 'user' }, { model: Transaction, as: 'transactions' }],
         where: { id: _payment.id }
       })
       res.send(removeFields(response))
@@ -90,7 +90,7 @@ router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const payments = await Payment.findAll({
     where: params.where,
-    include: [{ model: User, as: 'user' }],
+    include: [{ model: User, as: 'user' }, { model: Transaction, as: 'transactions' }],
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
     order: [
@@ -106,7 +106,7 @@ router.get('/:query', getParams, async (req, res, next) => {
   const params = req.queries
   const amount = await Payment.count()
   const payments = await Payment.findAll({
-    include: [{ model: User, as: 'user' }],
+    include: [{ model: User, as: 'user' }, { model: Transaction, as: 'transactions' }],
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
