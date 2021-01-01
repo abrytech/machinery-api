@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.STRING,
       validate: {
-        isIn: [['pending', 'open', 'closed']]
+        isIn: [['pending', 'open', 'done', 'closed']]
       }
     },
     pictureId: DataTypes.INTEGER
