@@ -95,6 +95,7 @@ router.put('', async (req, res, err) => {
 
 router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
+  if (req.userType === 'Lowbed Owner') params.where.userId = req.userId
   const machineries = await Machinery.findAll({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],
     where: params.where,
@@ -111,6 +112,7 @@ router.get('', async (req, res) => {
 
 router.get('/:query', getParams, async (req, res) => {
   const params = req.queries
+  if (req.userType === 'Lowbed Owner') params.where.userId = req.userId
   const machineries = await Machinery.findAll({
     include: [{ model: User, as: 'user' }, { model: Machine, as: 'machine' }, { model: Picture, as: 'picture' }],
     where: params.where,

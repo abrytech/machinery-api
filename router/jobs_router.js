@@ -163,6 +163,8 @@ router.put('', async (req, res, err) => {
 
 router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
+  if (req.userType === 'Lowbed Owner') params.where.status = 'open'
+  if (req.userType === 'Machinery Owner') params.where.userId = req.userId
   const jobs = await Job.findAll({
     include,
     where: params.where,
@@ -179,6 +181,8 @@ router.get('', async (req, res) => {
 
 router.get('/:query', getParams, async (req, res) => {
   const params = req.queries
+  if (req.userType === 'Lowbed Owner') params.where.status = 'open'
+  if (req.userType === 'Machinery Owner') params.where.userId = req.userId
   const jobs = await Job.findAll({
     include,
     where: params.where,

@@ -28,8 +28,9 @@ module.exports = (sequelize, DataTypes) => {
     offRoadDistance: DataTypes.DOUBLE,
     status: {
       type: DataTypes.STRING,
+      defaultValue: 'open',
       validate: {
-        isIn: [['pending', 'open', 'done', 'closed']]
+        isIn: [['open', 'done', 'closed']]
       }
     },
     pictureId: DataTypes.INTEGER

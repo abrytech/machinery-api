@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     lowbedId: DataTypes.INTEGER,
     status: {
       type: DataTypes.STRING,
+      defaultValue: 'pending',
       validate: {
         isIn: [['pending', 'accepted', 'canceled']]
       }

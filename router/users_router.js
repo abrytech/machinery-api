@@ -1,16 +1,16 @@
 import { Router } from 'express'
-import { User, Address, Picture } from '../sequelize/models'
+import { User, Address, Picture, Payment } from '../sequelize/models'
 import { getParams, removeFields } from '../middleware/auth'
 import { deleteFileFromS3, uploadFileIntoS3 } from '../middleware/aws'
 import sendConfirmation from '../middleware/gmail'
 import { hashSync, genSaltSync, compareSync } from 'bcrypt'
 
 const router = Router()
-
+const include = [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }, { model: Payment, as: 'payment' }]
 router.get('/:id(\\d+)', async (req, res) => {
   const where = req.params.id ? { id: req.params.id } : {}
   const user = await User.findOne({
-    include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+    include,
     where
   }).catch((error) => {
     res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
@@ -48,7 +48,7 @@ router.post('', async (req, res) => {
       sendConfirmation(_user.firstName + ' ' + _user.lastName, _user.email, _user.activationKey)
     }
     const response = await User.findOne({
-      include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+      include,
       where: { id: _user.id }
     })
     res.send(removeFields(response))
@@ -139,7 +139,7 @@ router.put('', async (req, res) => {
           const rows = await User.update(body, { where: { id: body.id } }) || []
           const result = rows.length > 0 ? await User.findOne({
             where: { id: body.id },
-            include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }]
+            include
           }) : null
           res.status(200).send({ rows: rows ? rows[0] : 0, result: removeFields(result) })
         } else throw Error('User not found')
@@ -155,7 +155,7 @@ router.get('', async (req, res) => {
   const params = { page: 1, limit: 25, order: 'DESC', sort: 'id', where: {} }
   const users = await User.findAll({
     where: params.where,
-    include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+    include,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
     order: [
@@ -171,7 +171,7 @@ router.get('/:query', getParams, async (req, res, next) => {
   const params = req.queries
   const amount = await User.count()
   const users = await User.findAll({
-    include: [{ model: Address, as: 'address' }, { model: Picture, as: 'picture' }],
+    include,
     where: params.where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,

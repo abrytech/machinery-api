@@ -18,7 +18,8 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       status: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: 'pending'
       },
       createdAt: {
         allowNull: false,
