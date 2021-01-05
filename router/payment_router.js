@@ -67,9 +67,9 @@ router.put('/recharge', async (req, res) => {
         const _payment = await Payment.findOne({ where: { id } })
         if (_payment) {
           const newBody = {
-            balance: balance + _payment.balance,
+            balance: balance * 1.0 + _payment.balance * 1.0,
             lastDeposit: balance,
-            totalDeposit: balance + _payment.totalDeposit
+            totalDeposit: balance * 1.0 + _payment.totalDeposit * 1.0
           }
           const rows = await Payment.update(newBody, { where: { id } }) || []
           const result = rows.length > 0 ? await Payment.findOne({

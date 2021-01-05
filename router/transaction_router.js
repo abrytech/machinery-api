@@ -22,7 +22,7 @@ router.post('', async (req, res) => {
       const payment = await Payment.findOne({ where: { id: body.paymentId } })
       if (payment) {
         if (payment.balance > body.amount) {
-          const currentBalance = payment.balance - body.amount
+          const currentBalance = payment.balance * 1.0 - body.amount * 1.0
           const rows = await Payment.update({ balance: currentBalance }, { where: { id: body.paymentId } }) || []
           const _transaction = await Transaction.create(body)
           const result = rows.length > 0 ? await Transaction.findOne({
@@ -55,8 +55,8 @@ router.put('', async (req, res) => {
           body.amount = body.amount || _transaction.amount
           delete body.createdAt
           delete body.updatedAt
-          if ((_transaction.payment.balance + _transaction.amount) > body.amount) {
-            const _new = (_transaction.payment.balance + _transaction.amount) - body.amount
+          if ((_transaction.payment.balance * 1.0 + _transaction.amount * 1.0) > body.amount * 1.0) {
+            const _new = (_transaction.payment.balance * 1.0 + _transaction.amount * 1.0) - body.amount * 1.0
             const rows1 = await Payment.update({ balance: _new }, { where: { id: _transaction.payment.id } })
             const rows2 = rows1.length > 0 ? await Transaction.update(body, { where: { id: body.id } }) : []
             const result = rows2.length > 0 ? await Transaction.findOne({
