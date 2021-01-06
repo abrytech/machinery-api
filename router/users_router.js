@@ -170,7 +170,7 @@ router.get('', async (req, res) => {
 router.get('/:query', getParams, async (req, res, next) => {
   const params = req.queries
   const amount = await User.count()
-  if (req.userType === 'Lowbed Owner') params.where.userId = req.userId
+  if (req.userType === 'Lowbed Owner') params.where.id = req.userId
   if (req.userType === 'Machinery Owner') params.where.userType = 'Lowbed Owner'
   const users = await User.findAll({
     include,
