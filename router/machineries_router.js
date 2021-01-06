@@ -107,7 +107,8 @@ router.get('', async (req, res) => {
   }).catch((error) => {
     res.status(500).send({ name: error.name, message: error.message, stack: error.stack })
   })
-  res.send(removeFields(machineries.filter((machinery) => (machinery.userId === req.userId || req.role === 'Admin'))))
+  res.send(removeFields(machineries))
+  // res.send(removeFields(machineries.filter((machinery) => (machinery.userId === req.userId || req.role === 'Admin'))))
 })
 
 router.get('/:query', getParams, async (req, res) => {
@@ -124,7 +125,8 @@ router.get('/:query', getParams, async (req, res) => {
   }).catch((error) => {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   })
-  res.send(removeFields(machineries.filter((machinery) => (machinery.userId === req.userId || req.role === 'Admin'))))
+  res.send(removeFields(machineries))
+  // res.send(removeFields(machineries.filter((machinery) => (machinery.userId === req.userId || req.role === 'Admin'))))
 })
 
 export default router
