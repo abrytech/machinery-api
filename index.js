@@ -60,6 +60,7 @@ app.use((req, res, next) => {
   error.status = 404
   next(error)
 })
+
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     name: err.name,
@@ -67,6 +68,7 @@ app.use((err, req, res, next) => {
     stack: err.stack
   })
 })
+
 // if (require.main === module) {
 http.listen(port, () => console.log(`listening on:${port}`))
 // } else {
