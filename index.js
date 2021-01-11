@@ -7,11 +7,14 @@ import { urlencoded, json } from 'body-parser'
 import authRouter from './router/auth_router'
 import fileUpload from 'express-fileupload'
 import { authUser } from './middleware/auth'
+const app = express()
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
+
 // import fs from 'fs'
 // import path from 'path'
 // import https from 'https'
 
-const app = express()
 const port = process.env.PORT || 8080
 // const host = process.env.HOST || 'http://localhost'
 const www = process.env.WWW || './public'
@@ -29,9 +32,26 @@ app.use(express.static(www))
 app.use(fileUpload({
   limits: { fileSize: 5 * 1024 * 1024 }
 }))
+
 app.get('/', function (req, res) {
   res.sendFile('index.html')
 })
+
+io.emit('some event', { someProperty: 'some value', otherProperty: 'other value' }) // This will emit the event to all connected sockets
+io.on('connection', (socket) => {
+  console.log('a user connected')
+  socket.on('disconnect', () => {
+    console.log('user disconnected')
+  })
+  socket.on('chat message', (msg) => {
+    console.log('message: ' + msg)
+  })
+  socket.broadcast.emit('hi')
+  socket.on('chat message', (msg) => {
+    io.emit('chat message', msg)
+  })
+})
+
 app.use('/auth', authRouter)
 app.use('/api', authUser, apiRouter)
 app.use((req, res, next) => {
@@ -47,7 +67,7 @@ app.use((err, req, res, next) => {
   })
 })
 // if (require.main === module) {
-app.listen(port, () => console.log(`listening on:${port}`))
+http.listen(port, () => console.log(`listening on:${port}`))
 // } else {
 // const httpsServer = https.createServer({
 //   key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
