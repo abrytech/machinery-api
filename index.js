@@ -34,8 +34,8 @@ app.use(fileUpload({
 }))
 
 app.get('/', function (req, res) {
-  res.sendFile(`${__dirname}/index.html`)
-  // res.sendFile('index.html')
+  // res.sendFile(`${__dirname}/index.html`)
+  res.sendFile('index.html')
 })
 
 io.emit('some event', { someProperty: 'some value', otherProperty: 'other value' }) // This will emit the event to all connected sockets

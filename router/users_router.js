@@ -170,11 +170,20 @@ router.get('', async (req, res) => {
 router.get('/:query', getParams, async (req, res, next) => {
   const params = req.queries
   const amount = await User.count()
+  const where = params.where
+  const latmin = where.latmin
+  const latmax = where.latmax
+  const longmin = where.longmin
+  const longmax = where.longmax
+  delete where.latmin
+  delete where.latmax
+  delete where.longmin
+  delete where.longmax
   if (req.userType === 'Lowbed Owner') params.where.id = req.userId
   if (req.userType === 'Machinery Owner') params.where.userType = 'Lowbed Owner'
   const users = await User.findAll({
     include,
-    where: params.where,
+    where: where,
     offset: (params.page - 1) * params.limit,
     limit: params.limit,
     order: [
@@ -183,7 +192,20 @@ router.get('/:query', getParams, async (req, res, next) => {
   }).catch((error) => {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   })
-  res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
+  if (latmin && latmax && longmin && longmax) {
+    let usrs = []
+    users.forEach(usr => {
+      if (usr.address) {
+        if (usr.address.lat && usr.address.long) {
+          usrs.push(usr)
+        }
+      }
+    })
+    usrs = users.filter((user) => latmin <= user.address.lat && latmax >= user.address.lat && user.address.long >= longmin && user.address.long <= longmax)
+    res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(usrs))
+  } else {
+    res.set({ 'X-Total-Count': amount, 'Access-Control-Expose-Headers': 'X-Total-Count' }).send(removeFields(users))
+  }
 })
 
 export default router
