@@ -192,6 +192,7 @@ router.get('/:query', getParams, async (req, res, next) => {
   }).catch((error) => {
     res.status(400).send({ name: error.name, message: error.message, stack: error.stack })
   })
+  console.log(`${latmin} && ${latmax} && ${longmin} && ${longmax}`)
   if (latmin && latmax && longmin && longmax) {
     let usrs = []
     users.forEach(usr => {
