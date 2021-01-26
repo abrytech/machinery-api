@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     length: DataTypes.DOUBLE,
     tyreNo: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
+    isLowbed: DataTypes.BOOLEAN,
     loadingCapacity: DataTypes.DOUBLE,
     description: DataTypes.STRING(1000),
     horsePower: DataTypes.DOUBLE,

@@ -38,6 +38,10 @@ module.exports = {
       length: { type: Sequelize.DOUBLE },
       tyreNo: { type: Sequelize.INTEGER },
       userId: { type: Sequelize.INTEGER },
+      isLowbed: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       loadingCapacity: { type: Sequelize.DOUBLE },
       description: { type: Sequelize.STRING(1000) },
       horsePower: { type: Sequelize.DOUBLE },
